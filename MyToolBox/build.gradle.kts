@@ -64,7 +64,7 @@ afterEvaluate {
 
                 groupId = "com.bitbucket.AuroScholar"
                 artifactId = "auroscholar-android-sdk"
-                version = "0.0.2"
+                version = "0.0.3"
             }
         }
     }
