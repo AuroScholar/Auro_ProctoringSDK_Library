@@ -59,12 +59,9 @@ afterEvaluate {
         publications {
             create<MavenPublication>("release") {
                 from(components["release"])
-
-                //com.bitbucket.AuroScholar.auroscholar-android-sdk:0.0.1
-
-                groupId = "com.bitbucket.AuroScholar"
-                artifactId = "auroscholar-android-sdk"
-                version = "0.0.3"
+                groupId = "com.github.azzadpandit1"
+                artifactId = "PublicationTest"
+                version = "0.0.4"
             }
         }
     }
