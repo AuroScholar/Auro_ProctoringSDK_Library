@@ -30,8 +30,7 @@ class FaceDetector() {
             .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
             .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
             .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL).enableTracking()
-            .setMinFaceSize(0.20f)
-            .build()
+            .setMinFaceSize(0.20f).build()
     )
 
     // Create an object detector using the options
@@ -48,7 +47,7 @@ class FaceDetector() {
 
 
     /** Listener that gets notified when a face detection result is ready. */
-    private var onFaceDetectionResultListener: OnFaceDetectionResultListener? = null
+    private var onProctoringResultListener: OnProctoringResultListener? = null
 
     /** [Executor] used to run the face detection on a background thread.  */
     private var faceDetectionExecutor: ExecutorService = Executors.newSingleThreadExecutor()
@@ -59,8 +58,8 @@ class FaceDetector() {
     @GuardedBy("lock")
     private var isProcessing = false
 
-    fun setonFaceDetectionFailureListener(listener: OnFaceDetectionResultListener) {
-        onFaceDetectionResultListener = listener
+    fun setonFaceDetectionFailureListener(listener: OnProctoringResultListener) {
+        onProctoringResultListener = listener
     }
 
     fun process(frame: Frame) {
@@ -82,7 +81,6 @@ class FaceDetector() {
 
         Tasks.whenAll(faceDetectionTask, poseDetectionTask, objectDetectionTask)
             .addOnSuccessListener {
-
                 synchronized(lock) {
                     isProcessing = false
 
@@ -90,26 +88,36 @@ class FaceDetector() {
                     val poseResults = poseDetectionTask.result
                     val objectResults = objectDetectionTask.result
 
-                    onFaceDetectionResultListener?.onFaceCount(faceResults.size.toString())
                     //Face Tracking
                     for (face in faceResults) {
+
                         if (faceResults.size == 1) {
                             // Eye Tracking
-                            onFaceDetectionResultListener?.onEyeDetectionOnlyOneFace(eyeTracking(face))
-                            //Lip Tracking
-                            onFaceDetectionResultListener?.onLipMovementDetection(detectMouth(face))
-                        }
-                    }
-                    //Pose Tracking
-                    onFaceDetectionResultListener?.onUserWallDistanceDetector(calculateUserWallDistance(poseResults))
+                            onProctoringResultListener?.onEyeDetectionOnlyOneFace(eyeTracking(face))
 
-                    //Object Tracking
-                    for (detectedObject in objectResults) {
-                        val labels = detectedObject.labels
-                        for (label in labels) {
-                            onFaceDetectionResultListener?.onObjectDetection(label.text)
+                            //Lip Tracking
+                            onProctoringResultListener?.onLipMovementDetection(detectMouth(face))
+
+                            //Pose Tracking
+                            onProctoringResultListener?.onUserWallDistanceDetector(
+                                calculateUserWallDistance(
+                                    poseResults
+                                )
+                            )
+                            //Object Tracking
+                            for (detectedObject in objectResults) {
+                                val labels = detectedObject.labels
+                                for (label in labels) {
+                                    onProctoringResultListener?.onObjectDetection(label.text)
+                                }
+                            }
+
+                        } else {
+                           // Face Count
+                            onProctoringResultListener?.onFaceCount(faceResults.size.toString())
                         }
                     }
+
 
                 }
 
@@ -128,14 +136,16 @@ class FaceDetector() {
         val rightHip = pose.getPoseLandmark(PoseLandmark.RIGHT_HIP)?.position
 
         if (leftShoulder != null && rightShoulder != null && leftHip != null && rightHip != null) {
-            val shoulderMidPoint =
-                PointF((leftShoulder.x + rightShoulder.x) / 2, (leftShoulder.y + rightShoulder.y) / 2)
+            val shoulderMidPoint = PointF(
+                (leftShoulder.x + rightShoulder.x) / 2, (leftShoulder.y + rightShoulder.y) / 2
+            )
             val hipMidPoint = PointF((leftHip.x + rightHip.x) / 2, (leftHip.y + rightHip.y) / 2)
             return calculateDistance(shoulderMidPoint, hipMidPoint)
         }
 
         return 0f
     }
+
     private fun calculateDistance(point1: PointF, point2: PointF): Float {
         val dx = point2.x - point1.x
         val dy = point2.y - point1.y
@@ -192,13 +202,19 @@ class FaceDetector() {
     }
 
     private fun onError(exception: Exception) {
-        onFaceDetectionResultListener?.onFailure(exception)
+        onProctoringResultListener?.onFailure(exception)
         Log.e(TAG, "An error occurred while running a face detection", exception)
     }
 
 
-    interface OnFaceDetectionResultListener {
-        fun onVoiceDetected(amplitude: Double, isNiceDetected: Boolean, isRunning: Boolean, typeOfVoiceDetected: String){}
+    interface OnProctoringResultListener {
+        fun onVoiceDetected(
+            amplitude: Double,
+            isNiceDetected: Boolean,
+            isRunning: Boolean,
+            typeOfVoiceDetected: String
+        ) {
+        }
 
         fun onSuccess(faceBounds: Int) {}
         fun onFailure(exception: Exception) {}

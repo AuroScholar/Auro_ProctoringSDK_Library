@@ -1,18 +1,14 @@
 package com.example.publicationtest
 
-import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
-import android.view.View
-import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
-import com.example.mytoolbox.CustomSurfaceView
-import com.example.mytoolbox.proctoring.FaceDetector.OnFaceDetectionResultListener
+import com.example.mytoolbox.ProctoringSDK
+import com.example.mytoolbox.proctoring.FaceDetector.OnProctoringResultListener
 import com.example.publicationtest.databinding.ActivityMainBinding
 
 
-class MainActivity : AppCompatActivity(),OnFaceDetectionResultListener {
+class MainActivity : AppCompatActivity(),OnProctoringResultListener {
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
@@ -20,12 +16,12 @@ class MainActivity : AppCompatActivity(),OnFaceDetectionResultListener {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        val customSurfaceView = CustomSurfaceView(this, null)
+        val proctoringSDK = ProctoringSDK(this, null)
 
         binding.mainLayout.gravity = Gravity.END
-        binding.mainLayout.addView(customSurfaceView)
+        binding.mainLayout.addView(proctoringSDK)
 
-        customSurfaceView.startProctoring(this)
+        proctoringSDK.startProctoring(this)
 
 
     }

@@ -23,7 +23,7 @@ import java.util.Timer
 import java.util.TimerTask
 
 
-class CustomSurfaceView(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs),
+class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs),
     SurfaceHolder.Callback, Camera.PreviewCallback {
 
     private var camera: Camera? = null
@@ -107,6 +107,8 @@ class CustomSurfaceView(context: Context, attrs: AttributeSet?) : SurfaceView(co
             yuvImage.compressToJpeg(Rect(0, 0, width, height), 100, out)
             val imageBytes = out.toByteArray()
             val lastUpdatedBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+            out.flush()
+            out.close()
             lastUpdatedBitmap?.let {
                 imageBitmap = lastUpdatedBitmap
                 if (isDetection) {
@@ -128,22 +130,16 @@ class CustomSurfaceView(context: Context, attrs: AttributeSet?) : SurfaceView(co
     }
 
     fun takePic() {
-        camera?.setPreviewCallback(this@CustomSurfaceView)
+        camera?.setPreviewCallback(this@ProctoringSDK)
     }
 
-    fun startProctoring(mainActivity: FaceDetector.OnFaceDetectionResultListener) {
+    fun startProctoring(mainActivity: FaceDetector.OnProctoringResultListener) {
         isDetection = true
         faceDetector.setonFaceDetectionFailureListener(mainActivity)
     }
 
+    fun setProctoringTimeInterval(){
 
-    fun getCurrentRotation(): Int {
-        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        val rotation = windowManager.defaultDisplay.rotation
-        return when (rotation) {
-            Surface.ROTATION_0, Surface.ROTATION_180 -> rotation
-            Surface.ROTATION_90, Surface.ROTATION_270 -> rotation + 180
-            else -> Surface.ROTATION_0
-        }
     }
+
 }

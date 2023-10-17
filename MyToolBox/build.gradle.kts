@@ -111,8 +111,8 @@ afterEvaluate {
             create<MavenPublication>("release") {
                 from(components["release"])
                 groupId = "com.github.azzadpandit1"
-                artifactId = "PublicationTest"
-                version = "0.0.4"
+                artifactId = "ProctoringSDK"
+                version = "0.0.5"
             }
         }
     }
