@@ -1,4 +1,4 @@
-package com.example.mytoolbox.OverLay
+package com.example.mytoolbox.proctoring
 
 import android.graphics.PointF
 import android.util.Log
@@ -24,22 +24,14 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 class FaceDetector() {
-   /* private val mlkitFaceDetector = FaceDetection.getClient(
-        FaceDetectorOptions.Builder()
-            .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
-            .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
-            .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_NONE)
-            .setMinFaceSize(MIN_FACE_SIZE)
-            .enableTracking()
-            .build()
-    )*/
 
     private val faceDetector = FaceDetection.getClient(
         FaceDetectorOptions.Builder().setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
             .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
             .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
             .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL).enableTracking()
-            .setMinFaceSize(0.20f).build()
+            .setMinFaceSize(0.20f)
+            .build()
     )
 
     // Create an object detector using the options
@@ -91,10 +83,6 @@ class FaceDetector() {
         Tasks.whenAll(faceDetectionTask, poseDetectionTask, objectDetectionTask)
             .addOnSuccessListener {
 
-                val faceResults = faceDetectionTask.result
-                val poseResults = poseDetectionTask.result
-                val objectResults = objectDetectionTask.result
-
                 synchronized(lock) {
                     isProcessing = false
 
@@ -131,21 +119,6 @@ class FaceDetector() {
                 }
                 onError(exception)
             }
-
-        /* mlkitFaceDetector.process(inputImage)
-             .addOnSuccessListener { faces ->
-                 synchronized(lock) {
-                     isProcessing = false
-                 }
-                 onFaceDetectionResultListener?.onSuccess(faces.size)
-
-             }
-             .addOnFailureListener { exception ->
-                 synchronized(lock) {
-                     isProcessing = false
-                 }
-                 onError(exception)
-             }*/
     }
 
     private fun calculateUserWallDistance(pose: Pose): Float {
@@ -229,10 +202,10 @@ class FaceDetector() {
 
         fun onSuccess(faceBounds: Int) {}
         fun onFailure(exception: Exception) {}
-        fun onFaceCount(faceCount: String)
-        fun onLipMovementDetection(faceError: Boolean)
-        fun onObjectDetection(faceError: String)
-        fun onEyeDetectionOnlyOneFace(faceError: String)
+        fun onFaceCount(face: String)
+        fun onLipMovementDetection(face: Boolean)
+        fun onObjectDetection(face: String)
+        fun onEyeDetectionOnlyOneFace(face: String)
         fun onUserWallDistanceDetector(distance: Float)
     }
 

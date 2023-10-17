@@ -1,9 +1,16 @@
 package com.example.publicationtest
 
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.Color
 import android.os.Bundle
-import com.example.mytoolbox.OverLay.FaceDetector.OnFaceDetectionResultListener
+import android.view.Gravity
+import android.view.View
+import android.widget.RelativeLayout
+import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout.LayoutParams
+import com.example.mytoolbox.CustomSurfaceView
+import com.example.mytoolbox.proctoring.FaceDetector.OnFaceDetectionResultListener
 import com.example.publicationtest.databinding.ActivityMainBinding
+
 
 class MainActivity : AppCompatActivity(),OnFaceDetectionResultListener {
 
@@ -13,7 +20,12 @@ class MainActivity : AppCompatActivity(),OnFaceDetectionResultListener {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        binding.customSurface.startProctoring(this)
+        val customSurfaceView = CustomSurfaceView(this, null)
+
+        binding.mainLayout.gravity = Gravity.END
+        binding.mainLayout.addView(customSurfaceView)
+
+        customSurfaceView.startProctoring(this)
 
 
     }

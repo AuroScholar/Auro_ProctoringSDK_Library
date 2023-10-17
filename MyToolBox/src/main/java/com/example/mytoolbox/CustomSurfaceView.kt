@@ -1,6 +1,5 @@
 package com.example.mytoolbox
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -10,18 +9,21 @@ import android.hardware.Camera
 import android.util.AttributeSet
 import android.util.Log
 import android.util.Size
+import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import com.example.mytoolbox.OverLay.FaceDetector
-import com.example.mytoolbox.OverLay.Frame
-import com.example.mytoolbox.OverLay.LensFacing
+import android.view.ViewGroup
+import android.view.WindowManager
+import com.example.mytoolbox.proctoring.FaceDetector
+import com.example.mytoolbox.proctoring.Frame
+import com.example.mytoolbox.proctoring.LensFacing
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.Timer
 import java.util.TimerTask
 
 
-class CustomSurfaceView(context: Context, attrs: AttributeSet) : SurfaceView(context, attrs),
+class CustomSurfaceView(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs),
     SurfaceHolder.Callback, Camera.PreviewCallback {
 
     private var camera: Camera? = null
@@ -39,6 +41,7 @@ class CustomSurfaceView(context: Context, attrs: AttributeSet) : SurfaceView(con
     init {
         surfaceHolder = holder
         surfaceHolder?.addCallback(this)
+        this.layoutParams  = ViewGroup.LayoutParams(300,300)
     }
 
     override fun surfaceCreated(p0: SurfaceHolder) {
@@ -106,12 +109,17 @@ class CustomSurfaceView(context: Context, attrs: AttributeSet) : SurfaceView(con
             val lastUpdatedBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
             lastUpdatedBitmap?.let {
                 imageBitmap = lastUpdatedBitmap
-
-                faceDetector.process(
-                    Frame(
-                        data, 270, Size(width, height), parameters.previewFormat, LensFacing.FRONT
+                if (isDetection) {
+                    faceDetector.process(
+                        Frame(
+                            data,
+                            270,
+                            Size(width, height),
+                            parameters.previewFormat,
+                            LensFacing.FRONT
+                        )
                     )
-                )
+                }
 
             }
 
@@ -128,4 +136,14 @@ class CustomSurfaceView(context: Context, attrs: AttributeSet) : SurfaceView(con
         faceDetector.setonFaceDetectionFailureListener(mainActivity)
     }
 
+
+    fun getCurrentRotation(): Int {
+        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val rotation = windowManager.defaultDisplay.rotation
+        return when (rotation) {
+            Surface.ROTATION_0, Surface.ROTATION_180 -> rotation
+            Surface.ROTATION_90, Surface.ROTATION_270 -> rotation + 180
+            else -> Surface.ROTATION_0
+        }
+    }
 }
