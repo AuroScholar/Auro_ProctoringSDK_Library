@@ -22,6 +22,7 @@ class MainActivity : AppCompatActivity(),OnProctoringResultListener {
         binding.mainLayout.addView(proctoringSDK)
 
         proctoringSDK.startProctoring(this)
+        proctoringSDK.setProctoringTimeInterval(30000)
 
 
     }

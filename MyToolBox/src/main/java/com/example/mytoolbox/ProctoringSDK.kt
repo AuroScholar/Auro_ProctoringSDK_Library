@@ -9,11 +9,9 @@ import android.hardware.Camera
 import android.util.AttributeSet
 import android.util.Log
 import android.util.Size
-import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.ViewGroup
-import android.view.WindowManager
 import com.example.mytoolbox.proctoring.FaceDetector
 import com.example.mytoolbox.proctoring.Frame
 import com.example.mytoolbox.proctoring.LensFacing
@@ -29,6 +27,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     private var camera: Camera? = null
     private var surfaceHolder: SurfaceHolder? = null
     private val faceDetector = FaceDetector()
+    var dealyInMilliseconds:Long = 30000
 
     var isDetection = false
 
@@ -59,7 +58,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                 takePic()
                 Log.e("TAG", "run: call take image ")
             }
-        }, 0, 30000) // 1 sec
+        }, 0, dealyInMilliseconds) // 1 sec
         //        }, 0, 60000) // 1 mint
     }
 
@@ -138,8 +137,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         faceDetector.setonFaceDetectionFailureListener(mainActivity)
     }
 
-    fun setProctoringTimeInterval(){
-
+    fun setProctoringTimeInterval(dealInMilliseconds:Long){
+        this.dealyInMilliseconds = dealInMilliseconds
     }
 
 }
