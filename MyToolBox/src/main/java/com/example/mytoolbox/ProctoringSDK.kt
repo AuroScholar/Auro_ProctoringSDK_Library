@@ -12,6 +12,7 @@ import android.util.Size
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.ViewGroup
+import androidx.lifecycle.MutableLiveData
 import com.example.mytoolbox.proctoring.FaceDetector
 import com.example.mytoolbox.proctoring.Frame
 import com.example.mytoolbox.proctoring.LensFacing
@@ -27,13 +28,15 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     private var camera: Camera? = null
     private var surfaceHolder: SurfaceHolder? = null
     private val faceDetector = FaceDetector()
-    private var dealyInMilliseconds:Long = 30000
+    private var dealyInMilliseconds: Long = 30000
+    private var isDetection = true
 
-    private var isDetection = false
-    private var captureImageList = mutableListOf<Bitmap>()
 
     companion object {
-        var imageBitmap: Bitmap? = null
+        private var imageBitmap: Bitmap? = null
+
+        private val itemList = mutableListOf<Bitmap>()
+        private val captureImageList = MutableLiveData<List<Bitmap>>()
     }
 
     private var timer: Timer? = null
@@ -41,8 +44,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     init {
         surfaceHolder = holder
         surfaceHolder?.addCallback(this)
-        this.layoutParams  = ViewGroup.LayoutParams(300,300)
-        this.captureImageList.clear()
+        this.layoutParams = ViewGroup.LayoutParams(300, 300)
+        itemList.clear()
     }
 
     override fun surfaceCreated(p0: SurfaceHolder) {
@@ -57,8 +60,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         timer = Timer()
         timer?.schedule(object : TimerTask() {
             override fun run() {
-                takePic()
-                Log.e("TAG", "run: call take image ")
+                if (isDetection) {
+                    takePic()
+                    Log.e("TAG", "run: call take image ")
+                }
             }
         }, 0, dealyInMilliseconds) // 1 sec
         //        }, 0, 60000) // 1 mint
@@ -113,10 +118,15 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
             lastUpdatedBitmap?.let {
                 imageBitmap = lastUpdatedBitmap
                 if (isDetection) {
-                    isDetection = false
-                    if (!isDetection){
-                        captureImageList.add(lastUpdatedBitmap)
-                    }
+
+                    itemList.add(lastUpdatedBitmap)
+                    captureImageList.value =itemList.toList()
+
+                    val listSize = captureImageList.value?.size ?: 0
+
+                    Log.e("TAG", "onPreviewFrame:  size of data "+ listSize )
+
+
                     faceDetector.process(
                         Frame(
                             data,
@@ -138,16 +148,27 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         camera?.setPreviewCallback(this@ProctoringSDK)
     }
 
-    fun startProctoring(onProctoringResultListener : FaceDetector.OnProctoringResultListener) {
+    fun startProctoring(onProctoringResultListener: FaceDetector.OnProctoringResultListener) {
         isDetection = true
         faceDetector.setonFaceDetectionFailureListener(onProctoringResultListener)
     }
 
-    fun setProctoringTimeInterval(dealInMilliseconds:Long){
+    fun setProctoringTimeInterval(dealInMilliseconds: Long) {
         this.dealyInMilliseconds = dealInMilliseconds
     }
-    fun getCaptureImagesList() : MutableList <Bitmap>{
+
+    fun getCaptureImagesList(): MutableLiveData<List<Bitmap>> {
         return captureImageList
     }
+
+    fun startStopDetection(): Boolean {
+        isDetection = !isDetection
+        return isDetection
+    }
+
+    fun stopProctoring(): Boolean {
+        return isDetection.apply { false }
+    }
+
 
 }

@@ -66,6 +66,7 @@ class FaceDetector() {
         synchronized(lock) {
             if (!isProcessing) {
                 isProcessing = true
+                onProctoringResultListener?.isRunningDetector(isProcessing)
                 faceDetectionExecutor.execute { frame.detectFaces() }
             }
         }
@@ -83,7 +84,7 @@ class FaceDetector() {
             .addOnSuccessListener {
                 synchronized(lock) {
                     isProcessing = false
-
+                    onProctoringResultListener?.isRunningDetector(isProcessing)
                     val faceResults = faceDetectionTask.result
                     val poseResults = poseDetectionTask.result
                     val objectResults = objectDetectionTask.result
@@ -123,6 +124,7 @@ class FaceDetector() {
             }.addOnFailureListener { exception ->
                 synchronized(lock) {
                     isProcessing = false
+                    onProctoringResultListener?.isRunningDetector(isProcessing)
                 }
                 onError(exception)
             }
@@ -207,6 +209,10 @@ class FaceDetector() {
 
 
     interface OnProctoringResultListener {
+
+        fun isRunningDetector(boolean: Boolean?){
+
+        }
         fun onVoiceDetected(
             amplitude: Double,
             isNiceDetected: Boolean,
@@ -217,11 +223,11 @@ class FaceDetector() {
 
         fun onSuccess(faceBounds: Int) {}
         fun onFailure(exception: Exception) {}
-        fun onFaceCount(face: String)
-        fun onLipMovementDetection(face: Boolean)
-        fun onObjectDetection(face: String)
-        fun onEyeDetectionOnlyOneFace(face: String)
-        fun onUserWallDistanceDetector(distance: Float)
+        fun onFaceCount(face: String){}
+        fun onLipMovementDetection(face: Boolean){}
+        fun onObjectDetection(face: String){}
+        fun onEyeDetectionOnlyOneFace(face: String){}
+        fun onUserWallDistanceDetector(distance: Float){}
     }
 
     companion object {

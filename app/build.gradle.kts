@@ -30,6 +30,7 @@ android {
 
     buildFeatures{
         viewBinding = true
+        dataBinding = true
     }
 
     compileOptions {
@@ -55,5 +56,6 @@ dependencies {
 
 
     implementation(project(mapOf("path" to ":MyToolBox")))
-    implementation("com.otaliastudios:cameraview:1.5.1")
+
+    implementation("com.github.pankaj89:SimpleAdapter:3.4.1")
 }
