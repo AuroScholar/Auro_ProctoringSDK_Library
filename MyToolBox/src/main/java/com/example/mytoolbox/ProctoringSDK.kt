@@ -27,9 +27,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     private var camera: Camera? = null
     private var surfaceHolder: SurfaceHolder? = null
     private val faceDetector = FaceDetector()
-    var dealyInMilliseconds:Long = 30000
+    private var dealyInMilliseconds:Long = 30000
 
-    var isDetection = false
+    private var isDetection = false
+    private var captureImageList = mutableListOf<Bitmap>()
 
     companion object {
         var imageBitmap: Bitmap? = null
@@ -41,6 +42,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         surfaceHolder = holder
         surfaceHolder?.addCallback(this)
         this.layoutParams  = ViewGroup.LayoutParams(300,300)
+        this.captureImageList.clear()
     }
 
     override fun surfaceCreated(p0: SurfaceHolder) {
@@ -111,6 +113,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
             lastUpdatedBitmap?.let {
                 imageBitmap = lastUpdatedBitmap
                 if (isDetection) {
+                    isDetection = false
+                    if (!isDetection){
+                        captureImageList.add(lastUpdatedBitmap)
+                    }
                     faceDetector.process(
                         Frame(
                             data,
@@ -132,13 +138,16 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         camera?.setPreviewCallback(this@ProctoringSDK)
     }
 
-    fun startProctoring(mainActivity: FaceDetector.OnProctoringResultListener) {
+    fun startProctoring(onProctoringResultListener : FaceDetector.OnProctoringResultListener) {
         isDetection = true
-        faceDetector.setonFaceDetectionFailureListener(mainActivity)
+        faceDetector.setonFaceDetectionFailureListener(onProctoringResultListener)
     }
 
     fun setProctoringTimeInterval(dealInMilliseconds:Long){
         this.dealyInMilliseconds = dealInMilliseconds
+    }
+    fun getCaptureImagesList() : MutableList <Bitmap>{
+        return captureImageList
     }
 
 }
