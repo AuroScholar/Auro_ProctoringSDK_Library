@@ -91,6 +91,8 @@ class FaceDetector() {
                     //Face Tracking
                     for (face in faceResults) {
 
+                        onProctoringResultListener?.onFaceCount(faceResults.size.toString())
+
                         if (faceResults.size == 1) {
                             // Eye Tracking
                             onProctoringResultListener?.onEyeDetectionOnlyOneFace(eyeTracking(face))
@@ -112,9 +114,6 @@ class FaceDetector() {
                                 }
                             }
 
-                        } else {
-                           // Face Count
-                            onProctoringResultListener?.onFaceCount(faceResults.size.toString())
                         }
                     }
 

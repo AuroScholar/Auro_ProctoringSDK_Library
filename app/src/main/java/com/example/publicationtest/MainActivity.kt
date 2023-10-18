@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity(),OnProctoringResultListener {
     }
 
     override fun onFaceCount(faceCount: String) {
+        binding.textView.text = faceCount
 
     }
 
@@ -44,7 +45,7 @@ class MainActivity : AppCompatActivity(),OnProctoringResultListener {
         super.onSuccess(faceBounds)
     }
     override fun onLipMovementDetection(face: Boolean) {
-        binding.textView.text = face.toString()
+//        binding.textView.text = face.toString()
     }
 
     override fun onObjectDetection(faceError: String) {
