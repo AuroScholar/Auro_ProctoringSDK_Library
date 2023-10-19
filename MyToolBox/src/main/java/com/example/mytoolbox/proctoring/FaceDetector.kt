@@ -96,17 +96,16 @@ class FaceDetector() {
                     val poseResults = poseDetectionTask.result
                     val objectResults = objectDetectionTask.result
 
-                    var faceCount:Int = -1
-                    var mouthOpen:Boolean = false
-                    var eyeOpenStatus:String = ""
-                    var calculateUserWallDistance : Float = -0.0F
-                    var objectDectionNames : String = ""
+                    var mouthOpen: Boolean = false
+                    var eyeOpenStatus: String = ""
+                    var calculateUserWallDistance: Float = -0.0F
+                    var objectDectionNames: String = ""
+
+                    onProctoringResultListener?.onFaceCount(faceResults.size)
 
                     //Face Tracking
                     for (face in faceResults) {
 
-                        onProctoringResultListener?.onFaceCount(faceResults.size.toString())
-                        faceCount = faceResults.size
 
                         if (faceResults.size == 1) {
                             eyeOpenStatus = eyeTracking(face)
@@ -120,7 +119,9 @@ class FaceDetector() {
                             //Pose Tracking
                             calculateUserWallDistance = calculateUserWallDistance(poseResults)
 
-                            onProctoringResultListener?.onUserWallDistanceDetector(calculateUserWallDistance)
+                            onProctoringResultListener?.onUserWallDistanceDetector(
+                                calculateUserWallDistance
+                            )
                             //Object Tracking
                             for (detectedObject in objectResults) {
                                 val labels = detectedObject.labels
@@ -129,18 +130,16 @@ class FaceDetector() {
                                     objectDectionNames = label.text
                                 }
                             }
-                            //live Result
-                            faceLiveResult.isInitialized
-                            faceLiveResult.postValue(objectDectionNames?.let { it1 ->
-                                FaceDetectorModel(faceCount,eyeOpenStatus,mouthOpen,
-                                    it1
-                                )
-                            })
-
-                            Log.e(TAG, "detectFaces: ------"+faceLiveResult.value?.faceCount )
-
                         }
+
                     }
+
+                    //live Result
+                    faceLiveResult.postValue(
+                        FaceDetectorModel(
+                            faceResults.size, eyeOpenStatus, mouthOpen, objectDectionNames
+                        )
+                    )
 
 
                 }
@@ -248,7 +247,7 @@ class FaceDetector() {
 
         fun onSuccess(faceBounds: Int) {}
         fun onFailure(exception: Exception) {}
-        fun onFaceCount(face: String) {}
+        fun onFaceCount(face: Int) {}
         fun onLipMovementDetection(face: Boolean) {}
         fun onObjectDetection(face: String) {}
         fun onEyeDetectionOnlyOneFace(face: String) {}
