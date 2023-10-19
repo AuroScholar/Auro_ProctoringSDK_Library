@@ -84,6 +84,9 @@ dependencies {
     implementation ("androidx.camera:camera-view:1.0.0-alpha14")
 
 
+    implementation ("io.github.shashank02051997:FancyToast:2.0.2")
+
+
 
     // CameraX core library using the camera2 implementation
     val camerax_version = "1.4.0-alpha01"/*"1.4.0-alpha01"*/
@@ -100,6 +103,8 @@ dependencies {
     implementation("androidx.camera:camera-mlkit-vision:${camerax_version}")
     // If you want to additionally use the CameraX Extensions library
     implementation("androidx.camera:camera-extensions:${camerax_version}")
+
+
 
 
 

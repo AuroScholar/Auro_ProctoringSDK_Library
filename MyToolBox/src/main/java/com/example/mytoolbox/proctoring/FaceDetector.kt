@@ -3,6 +3,7 @@ package com.example.mytoolbox.proctoring
 import android.graphics.PointF
 import android.util.Log
 import androidx.annotation.GuardedBy
+import androidx.lifecycle.MutableLiveData
 import com.google.android.gms.tasks.Tasks
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
@@ -24,6 +25,8 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 class FaceDetector() {
+
+    private var faceLiveResult = MutableLiveData<FaceDetectorModel>()
 
     private val faceDetector = FaceDetection.getClient(
         FaceDetectorOptions.Builder().setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)
@@ -62,6 +65,10 @@ class FaceDetector() {
         onProctoringResultListener = listener
     }
 
+    fun getLiveFaceResult(): MutableLiveData<FaceDetectorModel> {
+        return faceLiveResult
+    }
+
     fun process(frame: Frame) {
         synchronized(lock) {
             if (!isProcessing) {
@@ -89,31 +96,48 @@ class FaceDetector() {
                     val poseResults = poseDetectionTask.result
                     val objectResults = objectDetectionTask.result
 
+                    var faceCount:Int = -1
+                    var mouthOpen:Boolean = false
+                    var eyeOpenStatus:String = ""
+                    var calculateUserWallDistance : Float = -0.0F
+                    var objectDectionNames : String = ""
+
                     //Face Tracking
                     for (face in faceResults) {
 
                         onProctoringResultListener?.onFaceCount(faceResults.size.toString())
+                        faceCount = faceResults.size
 
                         if (faceResults.size == 1) {
+                            eyeOpenStatus = eyeTracking(face)
                             // Eye Tracking
-                            onProctoringResultListener?.onEyeDetectionOnlyOneFace(eyeTracking(face))
+                            onProctoringResultListener?.onEyeDetectionOnlyOneFace(eyeOpenStatus)
 
                             //Lip Tracking
-                            onProctoringResultListener?.onLipMovementDetection(detectMouth(face))
+                            mouthOpen = detectMouth(face)
+                            onProctoringResultListener?.onLipMovementDetection(mouthOpen)
 
                             //Pose Tracking
-                            onProctoringResultListener?.onUserWallDistanceDetector(
-                                calculateUserWallDistance(
-                                    poseResults
-                                )
-                            )
+                            calculateUserWallDistance = calculateUserWallDistance(poseResults)
+
+                            onProctoringResultListener?.onUserWallDistanceDetector(calculateUserWallDistance)
                             //Object Tracking
                             for (detectedObject in objectResults) {
                                 val labels = detectedObject.labels
                                 for (label in labels) {
                                     onProctoringResultListener?.onObjectDetection(label.text)
+                                    objectDectionNames = label.text
                                 }
                             }
+                            //live Result
+                            faceLiveResult.isInitialized
+                            faceLiveResult.postValue(objectDectionNames?.let { it1 ->
+                                FaceDetectorModel(faceCount,eyeOpenStatus,mouthOpen,
+                                    it1
+                                )
+                            })
+
+                            Log.e(TAG, "detectFaces: ------"+faceLiveResult.value?.faceCount )
 
                         }
                     }
@@ -210,9 +234,10 @@ class FaceDetector() {
 
     interface OnProctoringResultListener {
 
-        fun isRunningDetector(boolean: Boolean?){
+        fun isRunningDetector(boolean: Boolean?) {
 
         }
+
         fun onVoiceDetected(
             amplitude: Double,
             isNiceDetected: Boolean,
@@ -223,11 +248,11 @@ class FaceDetector() {
 
         fun onSuccess(faceBounds: Int) {}
         fun onFailure(exception: Exception) {}
-        fun onFaceCount(face: String){}
-        fun onLipMovementDetection(face: Boolean){}
-        fun onObjectDetection(face: String){}
-        fun onEyeDetectionOnlyOneFace(face: String){}
-        fun onUserWallDistanceDetector(distance: Float){}
+        fun onFaceCount(face: String) {}
+        fun onLipMovementDetection(face: Boolean) {}
+        fun onObjectDetection(face: String) {}
+        fun onEyeDetectionOnlyOneFace(face: String) {}
+        fun onUserWallDistanceDetector(distance: Float) {}
     }
 
     companion object {
@@ -235,3 +260,10 @@ class FaceDetector() {
         private const val MIN_FACE_SIZE = 0.15F
     }
 }
+
+data class FaceDetectorModel(
+    var faceCount: Int = -1,
+    var eyeOpenStatus: String = "",
+    var isMouthOen: Boolean = false,
+    var objectDectionNames: String = ""
+)
