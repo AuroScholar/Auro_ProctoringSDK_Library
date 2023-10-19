@@ -9,22 +9,18 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.DashPathEffect
-import android.graphics.Outline
 import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.YuvImage
 import android.hardware.Camera
-import android.os.Build
 import android.util.AttributeSet
-import android.util.Log
 import android.util.Size
 import android.view.LayoutInflater
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewOutlineProvider
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -39,8 +35,7 @@ import java.util.Timer
 import java.util.TimerTask
 
 
-class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs),
-    SurfaceHolder.Callback, Camera.PreviewCallback {
+class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs), SurfaceHolder.Callback, Camera.PreviewCallback {
 
     private var camera: Camera? = null
     private var surfaceHolder: SurfaceHolder? = null
@@ -54,7 +49,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
     private var surfaceViewBorder: Paint? = null
     private var backgroundPaint: Paint? = null
+
     private val alertDialog = AlertDialog.Builder(context).create()
+    private var defaultAlert: Boolean = true
 
 
     init {
@@ -63,17 +60,15 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         this.surfaceHolder?.addCallback(this)
         this.imgList.clear()
 
-        initBoarder()
-
+        initSurfaceViewBoarder()
 
     }
 
-
-    private fun initBoarder() {
+    private fun initSurfaceViewBoarder() {
         setWillNotDraw(false)
         this.surfaceViewBorder = Paint()
         surfaceViewBorder?.let {
-            it.color =  Color.TRANSPARENT
+            it.color = Color.TRANSPARENT
             it.style = Paint.Style.STROKE
             it.strokeWidth = 10f
             it.isAntiAlias = true
@@ -148,13 +143,15 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         super.onDraw(canvas)
         canvas?.let {
             (context as Activity).runOnUiThread {
-                surfaceViewBorder?.let { borderPaint ->
-                    backgroundPaint?.let { backgroundPaint ->
-                        val borderRect = RectF(0f, 0f, width.toFloat(), height.toFloat())
-                        it.drawRect(borderRect, borderPaint)
-                        val backgroundRect =
-                            RectF(5f, 5f, width.toFloat() - 5f, height.toFloat() - 5f)
-                        it.drawRect(backgroundRect, backgroundPaint)
+                if(defaultAlert){
+                    surfaceViewBorder?.let { borderPaint ->
+                        backgroundPaint?.let { backgroundPaint ->
+                            val borderRect = RectF(0f, 0f, width.toFloat(), height.toFloat())
+                            it.drawRect(borderRect, borderPaint)
+                            val backgroundRect =
+                                RectF(5f, 5f, width.toFloat() - 5f, height.toFloat() - 5f)
+                            it.drawRect(backgroundRect, backgroundPaint)
+                        }
                     }
                 }
             }
@@ -209,11 +206,11 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
     fun startProctoring(
         onProctoringResultListener: FaceDetector.OnProctoringResultListener,
-        mainActivity: AppCompatActivity
+        activity: AppCompatActivity
     ) {
         isDetection = true
         faceDetector.setonFaceDetectionFailureListener(onProctoringResultListener)
-        getFaceLiveResult(mainActivity)
+        getFaceLiveResult(activity)
 
     }
 
@@ -228,31 +225,36 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     private fun getFaceLiveResult(activity: AppCompatActivity) {
         faceDetector.getLiveFaceResult().observe(activity) { liveResult ->
             activity.runOnUiThread {
-                if (liveResult.faceCount == 0) {
-                    updateSurfaceViewBoard(null)
-                    alert(
-                        activity, "Face Count  ", liveResult.faceCount.toString()
-                    )
-                }else if (liveResult.faceCount==1){
-                    if (updateSurfaceViewBoard(liveResult.isMouthOen)) {
+                if(defaultAlert){
+                    if (liveResult.faceCount == 0) {
+                        updateSurfaceViewBoard(null)
+                        alert(
+                            activity, "Face Count  ", liveResult.faceCount.toString()
+                        )
+                    } else if (liveResult.faceCount == 1) {
+
+                        if (updateSurfaceViewBoard(liveResult.isMouthOen)) {
+
+                        }
+                        else {
+
+                        }
 
                     } else {
-
+                        animateRightToLeft(this)
+                        alert(
+                            activity, "Face Count  ", liveResult.faceCount.toString()
+                        )
                     }
                 }
-                else {
-                    animateRightToLeft(this)
-                    alert(
-                        activity, "Face Count  ", liveResult.faceCount.toString()
-                    )
-                }
+
 
             }
         }
     }
 
     private fun updateSurfaceViewBoard(open: Boolean?): Boolean {
-        if(open!=null){
+        if (open != null) {
             if (open) {
                 surfaceViewBorder?.color = Color.RED
                 invalidate()
@@ -263,8 +265,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                 postInvalidate()
             }
             return open
-        }
-        else{
+        } else {
             surfaceViewBorder?.color = Color.TRANSPARENT
             invalidate()
             postInvalidate()
@@ -272,14 +273,18 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         }
 
     }
+    fun useDefaultAlert(isUserDefaultAlert:Boolean) : Boolean {
+        defaultAlert = isUserDefaultAlert
+        return defaultAlert
+    }
 
     fun startStopDetection(): Boolean {
         isDetection = !isDetection
         return isDetection
     }
 
-    fun stopProctoring(): Boolean {
-        return isDetection.apply { false }
+    fun stopProctoring() {
+         isDetection = false
     }
 
     @SuppressLint("SuspiciousIndentation")
