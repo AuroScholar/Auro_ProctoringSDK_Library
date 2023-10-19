@@ -210,7 +210,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     ) {
         isDetection = true
         faceDetector.setonFaceDetectionFailureListener(onProctoringResultListener)
-        getFaceLiveResult(activity)
+        NoiseDetector().start(activity,onProctoringResultListener)
+
+        this.getFaceLiveResult(activity)
 
     }
 

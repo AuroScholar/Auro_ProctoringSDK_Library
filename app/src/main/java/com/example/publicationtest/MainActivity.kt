@@ -2,6 +2,7 @@ package com.example.publicationtest
 
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatActivity
 import com.example.mytoolbox.ProctoringSDK
@@ -34,19 +35,19 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
     }
 
     private fun updateUi(it: List<Bitmap>) {
-        val adapter =
+       /* val adapter =
             SimpleAdapter.with<Bitmap, ImageViewSimpleAdpterBinding>(R.layout.image_view_simple_adpter) { adapterPosition, model, bindingview ->
                 bindingview.imageView.setImageBitmap(model)
             }
         adapter.addAll(it)
         adapter.notifyDataSetChanged()
-        binding.viewPagerImageList.adapter = adapter
+        binding.viewPagerImageList.adapter = adapter*/
     }
 
     override fun onVoiceDetected(
         amplitude: Double, isNiceDetected: Boolean, isRunning: Boolean, typeOfVoiceDetected: String
     ) {
-
+        Log.e("TAG", "onVoiceDetected: voice -- > "+amplitude )
     }
 
     override fun onFaceCount(faceCount: Int) {
