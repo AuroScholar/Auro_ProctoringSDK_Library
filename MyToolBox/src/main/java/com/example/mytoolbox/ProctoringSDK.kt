@@ -1,5 +1,6 @@
 package com.example.mytoolbox
 
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
@@ -229,6 +230,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
             activity.runOnUiThread {
                 if (liveResult.faceCount == 0) {
                     updateSurfaceViewBoard(null)
+                    alert(
+                        activity, "Face Count  ", liveResult.faceCount.toString()
+                    )
                 }else if (liveResult.faceCount==1){
                     if (updateSurfaceViewBoard(liveResult.isMouthOen)) {
 
@@ -237,16 +241,11 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                     }
                 }
                 else {
+                    animateRightToLeft(this)
                     alert(
-                        activity,
-                        "Face Count  ",
-                        liveResult.faceCount.toString() + " \n Mouth is Open " + liveResult.isMouthOen
+                        activity, "Face Count  ", liveResult.faceCount.toString()
                     )
                 }
-
-                /*else{
-                       alert(activity,"Face Count ","Found Multiple Faces "+liveResult.faceCount.toString())
-                    }*/
 
             }
         }
@@ -306,4 +305,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         alertDialog.hide()
     }
 
+    private fun animateRightToLeft(view: View) {
+        val screenWidth = resources.displayMetrics.widthPixels.toFloat()
+        val animation = ObjectAnimator.ofFloat(view, "translationX", screenWidth, 0f)
+        animation.duration = 10 // Set the duration of the animation (in milliseconds)
+        animation.start()
+    }
 }
