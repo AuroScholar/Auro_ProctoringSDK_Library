@@ -78,4 +78,19 @@ dependencies {
     }
 
 ```
+## Custom Control
 
+```kotlin
+//speed controller for image clicking
+proctoringWithDealy(dealInMilliseconds :Long)
+
+//stop and start detection 
+startStopDetection()
+
+//stop Proctoring
+stopProctoring()
+
+//stopCamera
+stopCamera()
+
+```
