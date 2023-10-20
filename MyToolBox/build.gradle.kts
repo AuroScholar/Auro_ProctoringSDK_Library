@@ -117,7 +117,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.azzadpandit1"
                 artifactId = "ProctoringSDK"
-                version = "0.0.10"
+                version = "0.0.11"
             }
         }
     }
