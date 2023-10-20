@@ -233,25 +233,22 @@ class FaceDetector() {
 
     interface OnProctoringResultListener {
 
-        fun isRunningDetector(boolean: Boolean?) {
-
-        }
+        fun isRunningDetector(boolean: Boolean?)
 
         fun onVoiceDetected(
             amplitude: Double,
             isNiceDetected: Boolean,
             isRunning: Boolean,
             typeOfVoiceDetected: String
-        ) {
-        }
+        )
 
-        fun onSuccess(faceBounds: Int) {}
-        fun onFailure(exception: Exception) {}
-        fun onFaceCount(face: Int) {}
-        fun onLipMovementDetection(face: Boolean) {}
-        fun onObjectDetection(face: String) {}
-        fun onEyeDetectionOnlyOneFace(face: String) {}
-        fun onUserWallDistanceDetector(distance: Float) {}
+        fun onSuccess(faceBounds: Int)
+        fun onFailure(exception: Exception)
+        fun onFaceCount(face: Int)
+        fun onLipMovementDetection(face: Boolean)
+        fun onObjectDetection(face: String)
+        fun onEyeDetectionOnlyOneFace(face: String)
+        fun onUserWallDistanceDetector(distance: Float)
     }
 
     companion object {
