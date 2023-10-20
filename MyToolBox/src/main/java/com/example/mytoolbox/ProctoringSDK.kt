@@ -210,10 +210,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     ) {
         isDetection = true
         faceDetector.setonFaceDetectionFailureListener(onProctoringResultListener)
-        NoiseDetector().start(activity,onProctoringResultListener)
-
-        this.getFaceLiveResult(activity)
-
+        NoiseDetector().startNoiseDetector(activity,onProctoringResultListener)
+        getFaceLiveResult(activity)
     }
 
     fun proctoringWithDealy(dealInMilliseconds: Long) {
@@ -234,7 +232,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                             activity, "Face Count  ", liveResult.faceCount.toString()
                         )
                     } else if (liveResult.faceCount == 1) {
-
+                        hide()
                         if (updateSurfaceViewBoard(liveResult.isMouthOen)) {
 
                         }
@@ -308,8 +306,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     }
 
     private fun hide() {
-        alertDialog.isShowing
-        alertDialog.hide()
+        if (alertDialog.isShowing){
+            alertDialog.hide()
+        }
     }
 
     private fun animateRightToLeft(view: View) {
