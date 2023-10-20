@@ -13,7 +13,9 @@ import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.YuvImage
+import android.graphics.drawable.ColorDrawable
 import android.hardware.Camera
+import android.os.Handler
 import android.util.AttributeSet
 import android.util.Size
 import android.view.LayoutInflater
@@ -21,6 +23,9 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
+import android.view.WindowManager
+import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -292,17 +297,20 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         hide()
         val layoutInflater: LayoutInflater = LayoutInflater.from(context)
         val view = layoutInflater.inflate(R.layout.custom_dialog, null)
+        alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        alertDialog.window?.setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.MATCH_PARENT
+        )
         alertDialog.setCancelable(false)
-        val button = view.findViewById<Button>(R.id.btn_ok)
         val tvTitle = view.findViewById<TextView>(R.id.tv_title)
         val tvMessage = view.findViewById<TextView>(R.id.tv_message)
         alertDialog.setView(view)
         tvTitle.text = title
         tvMessage.text = message
-        button.setOnClickListener {
-            alertDialog.dismiss()
-        }
+        alertDialog.window?.attributes?.windowAnimations = R.style.DialogAnimationStart
         alertDialog.show()
+
     }
 
     private fun hide() {
