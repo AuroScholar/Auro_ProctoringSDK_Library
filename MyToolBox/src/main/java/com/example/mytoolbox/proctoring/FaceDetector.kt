@@ -100,12 +100,16 @@ class FaceDetector() {
                     var eyeOpenStatus: String = ""
                     var calculateUserWallDistance: Float = -0.0F
                     var objectDectionNames: String = ""
+                    var faceCount :Int = faceResults.size
 
                     onProctoringResultListener?.onFaceCount(faceResults.size)
 
                     //Face Tracking
                     for (face in faceResults) {
 
+                        faceCount = faceResults.size
+
+                        onProctoringResultListener?.onFaceCount(faceResults.size)
 
                         if (faceResults.size == 1) {
                             eyeOpenStatus = eyeTracking(face)
@@ -137,7 +141,7 @@ class FaceDetector() {
                     //live Result
                     faceLiveResult.postValue(
                         FaceDetectorModel(
-                            faceResults.size, eyeOpenStatus, mouthOpen, objectDectionNames
+                            faceCount, eyeOpenStatus, mouthOpen, objectDectionNames
                         )
                     )
 

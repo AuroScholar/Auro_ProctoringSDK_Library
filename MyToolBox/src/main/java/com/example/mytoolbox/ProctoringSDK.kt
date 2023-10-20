@@ -6,6 +6,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
@@ -16,6 +17,7 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.YuvImage
 import android.hardware.Camera
+import android.hardware.usb.UsbManager
 import android.os.Build
 import android.provider.Settings
 import android.util.AttributeSet
@@ -37,14 +39,14 @@ import androidx.lifecycle.MutableLiveData
 import com.example.mytoolbox.proctoring.FaceDetector
 import com.example.mytoolbox.proctoring.Frame
 import com.example.mytoolbox.proctoring.LensFacing
+import com.example.mytoolbox.usb.UsbReceiver
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.lang.reflect.Method
 import java.util.Timer
 import java.util.TimerTask
 
-class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs),
-    SurfaceHolder.Callback, Camera.PreviewCallback {
+class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs), SurfaceHolder.Callback, Camera.PreviewCallback {
 
     private var camera: Camera? = null
     private var surfaceHolder: SurfaceHolder? = null
@@ -61,6 +63,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
     private val alertDialog = AlertDialog.Builder(context).create()
     private var defaultAlert: Boolean = true
+    private var usbManager = UsbReceiver()
+    private var statusBarLocker : StatusBarLocker? = null
+
 
 
     init {
@@ -68,7 +73,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         this.surfaceHolder = holder
         this.surfaceHolder?.addCallback(this)
         this.imgList.clear()
-
         initSurfaceViewBoarder()
 
     }
@@ -79,7 +83,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         surfaceViewBorder?.let {
             it.color = Color.TRANSPARENT
             it.style = Paint.Style.STROKE
-            it.strokeWidth = 10f
+            it.strokeWidth = 15f
             it.isAntiAlias = true
             it.isDither = true
             it.pathEffect = DashPathEffect(floatArrayOf(10f, 10f), 0f)
@@ -221,16 +225,20 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         faceDetector.setonFaceDetectionFailureListener(onProctoringResultListener)
         NoiseDetector().startNoiseDetector(activity, onProctoringResultListener)
         getFaceLiveResult(activity)
-        usbReceiver(activity.lifecycle, activity)
+        lifeCycle(activity.lifecycle, activity)
     }
 
-    private fun usbReceiver(lifecycle: Lifecycle, activity: AppCompatActivity) {
+    private fun lifeCycle(lifecycle: Lifecycle, activity: AppCompatActivity) {
 
         lifecycle.addObserver(object : LifecycleEventObserver {
             override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
                 when (event) {
 
                     Lifecycle.Event.ON_START -> {
+                        if (defaultAlert){
+                            statusBarLocker = StatusBarLocker(activity)
+                            statusBarLocker?.lock()
+                        }
 
                     }
 
@@ -256,6 +264,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
                             //ExpandNotificationDrawer
                             setExpandNotificationDrawer(context, false)
+
                         }
 
 
@@ -282,12 +291,28 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
                             //ExpandNotificationDrawer
                             setExpandNotificationDrawer(context, false)
+
+                            //usb manger
+                            val filter = IntentFilter()
+                            filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
+                            filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
+                            activity.registerReceiver(usbManager, filter)
                         }
                     }
 
-                    Lifecycle.Event.ON_PAUSE -> {}
+                    Lifecycle.Event.ON_PAUSE -> {
+
+                        if (defaultAlert){
+                            activity.unregisterReceiver(usbManager)
+                        }
+
+                    }
                     Lifecycle.Event.ON_STOP -> {}
-                    Lifecycle.Event.ON_DESTROY -> {}
+                    Lifecycle.Event.ON_DESTROY -> {
+                        if (defaultAlert){
+                            statusBarLocker?.release()
+                        }
+                    }
                     else -> {}
 
                 }
