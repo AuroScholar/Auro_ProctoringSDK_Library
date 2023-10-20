@@ -308,7 +308,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         alertDialog.setView(view)
         tvTitle.text = title
         tvMessage.text = message
-        alertDialog.window?.attributes?.windowAnimations = R.style.DialogAnimationStart
         alertDialog.show()
 
     }
