@@ -56,11 +56,15 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
     }
 
     override fun isRunningDetector(boolean: Boolean?) {
-        super.isRunningDetector(boolean)
+
     }
 
     override fun onSuccess(faceBounds: Int) {
-        super.onSuccess(faceBounds)
+
+    }
+
+    override fun onFailure(exception: Exception) {
+
     }
 
     override fun onLipMovementDetection(face: Boolean) {
