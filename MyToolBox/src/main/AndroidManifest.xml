@@ -6,6 +6,7 @@
         android:required="true" />
     <uses-feature android:name="android.hardware.usb.host" />
 
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
 

@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
     }
 
     override fun onFaceCount(faceCount: Int) {
-        binding.textView.text = faceCount.toString()
+//        binding.textView.text = faceCount.toString()
 
     }
 

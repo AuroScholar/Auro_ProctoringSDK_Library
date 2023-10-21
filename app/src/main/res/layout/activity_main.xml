@@ -7,10 +7,7 @@
     android:background="@color/white"
     tools:context=".MainActivity">
 
-    <!--<com.example.mytoolbox.CustomSurfaceView
-        android:id="@+id/customSurface"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />-->
+
 
     <RelativeLayout
         android:id="@+id/mainLayout"
