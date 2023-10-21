@@ -22,11 +22,11 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        val proctoringSDK = ProctoringSDK(this, null)
+        val proctoringSDK = ProctoringSDK(this)
         binding.mainLayout.gravity = Gravity.END
         binding.mainLayout.addView(proctoringSDK)
 
-        proctoringSDK.startProctoring(this,this)
+        proctoringSDK.startProctoring(this)
 
         proctoringSDK.getCaptureImagesList().observe(this) {
 //            it?.let { updateUi(it) }
