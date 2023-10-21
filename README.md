@@ -27,7 +27,7 @@ dependencies {
 ## Run ProctoringSDK
 
 ```kotlin
-    val proctoringSDK = ProctoringSDK(this, null)
+    val proctoringSDK = ProctoringSDK(this)
 
     binding.mainLayout.gravity = Gravity.END
 
