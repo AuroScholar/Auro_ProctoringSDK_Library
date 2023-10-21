@@ -18,6 +18,7 @@ import android.graphics.RectF
 import android.graphics.YuvImage
 import android.hardware.Camera
 import android.hardware.usb.UsbManager
+import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.provider.Settings
 import android.util.AttributeSet
@@ -32,6 +33,7 @@ import android.view.WindowManager
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -56,6 +58,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     private var isDetection = true
     private val imgList = mutableListOf<Bitmap>()
     private val captureImageList = MutableLiveData<List<Bitmap>>()
+
     private var timer: Timer? = null
 
     private var surfaceViewBorder: Paint? = null
@@ -64,8 +67,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     private val alertDialog = AlertDialog.Builder(context).create()
     private var defaultAlert: Boolean = true
     private var usbManager = UsbReceiver()
-    private var statusBarLocker : StatusBarLocker? = null
-
+    private var statusBarLocker: StatusBarLocker? = null
 
 
     init {
@@ -143,9 +145,13 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     }
 
     override fun surfaceDestroyed(p0: SurfaceHolder) {
-        camera?.stopPreview()
-        camera?.release()
-        camera = null
+
+        if (camera != null) {
+            camera?.stopPreview()
+            camera?.setPreviewCallback(null)
+            camera?.release()
+            camera = null
+        }
 
         timer?.cancel()
         timer = null
@@ -213,20 +219,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
     }
 
-    fun takePic() {
-        camera?.setPreviewCallback(this@ProctoringSDK)
-    }
-
-    fun startProctoring(
-        onProctoringResultListener: FaceDetector.OnProctoringResultListener,
-        activity: AppCompatActivity
-    ) {
-        isDetection = true
-        faceDetector.setonFaceDetectionFailureListener(onProctoringResultListener)
-        NoiseDetector().startNoiseDetector(activity, onProctoringResultListener)
-        getFaceLiveResult(activity)
-        lifeCycle(activity.lifecycle, activity)
-    }
 
     private fun lifeCycle(lifecycle: Lifecycle, activity: AppCompatActivity) {
 
@@ -235,7 +227,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                 when (event) {
 
                     Lifecycle.Event.ON_START -> {
-                        if (defaultAlert){
+                        if (defaultAlert) {
                             statusBarLocker = StatusBarLocker(activity)
                             statusBarLocker?.lock()
                         }
@@ -254,13 +246,13 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                             doNotLockScreen(activity)
 
                             // full screen
-                            enableFullScreen(activity)
-                            hideStatusBar(activity)
-                            hideSystemUI(activity)
+                            /* enableFullScreen(activity)
+                             hideStatusBar(activity)
+                             hideSystemUI(activity)*/
 
                             // multi window
                             activity.onMultiWindowModeChanged(false)
-                            DisableMultiWindow(activity)
+                            disableMultiWindow(activity)
 
                             //ExpandNotificationDrawer
                             setExpandNotificationDrawer(context, false)
@@ -287,7 +279,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
                             // multi window
                             activity.onMultiWindowModeChanged(false)
-                            DisableMultiWindow(activity)
+                            disableMultiWindow(activity)
 
                             //ExpandNotificationDrawer
                             setExpandNotificationDrawer(context, false)
@@ -302,24 +294,30 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
                     Lifecycle.Event.ON_PAUSE -> {
 
-                        if (defaultAlert){
+                        if (defaultAlert) {
                             activity.unregisterReceiver(usbManager)
                         }
 
                     }
+
                     Lifecycle.Event.ON_STOP -> {}
                     Lifecycle.Event.ON_DESTROY -> {
-                        if (defaultAlert){
+                        if (defaultAlert) {
                             statusBarLocker?.release()
                         }
+
+                        releaseCameraAndPreview()
                     }
+
                     else -> {}
 
                 }
 
             }
 
-            private fun DisableMultiWindow(activity: AppCompatActivity) {
+
+
+            private fun disableMultiWindow(activity: AppCompatActivity) {
                 activity.let {
                     it.window?.setFlags(
                         WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
@@ -329,7 +327,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
                                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
                                 WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-                        WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
+                           WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
                                 WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
                                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
                                 WindowManager.LayoutParams.FLAG_FULLSCREEN or
@@ -364,6 +362,15 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                     method.invoke(statusBarService)
                 } catch (e: Exception) {
                     e.printStackTrace()
+                }
+            }
+
+            fun releaseCameraAndPreview() {
+                if (camera != null) {
+                    camera?.stopPreview()
+                    camera?.setPreviewCallback(null)
+                    camera?.release()
+                    camera = null
                 }
             }
 
@@ -402,17 +409,15 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
             }
 
             private fun hideStatusBar(activity: Activity) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    activity.window.decorView.systemUiVisibility = (
-                            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                                    or View.SYSTEM_UI_FLAG_FULLSCREEN
-                                    or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                            )
-                    activity.window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-                }
+                activity.window.decorView.systemUiVisibility = (
+                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                                or View.SYSTEM_UI_FLAG_FULLSCREEN
+                                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        )
+                activity.window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
             }
 
             private fun enableFullScreen(activity: Activity) {
@@ -421,7 +426,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                         View.SYSTEM_UI_FLAG_FULLSCREEN or
                                 View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
                                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-
                         )
                 activity.window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
 
@@ -437,7 +441,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                                 View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                         )
                 activity.window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
-
 
                 // Set the window to full-screen mode
                 val window: Window = activity.window
@@ -493,12 +496,31 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
     }
 
-    fun proctoringWithDealy(dealInMilliseconds: Long) {
-        this.deadlyInMilliseconds = dealInMilliseconds
-    }
 
     fun getCaptureImagesList(): MutableLiveData<List<Bitmap>> {
         return captureImageList
+    }
+
+
+    private fun updateSurfaceViewBoard(open: Boolean?): Boolean {
+        if (open != null) {
+            if (open) {
+                surfaceViewBorder?.color = Color.RED
+                invalidate()
+                postInvalidate()
+            } else {
+                surfaceViewBorder?.color = Color.GREEN
+                invalidate()
+                postInvalidate()
+            }
+            return open
+        } else {
+            surfaceViewBorder?.color = Color.TRANSPARENT
+            invalidate()
+            postInvalidate()
+            return false
+        }
+
     }
 
     private fun getFaceLiveResult(activity: AppCompatActivity) {
@@ -530,6 +552,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
             }
         }
+
     }
 
     private fun animateRightToLeft(view: View) {
@@ -539,30 +562,28 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         animation.start()
     }
 
-    private fun updateSurfaceViewBoard(open: Boolean?): Boolean {
-        if (open != null) {
-            if (open) {
-                surfaceViewBorder?.color = Color.RED
-                invalidate()
-                postInvalidate()
-            } else {
-                surfaceViewBorder?.color = Color.GREEN
-                invalidate()
-                postInvalidate()
-            }
-            return open
-        } else {
-            surfaceViewBorder?.color = Color.TRANSPARENT
-            invalidate()
-            postInvalidate()
-            return false
-        }
+    fun takePic() {
+        camera?.setPreviewCallback(this@ProctoringSDK)
+    }
 
+    fun startProctoring(
+        onProctoringResultListener: FaceDetector.OnProctoringResultListener,
+        activity: AppCompatActivity
+    ) {
+        isDetection = true
+        faceDetector.setonFaceDetectionFailureListener(onProctoringResultListener)
+        NoiseDetector().startNoiseDetector(activity, onProctoringResultListener)
+        getFaceLiveResult(activity)
+        lifeCycle(activity.lifecycle, activity)
     }
 
     fun useDefaultAlert(isDefaultAlert: Boolean): Boolean {
         defaultAlert = isDefaultAlert
         return defaultAlert
+    }
+
+    fun proctoringWithDealy(dealInMilliseconds: Long) {
+        this.deadlyInMilliseconds = dealInMilliseconds
     }
 
     fun startStopDetection(): Boolean {
@@ -600,5 +621,11 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         }
     }
 
+    fun stopCamera() {
+        camera?.stopFaceDetection()
+        camera?.stopPreview()
+        camera?.stopSmoothZoom()
+        camera?.release()
+    }
 
 }

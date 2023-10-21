@@ -10,6 +10,7 @@ import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceContour
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
+import com.google.mlkit.vision.face.FaceLandmark
 import com.google.mlkit.vision.objects.ObjectDetection
 import com.google.mlkit.vision.objects.ObjectDetectorOptionsBase
 import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions
@@ -100,7 +101,7 @@ class FaceDetector() {
                     var eyeOpenStatus: String = ""
                     var calculateUserWallDistance: Float = -0.0F
                     var objectDectionNames: String = ""
-                    var faceCount :Int = faceResults.size
+                    var faceCount: Int = faceResults.size
 
                     onProctoringResultListener?.onFaceCount(faceResults.size)
 
@@ -134,6 +135,13 @@ class FaceDetector() {
                                     objectDectionNames = label.text
                                 }
                             }
+                             val eulerY = face.headEulerAngleY // Yaw
+                             val eulerZ = face.headEulerAngleZ // Roll
+                             val eulerX = face.headEulerAngleX // Pitch
+
+//                            Log.e(TAG, "-----> detectFaces: Y $eulerY   X $eulerX  Z$eulerZ", )
+
+                            Log.e(TAG, " ---- > detectFaces: movement "+faceMovementDetection(face) )
                         }
 
                     }
@@ -155,6 +163,36 @@ class FaceDetector() {
                 }
                 onError(exception)
             }
+    }
+
+    private fun faceMovementDetection(face: Face): String {
+
+        val eulerY = face.headEulerAngleY // Yaw
+        val eulerZ = face.headEulerAngleZ // Roll
+        val eulerX = face.headEulerAngleX // Pitch
+
+        if (eulerY > 15) {
+            return " move right "
+            // move right
+        } else if (eulerY < -15) {
+            // move left
+            return "move left"
+        } else {
+            // don't move horizontally
+            return  "don't move horizontally"
+        }
+
+        if (eulerX > 15) {
+            return  "move up"
+            // move up
+        } else if (eulerX < -15) {
+            // move down
+            return  " move down"
+        } else {
+            // don't move vertically
+            return  "don't move vertically"
+        }
+
     }
 
     private fun calculateUserWallDistance(pose: Pose): Float {

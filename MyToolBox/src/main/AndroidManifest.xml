@@ -8,7 +8,9 @@
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
+
     <uses-feature android:name="android.hardware.camera.autofocus" />
+
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <uses-permission android:name="android.permission.USB_PERMISSION" />
@@ -23,14 +25,14 @@
 
 
     <application
+        android:name=".Application"
         android:allowBackup="true"
-        android:requestLegacyExternalStorage="true"
-        android:usesCleartextTraffic="true"
         android:hardwareAccelerated="false"
         android:largeHeap="true"
-        android:supportsRtl="true"
+        android:requestLegacyExternalStorage="true"
         android:resizeableActivity="false"
-        >
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="true">
         <meta-data
             android:name="android.hardware.camera"
             android:value="front" />
