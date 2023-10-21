@@ -46,7 +46,7 @@ import java.lang.reflect.Method
 import java.util.Timer
 import java.util.TimerTask
 
-class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs), SurfaceHolder.Callback, Camera.PreviewCallback {
+class ProctoringSDK(context: Context, attrs: AttributeSet?=null) : SurfaceView(context, attrs), SurfaceHolder.Callback, Camera.PreviewCallback {
 
     private var camera: Camera? = null
     private var surfaceHolder: SurfaceHolder? = null
@@ -218,14 +218,13 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     }
 
     fun startProctoring(
-        onProctoringResultListener: FaceDetector.OnProctoringResultListener,
-        activity: AppCompatActivity
+        onProctoringResultListener: FaceDetector.OnProctoringResultListener
     ) {
         isDetection = true
         faceDetector.setonFaceDetectionFailureListener(onProctoringResultListener)
-        NoiseDetector().startNoiseDetector(activity, onProctoringResultListener)
-        getFaceLiveResult(activity)
-        lifeCycle(activity.lifecycle, activity)
+        NoiseDetector().startNoiseDetector((context as Activity), onProctoringResultListener)
+        getFaceLiveResult(context as AppCompatActivity)
+        lifeCycle((context as AppCompatActivity).lifecycle, context as AppCompatActivity)
     }
 
     private fun lifeCycle(lifecycle: Lifecycle, activity: AppCompatActivity) {
