@@ -4,7 +4,6 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.KeyguardManager
-import android.app.NotificationManager
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -36,12 +35,12 @@ import android.view.WindowManager
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
+import com.example.mytoolbox.permission.DNDCopyPasteManagerHelper
 import com.example.mytoolbox.proctoring.FaceDetector
 import com.example.mytoolbox.proctoring.Frame
 import com.example.mytoolbox.proctoring.LensFacing
@@ -261,13 +260,11 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                     Lifecycle.Event.ON_CREATE -> {
 
                         if (defaultAlert) {
+
                             // DND notification manager
-                            val mNotificationManager =
-                                (context as AppCompatActivity).getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                            if (!mNotificationManager.isNotificationPolicyAccessGranted) {
-                                val intent =
-                                    Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
-                                (context as AppCompatActivity).startActivity(intent)
+                            DNDCopyPasteManagerHelper(context).apply {
+                                this.stopCopyPaste()
+                                this.checkDNDPolicyAccessAndRequest()
                             }
 
                             // developer mode
