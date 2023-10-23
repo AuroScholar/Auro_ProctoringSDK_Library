@@ -82,7 +82,7 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
 
     }
 
-    override fun onFaceDirectionMovement(faceDirection: String) {
+    override fun onFaceDirectionMovement(faceDirection: String?) {
         binding.textView.text = faceDirection
     }
 

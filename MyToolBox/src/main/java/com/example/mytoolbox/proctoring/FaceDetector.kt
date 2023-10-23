@@ -65,7 +65,7 @@ class FaceDetector() {
         onProctoringResultListener = listener
     }
 
-    fun getLiveFaceResult(): MutableLiveData<FaceDetectorModel> {
+    fun liveFaceResult(): MutableLiveData<FaceDetectorModel> {
         return faceLiveResult
     }
 
@@ -102,7 +102,7 @@ class FaceDetector() {
                     var calculateUserWallDistance: Float = -0.0F
                     var objectSectionNames: String = ""
                     var faceCount: Int = faceResults.size
-                    var faceDirection: String = ""
+                    var faceDirection: String? = null
 
                     onProctoringResultListener?.onFaceCount(faceResults.size)
 
@@ -129,6 +129,12 @@ class FaceDetector() {
                             onProctoringResultListener?.onUserWallDistanceDetector(
                                 calculateUserWallDistance
                             )
+
+                            //face direction
+                            faceDirection = faceMovementDetection(face)
+                            onProctoringResultListener?.onFaceDirectionMovement(faceDirection)
+
+
                             //Object Tracking
                             for (detectedObject in objectResults) {
                                 val labels = detectedObject.labels
@@ -138,8 +144,6 @@ class FaceDetector() {
                                 }
                             }
 
-                            faceDirection = faceMovementDetection(face)
-                            onProctoringResultListener?.onFaceDirectionMovement(faceDirection)
 
 
                         }
@@ -149,7 +153,7 @@ class FaceDetector() {
                     //live Result
                     faceLiveResult.postValue(
                         FaceDetectorModel(
-                            faceCount, eyeOpenStatus, mouthOpen, objectSectionNames
+                            faceCount, eyeOpenStatus, mouthOpen, objectSectionNames,faceDirection
                         )
                     )
 
@@ -165,7 +169,7 @@ class FaceDetector() {
             }
     }
 
-    private fun faceMovementDetection(face: Face): String {
+    private fun faceMovementDetection(face: Face): String? {
 
         val eulerY = face.headEulerAngleY // Yaw   ------- direction left and right out
         val eulerZ = face.headEulerAngleZ // Roll
@@ -181,7 +185,7 @@ class FaceDetector() {
             return "moving down"
         } else {
             // Face is not moving
-            return ""
+            return null
         }
 
     }
@@ -282,7 +286,7 @@ class FaceDetector() {
         fun onObjectDetection(face: String)
         fun onEyeDetectionOnlyOneFace(face: String)
         fun onUserWallDistanceDetector(distance: Float)
-        fun onFaceDirectionMovement(faceDirection: String)
+        fun onFaceDirectionMovement(faceDirection: String?)
 
     }
 
@@ -297,5 +301,5 @@ data class FaceDetectorModel(
     var eyeOpenStatus: String = "",
     var isMouthOen: Boolean = false,
     var objectDectionNames: String = "",
-    var faceDirection: String = ""
+    var faceDirection: String? = null
 )

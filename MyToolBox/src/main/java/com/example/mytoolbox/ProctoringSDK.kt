@@ -29,7 +29,6 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
@@ -37,10 +36,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
-import androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-import androidx.core.view.setPadding
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -49,14 +44,14 @@ import com.example.mytoolbox.proctoring.FaceDetector
 import com.example.mytoolbox.proctoring.Frame
 import com.example.mytoolbox.proctoring.LensFacing
 import com.example.mytoolbox.usb.UsbReceiver
-import com.google.android.gms.common.ConnectionResult.TIMEOUT
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.lang.reflect.Method
 import java.util.Timer
 import java.util.TimerTask
 
-class ProctoringSDK(context: Context, attrs: AttributeSet?=null) : SurfaceView(context, attrs), SurfaceHolder.Callback, Camera.PreviewCallback {
+class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView(context, attrs),
+    SurfaceHolder.Callback, Camera.PreviewCallback {
 
     private var camera: Camera? = null
     private var surfaceHolder: SurfaceHolder? = null
@@ -71,10 +66,13 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?=null) : SurfaceView(c
     private var surfaceViewBorder: Paint? = null
     private var backgroundPaint: Paint? = null
 
-    private val alertDialog = AlertDialog.Builder(context).create()
+    private var alertDialog: AlertDialog? = null
+
+
+    //    private val alertDialog = AlertDialog.Builder(context).create()
     private var defaultAlert: Boolean = true
     private var usbManager = UsbReceiver()
-    private var statusBarLocker : StatusBarLocker? = null
+    private var statusBarLocker: StatusBarLocker? = null
 
 
     init {
@@ -228,12 +226,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?=null) : SurfaceView(c
         faceDetector.setonFaceDetectionFailureListener(onProctoringResultListener)
         NoiseDetector().startNoiseDetector((context as Activity), onProctoringResultListener)
         getFaceLiveResult(context as AppCompatActivity)
-        lifeCycle((context as AppCompatActivity).lifecycle, context as AppCompatActivity)
+        getLifeCycle((context as AppCompatActivity).lifecycle, context as AppCompatActivity)
     }
 
-    private fun lifeCycle(lifecycle: Lifecycle, activity: AppCompatActivity) {
-
-
+    private fun getLifeCycle(lifecycle: Lifecycle, activity: AppCompatActivity) {
 
         lifecycle.addObserver(object : LifecycleEventObserver {
             override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
@@ -329,16 +325,11 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?=null) : SurfaceView(c
             }
 
 
-
             private fun disableMultiWindow(activity: AppCompatActivity) {
                 activity.let {
                     it.window.setFlags(
-                                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
-                                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
-                                WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
-                                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+                        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
+                        WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
                     )
                 }
 
@@ -349,10 +340,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?=null) : SurfaceView(c
                 try {
                     val statusBarService = context.getSystemService("statusbar")
                     val methodName =
-                        if (expand)
-                            if (Build.VERSION.SDK_INT >= 22) "expandNotificationsPanel" else "expand"
-                        else
-                            if (Build.VERSION.SDK_INT >= 22) "collapsePanels" else "collapse"
+                        if (expand) if (Build.VERSION.SDK_INT >= 22) "expandNotificationsPanel" else "expand"
+                        else if (Build.VERSION.SDK_INT >= 22) "collapsePanels" else "collapse"
                     val statusBarManager: Class<*> = Class.forName("android.app.StatusBarManager")
                     val method: Method = statusBarManager.getMethod(methodName)
                     method.invoke(statusBarService)
@@ -371,67 +360,55 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?=null) : SurfaceView(c
             }
 
             private fun isEmulatorRun(): Boolean {
-                return (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic")
-                        || Build.FINGERPRINT.startsWith("generic")
-                        || Build.FINGERPRINT.startsWith("unknown")
-                        || Build.HARDWARE.contains("goldfish")
-                        || Build.HARDWARE.contains("ranchu")
-                        || Build.MODEL.contains("google_sdk")
-                        || Build.MODEL.contains("Emulator")
-                        || Build.MODEL.contains("Android SDK built for x86")
-                        || Build.MANUFACTURER.contains("Genymotion")
-                        || Build.MANUFACTURER.contains("Google")
-                        || Build.PRODUCT.contains("sdk_google")
-                        || Build.PRODUCT.contains("google_sdk")
-                        || Build.PRODUCT.contains("sdk")
-                        || Build.PRODUCT.contains("sdk_x86")
-                        || Build.PRODUCT.contains("vbox86p")
-                        || Build.PRODUCT.contains("emulator")
-                        || Build.PRODUCT.contains("simulator")
-                        || Build.PRODUCT.contains("Genymotion")
-                        || Build.PRODUCT.contains("Bluestacks"))
+                return (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic") || Build.FINGERPRINT.startsWith(
+                    "generic"
+                ) || Build.FINGERPRINT.startsWith("unknown") || Build.HARDWARE.contains("goldfish") || Build.HARDWARE.contains(
+                    "ranchu"
+                ) || Build.MODEL.contains("google_sdk") || Build.MODEL.contains("Emulator") || Build.MODEL.contains(
+                    "Android SDK built for x86"
+                ) || Build.MANUFACTURER.contains("Genymotion") || Build.MANUFACTURER.contains("Google") || Build.PRODUCT.contains(
+                    "sdk_google"
+                ) || Build.PRODUCT.contains("google_sdk") || Build.PRODUCT.contains("sdk") || Build.PRODUCT.contains(
+                    "sdk_x86"
+                ) || Build.PRODUCT.contains("vbox86p") || Build.PRODUCT.contains("emulator") || Build.PRODUCT.contains(
+                    "simulator"
+                ) || Build.PRODUCT.contains("Genymotion") || Build.PRODUCT.contains("Bluestacks"))
             }
 
-            private fun hideSystemUI(activity: AppCompatActivity) {
-               /* if (activity.supportActionBar != null) {
-                    activity.supportActionBar!!.hide()
-                }
-                WindowCompat.setDecorFitsSystemWindows(activity.window, false)
-                WindowInsetsControllerCompat(activity.window, activity.window.decorView).let { controller ->
-                    controller.hide(WindowInsetsCompat.Type.systemBars())
-                    controller.systemBarsBehavior = BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                }*/
+            private fun hideSystemUI(activity: AppCompatActivity) {/* if (activity.supportActionBar != null) {
+                     activity.supportActionBar!!.hide()
+                 }
+                 WindowCompat.setDecorFitsSystemWindows(activity.window, false)
+                 WindowInsetsControllerCompat(activity.window, activity.window.decorView).let { controller ->
+                     controller.hide(WindowInsetsCompat.Type.systemBars())
+                     controller.systemBarsBehavior = BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                 }*/
 
             }
+
             private fun hideSystemUI() {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     WindowCompat.setDecorFitsSystemWindows(activity.window, false)
                     val controller = activity.window.decorView.windowInsetsController
                     controller?.hide(WindowInsets.Type.ime())
-                    controller?.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                    controller?.hide(WindowInsets.Type.systemBars())
-/*                    val flag = WindowInsets.Type.statusBars()
-                    WindowInsets.Type.navigationBars()
-                    WindowInsets.Type.captionBar()
-                    window?.insetsController?.hide(flag)*/
+                    controller?.systemBarsBehavior =
+                        WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                    controller?.hide(WindowInsets.Type.systemBars())/*                    val flag = WindowInsets.Type.statusBars()
+                                        WindowInsets.Type.navigationBars()
+                                        WindowInsets.Type.captionBar()
+                                        window?.insetsController?.hide(flag)*/
                 } else {
                     //noinspection
                     @Suppress("DEPRECATION")
                     // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
-                    activity.window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                            or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                            or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                            or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                            or View.SYSTEM_UI_FLAG_FULLSCREEN)
+                    activity.window.decorView.systemUiVisibility =
+                        (View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_FULLSCREEN)
                 }
             }
 
             private fun isDeveloperModeEnable(context: Context): Boolean {
                 return Settings.Secure.getInt(
-                    context.contentResolver,
-                    Settings.Global.DEVELOPMENT_SETTINGS_ENABLED,
-                    0
+                    context.contentResolver, Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0
                 ) != 0
             }
 
@@ -446,10 +423,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?=null) : SurfaceView(c
                                     context.startActivity(
                                         Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
                                     )
-                                })
-                            .setIcon(android.R.drawable.stat_notify_error)
-                            .setCancelable(false)
-                            .show()
+                                }).setIcon(android.R.drawable.stat_notify_error)
+                            .setCancelable(false).show()
                         Settings.Secure.putInt(
                             context.contentResolver, Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0
                         )
@@ -464,12 +439,13 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?=null) : SurfaceView(c
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
                         it.setShowWhenLocked(true)
                         it.setTurnScreenOn(true)
-                        val keyguardManager = activity.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+                        val keyguardManager =
+                            activity.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
                         keyguardManager.requestDismissKeyguard(activity, null)
                     } else {
-                        activity.window.addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or
-                                WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                                WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                        activity.window.addFlags(
+                            WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                        )
                     }
                 }
 
@@ -507,33 +483,37 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?=null) : SurfaceView(c
     }
 
     private fun getFaceLiveResult(activity: AppCompatActivity) {
-        faceDetector.getLiveFaceResult().observe(activity) { liveResult ->
+        faceDetector.liveFaceResult().observe(activity) { liveResult ->
             activity.runOnUiThread {
                 if (defaultAlert) {
-                    if (liveResult.faceCount == 0 ) {
+                    if (liveResult.faceCount == 0) {
+                        hide()
                         updateSurfaceViewBoard(null)
                         alert(
                             activity, "Face Count  ", liveResult.faceCount.toString()
                         )
                     } else if (liveResult.faceCount == 1) {
+                        hide()
                         // Face Direction check is user see left or right direction
-                        if (liveResult.faceDirection == ""){
+                        if (!liveResult.faceDirection.isNullOrBlank()) {
+                            hide()
+                            val result = liveResult.faceDirection
+                            alert(activity, "Face Direction", result)
+                        } else {
                             if (!updateSurfaceViewBoard(liveResult.isMouthOen)) { // return close mouth
 
 
                             } else {
 
                             }
-                        }else{
-                            alert(activity,"Face Direction",liveResult.faceDirection)
                         }
 
                     } else {
-
+                        hide()
                         var count = liveResult.faceCount
                         animateRightToLeft(this)
                         alert(
-                            activity, "Face Count  ",count.toString()
+                            activity, "Face Count  ", count.toString()
                         )
                     }
 
@@ -564,26 +544,29 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?=null) : SurfaceView(c
         faceDetector.setonFaceDetectionFailureListener(onProctoringResultListener)
         NoiseDetector().startNoiseDetector(activity, onProctoringResultListener)
         getFaceLiveResult(activity)
-        lifeCycle(activity.lifecycle, activity)
+        getLifeCycle(activity.lifecycle, activity)
     }
 
     @SuppressLint("SuspiciousIndentation")
     private fun alert(context: AppCompatActivity, title: String?, message: String?) {
         hide()
+        if (alertDialog == null) {
+            alertDialog = AlertDialog.Builder(context).create()
+        }
+
         val layoutInflater: LayoutInflater = LayoutInflater.from(context)
         val view = layoutInflater.inflate(R.layout.custom_dialog, null)
-        /*alertDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        alertDialog.window?.setLayout(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.MATCH_PARENT
-        )*/
-        alertDialog.setCancelable(false)
         val tvTitle = view.findViewById<TextView>(R.id.tv_title)
         val tvMessage = view.findViewById<TextView>(R.id.tv_message)
-        alertDialog.setView(view)
-        tvTitle.text = title
-        tvMessage.text = message
-        alertDialog.show()
+
+        alertDialog?.apply {
+            this.setView(view)
+            tvTitle.text = title
+            tvMessage.text = message
+            this.show()
+        }
+
+
 
 
     }
@@ -607,9 +590,14 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?=null) : SurfaceView(c
     }
 
     private fun hide() {
-        if (alertDialog.isShowing) {
-            alertDialog.hide()
+        alertDialog?.let {
+            if (it.isShowing) {
+                it.hide()
+                it.dismiss()
+                alertDialog = null
+            }
         }
+
     }
 
     fun stopCamera() {
