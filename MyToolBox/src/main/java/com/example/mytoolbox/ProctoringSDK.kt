@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.KeyguardManager
+import android.app.NotificationManager
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
@@ -22,8 +23,8 @@ import android.hardware.usb.UsbManager
 import android.os.Build
 import android.provider.Settings
 import android.util.AttributeSet
-import android.util.Log
 import android.util.Size
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -35,6 +36,7 @@ import android.view.WindowManager
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -50,8 +52,10 @@ import java.lang.reflect.Method
 import java.util.Timer
 import java.util.TimerTask
 
+
 class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView(context, attrs),
     SurfaceHolder.Callback, Camera.PreviewCallback {
+
 
     private var camera: Camera? = null
     private var surfaceHolder: SurfaceHolder? = null
@@ -68,20 +72,29 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
 
     private var alertDialog: AlertDialog? = null
 
-
-    //    private val alertDialog = AlertDialog.Builder(context).create()
     private var defaultAlert: Boolean = true
     private var usbManager = UsbReceiver()
     private var statusBarLocker: StatusBarLocker? = null
-
+    override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
+        if (event?.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
+            val dialog = AlertDialog.Builder(this as Context)
+            dialog.setMessage("Dialog message")
+            dialog.setPositiveButton("OK") { _, _ -> }
+            dialog.show()
+            return true
+        }
+        return super.dispatchKeyEvent(event)
+    }
 
     init {
+
         this.layoutParams = ViewGroup.LayoutParams(300, 300)
         this.setPadding(50, 50, 50, 50)
         this.surfaceHolder = holder
         this.surfaceHolder?.addCallback(this)
         this.imgList.clear()
         initSurfaceViewBoarder()
+
 
     }
 
@@ -231,8 +244,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
 
     private fun getLifeCycle(lifecycle: Lifecycle, activity: AppCompatActivity) {
 
+
         lifecycle.addObserver(object : LifecycleEventObserver {
             override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+
                 when (event) {
 
                     Lifecycle.Event.ON_START -> {
@@ -244,7 +259,17 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                     }
 
                     Lifecycle.Event.ON_CREATE -> {
+
                         if (defaultAlert) {
+                            // DND notification manager
+                            val mNotificationManager =
+                                (context as AppCompatActivity).getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                            if (!mNotificationManager.isNotificationPolicyAccessGranted) {
+                                val intent =
+                                    Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
+                                (context as AppCompatActivity).startActivity(intent)
+                            }
+
                             // developer mode
                             turnOffDeveloperMode(context, isDeveloperModeEnable(context))
                             if (isEmulatorRun()) {
@@ -316,6 +341,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                             statusBarLocker?.release()
                         }
                         releaseCameraAndPreview()
+
                     }
 
                     else -> {}
@@ -418,7 +444,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                         android.app.AlertDialog.Builder(context)
                             .setTitle("Please Disable Developer Mode")
                             .setMessage("You will not proceed if developer mode is enable")
-                            .setPositiveButton("Go to Settings",
+                            .setPositiveButton(
+                                "Go to Settings",
                                 DialogInterface.OnClickListener { dialog, which ->
                                     context.startActivity(
                                         Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
@@ -565,8 +592,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
             tvMessage.text = message
             this.show()
         }
-
-
 
 
     }
