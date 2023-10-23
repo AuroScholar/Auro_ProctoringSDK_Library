@@ -9,9 +9,6 @@ import android.media.MediaRecorder
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.example.mytoolbox.proctoring.FaceDetector
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class NoiseDetector() {
     private val SAMPLE_RATE = 44100

@@ -1,36 +1,35 @@
 package com.example.publicationtest
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams
 import androidx.appcompat.app.AppCompatActivity
 import com.example.mytoolbox.ProctoringSDK
 import com.example.mytoolbox.proctoring.FaceDetector.OnProctoringResultListener
 import com.example.publicationtest.databinding.ActivityMainBinding
-import com.example.publicationtest.databinding.ImageViewSimpleAdpterBinding
-import com.simpleadapter.SimpleAdapter
 
 
 class MainActivity : AppCompatActivity(), OnProctoringResultListener {
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
-
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        val proctoringSDK = ProctoringSDK(this)
-        binding.mainLayout.gravity = Gravity.END
-        binding.mainLayout.addView(proctoringSDK)
+                val proctoringSDK = ProctoringSDK(this)
+                binding.mainLayout.gravity = Gravity.END
+                binding.mainLayout.addView(proctoringSDK)
 
-        proctoringSDK.startProctoring(this)
+                proctoringSDK.startProctoring(this)
 
-        proctoringSDK.getCaptureImagesList().observe(this) {
-//            it?.let { updateUi(it) }
-        }
+                proctoringSDK.getCaptureImagesList().observe(this) {
+        //            it?.let { updateUi(it) }
+                }
+
 
     }
 
@@ -81,6 +80,10 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
 
     override fun onUserWallDistanceDetector(distance: Float) {
 
+    }
+
+    override fun onFaceDirectionMovement(faceDirection: String) {
+        binding.textView.text = faceDirection
     }
 
 

@@ -10,7 +10,6 @@ import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceContour
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
-import com.google.mlkit.vision.face.FaceLandmark
 import com.google.mlkit.vision.objects.ObjectDetection
 import com.google.mlkit.vision.objects.ObjectDetectorOptionsBase
 import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions
@@ -93,6 +92,7 @@ class FaceDetector() {
                 synchronized(lock) {
                     isProcessing = false
                     onProctoringResultListener?.isRunningDetector(isProcessing)
+
                     val faceResults = faceDetectionTask.result
                     val poseResults = poseDetectionTask.result
                     val objectResults = objectDetectionTask.result
@@ -100,8 +100,9 @@ class FaceDetector() {
                     var mouthOpen: Boolean = false
                     var eyeOpenStatus: String = ""
                     var calculateUserWallDistance: Float = -0.0F
-                    var objectDectionNames: String = ""
+                    var objectSectionNames: String = ""
                     var faceCount: Int = faceResults.size
+                    var faceDirection: String = ""
 
                     onProctoringResultListener?.onFaceCount(faceResults.size)
 
@@ -113,6 +114,7 @@ class FaceDetector() {
                         onProctoringResultListener?.onFaceCount(faceResults.size)
 
                         if (faceResults.size == 1) {
+
                             eyeOpenStatus = eyeTracking(face)
                             // Eye Tracking
                             onProctoringResultListener?.onEyeDetectionOnlyOneFace(eyeOpenStatus)
@@ -132,16 +134,14 @@ class FaceDetector() {
                                 val labels = detectedObject.labels
                                 for (label in labels) {
                                     onProctoringResultListener?.onObjectDetection(label.text)
-                                    objectDectionNames = label.text
+                                    objectSectionNames = label.text
                                 }
                             }
-                             val eulerY = face.headEulerAngleY // Yaw
-                             val eulerZ = face.headEulerAngleZ // Roll
-                             val eulerX = face.headEulerAngleX // Pitch
 
-//                            Log.e(TAG, "-----> detectFaces: Y $eulerY   X $eulerX  Z$eulerZ", )
+                            faceDirection = faceMovementDetection(face)
+                            onProctoringResultListener?.onFaceDirectionMovement(faceDirection)
 
-                            Log.e(TAG, " ---- > detectFaces: movement "+faceMovementDetection(face) )
+
                         }
 
                     }
@@ -149,7 +149,7 @@ class FaceDetector() {
                     //live Result
                     faceLiveResult.postValue(
                         FaceDetectorModel(
-                            faceCount, eyeOpenStatus, mouthOpen, objectDectionNames
+                            faceCount, eyeOpenStatus, mouthOpen, objectSectionNames
                         )
                     )
 
@@ -167,30 +167,21 @@ class FaceDetector() {
 
     private fun faceMovementDetection(face: Face): String {
 
-        val eulerY = face.headEulerAngleY // Yaw
+        val eulerY = face.headEulerAngleY // Yaw   ------- direction left and right out
         val eulerZ = face.headEulerAngleZ // Roll
         val eulerX = face.headEulerAngleX // Pitch
 
-        if (eulerY > 15) {
-            return " move right "
-            // move right
-        } else if (eulerY < -15) {
-            // move left
-            return "move left"
+        if (eulerY > 10) {
+            return "moving to right"
+        } else if (eulerY < -10) {
+            return "moving to left"
+        } else if (eulerX > 10) {
+            return "moving up"
+        } else if (eulerX < -10) {
+            return "moving down"
         } else {
-            // don't move horizontally
-            return  "don't move horizontally"
-        }
-
-        if (eulerX > 15) {
-            return  "move up"
-            // move up
-        } else if (eulerX < -15) {
-            // move down
-            return  " move down"
-        } else {
-            // don't move vertically
-            return  "don't move vertically"
+            // Face is not moving
+            return ""
         }
 
     }
@@ -291,6 +282,8 @@ class FaceDetector() {
         fun onObjectDetection(face: String)
         fun onEyeDetectionOnlyOneFace(face: String)
         fun onUserWallDistanceDetector(distance: Float)
+        fun onFaceDirectionMovement(faceDirection: String)
+
     }
 
     companion object {
@@ -303,5 +296,6 @@ data class FaceDetectorModel(
     var faceCount: Int = -1,
     var eyeOpenStatus: String = "",
     var isMouthOen: Boolean = false,
-    var objectDectionNames: String = ""
+    var objectDectionNames: String = "",
+    var faceDirection: String = ""
 )

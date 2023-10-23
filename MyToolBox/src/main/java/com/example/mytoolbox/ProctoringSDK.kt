@@ -22,6 +22,7 @@ import android.hardware.usb.UsbManager
 import android.os.Build
 import android.provider.Settings
 import android.util.AttributeSet
+import android.util.Log
 import android.util.Size
 import android.view.LayoutInflater
 import android.view.SurfaceHolder
@@ -392,14 +393,14 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?=null) : SurfaceView(c
             }
 
             private fun hideSystemUI(activity: AppCompatActivity) {
-                if (activity.supportActionBar != null) {
+               /* if (activity.supportActionBar != null) {
                     activity.supportActionBar!!.hide()
                 }
                 WindowCompat.setDecorFitsSystemWindows(activity.window, false)
                 WindowInsetsControllerCompat(activity.window, activity.window.decorView).let { controller ->
                     controller.hide(WindowInsetsCompat.Type.systemBars())
                     controller.systemBarsBehavior = BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                }
+                }*/
 
             }
             private fun hideSystemUI() {
@@ -509,23 +510,30 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?=null) : SurfaceView(c
         faceDetector.getLiveFaceResult().observe(activity) { liveResult ->
             activity.runOnUiThread {
                 if (defaultAlert) {
-                    if (liveResult.faceCount == 0) {
+                    if (liveResult.faceCount == 0 ) {
                         updateSurfaceViewBoard(null)
                         alert(
                             activity, "Face Count  ", liveResult.faceCount.toString()
                         )
                     } else if (liveResult.faceCount == 1) {
-                        hide()
-                        if (updateSurfaceViewBoard(liveResult.isMouthOen)) {
+                        // Face Direction check is user see left or right direction
+                        if (liveResult.faceDirection == ""){
+                            if (!updateSurfaceViewBoard(liveResult.isMouthOen)) { // return close mouth
 
-                        } else {
 
+                            } else {
+
+                            }
+                        }else{
+                            alert(activity,"Face Direction",liveResult.faceDirection)
                         }
 
                     } else {
+
+                        var count = liveResult.faceCount
                         animateRightToLeft(this)
                         alert(
-                            activity, "Face Count  ", liveResult.faceCount.toString()
+                            activity, "Face Count  ",count.toString()
                         )
                     }
 
