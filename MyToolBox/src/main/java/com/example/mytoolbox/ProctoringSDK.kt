@@ -94,6 +94,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
         }
         return super.onTouchEvent(event)
     }
+
+
     init {
 
         this.layoutParams = ViewGroup.LayoutParams(300, 300)
@@ -244,7 +246,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
         onProctoringResultListener: FaceDetector.OnProctoringResultListener
     ) {
         isDetection = true
-        useDefaultAlert(false)
         faceDetector.setonFaceDetectionFailureListener(onProctoringResultListener)
         NoiseDetector().startNoiseDetector((context as Activity), onProctoringResultListener)
         getFaceLiveResult(context as AppCompatActivity)

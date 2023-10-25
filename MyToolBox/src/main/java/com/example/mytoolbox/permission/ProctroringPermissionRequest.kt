@@ -6,11 +6,9 @@ import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 
-class MultiplePermissionRequest(private val activity: Activity) {
+class ProctroringPermissionRequest(private val activity: Activity) {
 
     companion object {
-
-
         const val PERMISSIONS_REQUEST_CODE = 100
     }
 
