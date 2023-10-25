@@ -1,12 +1,11 @@
 package com.example.mytoolbox.utils
 
 import android.app.NotificationManager
-import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
 
-class DNDCopyPasteManagerHelper(private val context: Context) {
+class DNDManagerHelper(private val context: Context) {
 
     private val mNotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
@@ -16,11 +15,5 @@ class DNDCopyPasteManagerHelper(private val context: Context) {
             context.startActivity(intent)
         }
     }
-
-    fun stopCopyPaste(){
-        val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboardManager.addPrimaryClipChangedListener(null)
-    }
-
 
 }

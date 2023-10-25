@@ -5,7 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Context.CLIPBOARD_SERVICE
 
-class ClipboardHelper(private val context: Context) {
+class ClipboardManagerHelper(private val context: Context) {
 
     private val clipboardManager: ClipboardManager by lazy {
         context.getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
