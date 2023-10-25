@@ -22,6 +22,7 @@ import android.hardware.usb.UsbManager
 import android.os.Build
 import android.provider.Settings
 import android.util.AttributeSet
+import android.util.Log
 import android.util.Size
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -43,11 +44,11 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
 import com.example.mytoolbox.Application.Companion.deadlyInMilliseconds
 import com.example.mytoolbox.Application.Companion.defaultAlert
-import com.example.mytoolbox.utils.DNDCopyPasteManagerHelper
 import com.example.mytoolbox.proctoring.FaceDetector
 import com.example.mytoolbox.proctoring.Frame
 import com.example.mytoolbox.proctoring.LensFacing
 import com.example.mytoolbox.usb.UsbReceiver
+import com.example.mytoolbox.utils.DNDCopyPasteManagerHelper
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.lang.reflect.Method
@@ -74,6 +75,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
     private var usbManager = UsbReceiver()
     private var statusBarLocker: StatusBarLocker? = null
     override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
+        Log.e("TAG", "dispatchKeyEvent: ----- > "+event.toString() )
         if (event?.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
             val dialog = AlertDialog.Builder(this as Context)
             dialog.setMessage("Dialog message")
@@ -88,7 +90,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
         val mDisableCursorHandle = false
         if (event?.actionMasked == MotionEvent.ACTION_UP && mDisableCursorHandle) {
             // Hack to prevent keyboard and insertion handle from showing.
-            cancelLongPress();
+            cancelLongPress()
         }
         return super.onTouchEvent(event)
     }
