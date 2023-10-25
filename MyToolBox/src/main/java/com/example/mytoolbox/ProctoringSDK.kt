@@ -43,7 +43,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
-import com.example.mytoolbox.permission.DNDCopyPasteManagerHelper
+import com.example.mytoolbox.utils.DNDCopyPasteManagerHelper
 import com.example.mytoolbox.proctoring.FaceDetector
 import com.example.mytoolbox.proctoring.Frame
 import com.example.mytoolbox.proctoring.LensFacing
