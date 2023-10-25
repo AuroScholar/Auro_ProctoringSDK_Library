@@ -13,15 +13,13 @@ import com.example.publicationtest.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(), OnProctoringResultListener {
 
-    private lateinit var multiplePermissionRequest: MultiplePermissionRequest
+    private var multiplePermissionRequest: MultiplePermissionRequest = MultiplePermissionRequest(this)
 
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
-        multiplePermissionRequest = MultiplePermissionRequest(this)
 
         if (multiplePermissionRequest.checkPermissionGranted()) {
             // Permissions already granted
@@ -53,6 +51,20 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
          adapter.addAll(it)
          adapter.notifyDataSetChanged()
          binding.viewPagerImageList.adapter = adapter*/
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == MultiplePermissionRequest.PERMISSIONS_REQUEST_CODE){
+            // permission are granted
+        }else{
+            // permission denied
+            multiplePermissionRequest.requestPermissions()
+        }
     }
 
     override fun onVoiceDetected(
