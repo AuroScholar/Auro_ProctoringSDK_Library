@@ -48,7 +48,7 @@ import com.example.mytoolbox.proctoring.FaceDetector
 import com.example.mytoolbox.proctoring.Frame
 import com.example.mytoolbox.proctoring.LensFacing
 import com.example.mytoolbox.usb.UsbReceiver
-import com.example.mytoolbox.utils.DNDCopyPasteManagerHelper
+import com.example.mytoolbox.utils.DNDManagerHelper
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.lang.reflect.Method
@@ -272,8 +272,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
 
                         if (defaultAlert) {
                             // DND notification manager
-                            DNDCopyPasteManagerHelper(context).apply {
-                                this.stopCopyPaste()
+                            DNDManagerHelper(context).apply {
                                 this.checkDNDPolicyAccessAndRequest()
                             }
                             // developer mode

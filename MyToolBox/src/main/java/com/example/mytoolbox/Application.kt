@@ -4,7 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import android.view.WindowManager
-import com.example.mytoolbox.utils.ClipboardHelper
+import com.example.mytoolbox.utils.ClipboardManagerHelper
 
 class Application : Application() {
 
@@ -24,7 +24,7 @@ class Application : Application() {
 
 
             // Stop copy paste option
-            ClipboardHelper(this).clearClipboard()
+            ClipboardManagerHelper(this).clearClipboard()
         }
 
 
