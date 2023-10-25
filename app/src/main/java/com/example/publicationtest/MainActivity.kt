@@ -1,9 +1,13 @@
 package com.example.publicationtest
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
+import android.view.KeyEvent
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams
 import androidx.appcompat.app.AppCompatActivity
 import com.example.mytoolbox.ProctoringSDK
 import com.example.mytoolbox.permission.ProctroringPermissionRequest
@@ -15,7 +19,8 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
 
     //init permission
     private var proctoringPermissionRequest = ProctroringPermissionRequest(this)
-    // init Proctoring
+
+    // init Proctoring SDK
     private val proctoringSDK = ProctoringSDK(this)
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
@@ -26,11 +31,11 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
         // Permissions already granted
         if (proctoringPermissionRequest.checkPermissionGranted()) {
 
-            // set layout
+            // add camera output for user alert
             binding.mainLayout.gravity = Gravity.END
             binding.mainLayout.addView(proctoringSDK)
 
-            //start proctoring
+            /* start proctoring */
             proctoringSDK.startProctoring(this)
 
             proctoringSDK.getCaptureImagesList().observe(this) {
@@ -44,16 +49,6 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
 
     }
 
-    private fun updateUi(it: List<Bitmap>) {
-        /* val adapter =
-             SimpleAdapter.with<Bitmap, ImageViewSimpleAdpterBinding>(R.layout.image_view_simple_adpter) { adapterPosition, model, bindingview ->
-                 bindingview.imageView.setImageBitmap(model)
-             }
-         adapter.addAll(it)
-         adapter.notifyDataSetChanged()
-         binding.viewPagerImageList.adapter = adapter*/
-    }
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -61,12 +56,14 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         proctoringPermissionRequest.onReuestPermissionResult(requestCode,permissions,grantResults)
+
     }
 
     override fun onVoiceDetected(
         amplitude: Double, isNiceDetected: Boolean, isRunning: Boolean, typeOfVoiceDetected: String
     ) {
       // detect voice and type of voice
+
     }
 
     override fun onFaceCount(faceCount: Int) {
@@ -75,35 +72,35 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
     }
 
     override fun isRunningDetector(boolean: Boolean?) {
-
+        // detect running status
     }
 
     override fun onSuccess(faceBounds: Int) {
-
+        // getting face count
     }
 
     override fun onFailure(exception: Exception) {
-
+        // error on SDK level
     }
 
     override fun onLipMovementDetection(face: Boolean) {
-//        binding.textView.text = face.toString()
+        // Lips Movement is mouth is open and close
     }
 
     override fun onObjectDetection(faceError: String) {
-
+        // object detection on camera
     }
 
     override fun onEyeDetectionOnlyOneFace(faceError: String) {
-
+        // eye open and close status
     }
 
     override fun onUserWallDistanceDetector(distance: Float) {
-
+        // user pose detection
     }
 
     override fun onFaceDirectionMovement(faceDirection: String?) {
-        binding.textView.text = faceDirection
+        // user Fave Direction movment left and right movement
     }
 
 

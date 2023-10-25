@@ -31,12 +31,14 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -95,14 +97,41 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
         return super.onTouchEvent(event)
     }
 
+    fun readmode(isDarkModeOn: Boolean) {
+        if (isDarkModeOn) {
+            val win: Window = (context as Activity).window
+            val winParams = win.attributes
+            winParams.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_OFF
+            win.attributes = winParams
+            val layout: WindowManager.LayoutParams = (context as Activity).window.attributes
+            layout.screenBrightness = 0.1f
+            (context as Activity).window.attributes = layout
+            AppCompatDelegate
+                .setDefaultNightMode(
+                    AppCompatDelegate
+                        .MODE_NIGHT_YES
+                )
 
+        } else {
+            AppCompatDelegate
+                .setDefaultNightMode(
+                    AppCompatDelegate
+                        .MODE_NIGHT_NO
+                )
+        }
+
+    }
     init {
 
         this.layoutParams = ViewGroup.LayoutParams(300, 300)
+
         this.setPadding(50, 50, 50, 50)
+
         this.surfaceHolder = holder
         this.surfaceHolder?.addCallback(this)
+
         this.imgList.clear()
+
         initSurfaceViewBoarder()
 
 
@@ -276,6 +305,11 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                             DNDManagerHelper(context).apply {
                                 this.checkDNDPolicyAccessAndRequest()
                             }
+
+                            //Screen Privery
+                            readmode(defaultAlert)
+
+
                             // developer mode
                             turnOffDeveloperMode(context, isDeveloperModeEnable(context))
 
