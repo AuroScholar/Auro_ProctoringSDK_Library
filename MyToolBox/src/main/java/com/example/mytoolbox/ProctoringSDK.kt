@@ -25,6 +25,7 @@ import android.util.AttributeSet
 import android.util.Size
 import android.view.KeyEvent
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
@@ -40,7 +41,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
-import com.example.mytoolbox.permission.DNDCopyPasteManagerHelper
+import com.example.mytoolbox.Application.Companion.deadlyInMilliseconds
+import com.example.mytoolbox.Application.Companion.defaultAlert
+import com.example.mytoolbox.utils.DNDCopyPasteManagerHelper
 import com.example.mytoolbox.proctoring.FaceDetector
 import com.example.mytoolbox.proctoring.Frame
 import com.example.mytoolbox.proctoring.LensFacing
@@ -51,15 +54,12 @@ import java.lang.reflect.Method
 import java.util.Timer
 import java.util.TimerTask
 
-
-class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView(context, attrs),
-    SurfaceHolder.Callback, Camera.PreviewCallback {
-
+class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView(context, attrs), SurfaceHolder.Callback, Camera.PreviewCallback {
 
     private var camera: Camera? = null
     private var surfaceHolder: SurfaceHolder? = null
     private val faceDetector = FaceDetector()
-    private var deadlyInMilliseconds: Long = 30000
+
     private var imageBitmap: Bitmap? = null
     private var isDetection = true
     private val imgList = mutableListOf<Bitmap>()
@@ -71,7 +71,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
 
     private var alertDialog: AlertDialog? = null
 
-    private var defaultAlert: Boolean = true
     private var usbManager = UsbReceiver()
     private var statusBarLocker: StatusBarLocker? = null
     override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
@@ -85,6 +84,14 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
         return super.dispatchKeyEvent(event)
     }
 
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        val mDisableCursorHandle = false
+        if (event?.actionMasked == MotionEvent.ACTION_UP && mDisableCursorHandle) {
+            // Hack to prevent keyboard and insertion handle from showing.
+            cancelLongPress();
+        }
+        return super.onTouchEvent(event)
+    }
     init {
 
         this.layoutParams = ViewGroup.LayoutParams(300, 300)
@@ -235,6 +242,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
         onProctoringResultListener: FaceDetector.OnProctoringResultListener
     ) {
         isDetection = true
+        useDefaultAlert(false)
         faceDetector.setonFaceDetectionFailureListener(onProctoringResultListener)
         NoiseDetector().startNoiseDetector((context as Activity), onProctoringResultListener)
         getFaceLiveResult(context as AppCompatActivity)
@@ -259,16 +267,16 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
 
                     Lifecycle.Event.ON_CREATE -> {
 
-                        if (defaultAlert) {
 
+                        if (defaultAlert) {
                             // DND notification manager
                             DNDCopyPasteManagerHelper(context).apply {
                                 this.stopCopyPaste()
                                 this.checkDNDPolicyAccessAndRequest()
                             }
-
                             // developer mode
                             turnOffDeveloperMode(context, isDeveloperModeEnable(context))
+
                             if (isEmulatorRun()) {
                                 alert(activity, "Emulator", "Don't use Emulator")
                             }
@@ -277,7 +285,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                             // full screen
 //                            enableFullScreen(activity)
                             hideSystemUI()
-                            hideSystemUI(activity)
 
                             // multi window
                             activity.onMultiWindowModeChanged(false)
@@ -307,7 +314,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                             // full screen
 //                            enableFullScreen(activity)
                             hideSystemUI()
-                            hideSystemUI(activity)
 
                             // multi window
                             activity.onMultiWindowModeChanged(false)
@@ -396,17 +402,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                 ) || Build.PRODUCT.contains("vbox86p") || Build.PRODUCT.contains("emulator") || Build.PRODUCT.contains(
                     "simulator"
                 ) || Build.PRODUCT.contains("Genymotion") || Build.PRODUCT.contains("Bluestacks"))
-            }
-
-            private fun hideSystemUI(activity: AppCompatActivity) {/* if (activity.supportActionBar != null) {
-                     activity.supportActionBar!!.hide()
-                 }
-                 WindowCompat.setDecorFitsSystemWindows(activity.window, false)
-                 WindowInsetsControllerCompat(activity.window, activity.window.decorView).let { controller ->
-                     controller.hide(WindowInsetsCompat.Type.systemBars())
-                     controller.systemBarsBehavior = BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                 }*/
-
             }
 
             private fun hideSystemUI() {
@@ -599,7 +594,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
     }
 
     fun proctoringWithDealy(dealInMilliseconds: Long) {
-        this.deadlyInMilliseconds = dealInMilliseconds
+        deadlyInMilliseconds = dealInMilliseconds
     }
 
     fun startStopDetection(): Boolean {

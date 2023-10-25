@@ -2,19 +2,42 @@ package com.example.mytoolbox
 
 import android.app.Activity
 import android.app.Application
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.os.Bundle
+import android.view.ContextMenu
+import android.view.View
 import android.view.WindowManager
+import com.example.mytoolbox.utils.ClipboardHelper
 
-class Application : Application(){
+class Application : Application() {
+    companion object{
+
+        var defaultAlert: Boolean = true
+        var deadlyInMilliseconds: Long = 30000
+
+    }
     override fun onCreate() {
         super.onCreate()
-        registerActivityLifecycle();
+
+
+        if (defaultAlert){
+            // stop screen short and video recording
+            registerActivityLifecycle()
+            // Stop copy paste option
+            ClipboardHelper(this).clearClipboard()
+        }
+
+
     }
 
     private fun registerActivityLifecycle() {
-        registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks{
+        registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {
             override fun onActivityCreated(activity: Activity, p1: Bundle?) {
-                activity.window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+                activity.window.setFlags(
+                    WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE
+                )
+
 
             }
 

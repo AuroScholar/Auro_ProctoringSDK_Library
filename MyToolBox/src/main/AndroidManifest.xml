@@ -24,9 +24,6 @@
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
 
-
-
-
     <application
         android:name=".Application"
         android:allowBackup="true"
