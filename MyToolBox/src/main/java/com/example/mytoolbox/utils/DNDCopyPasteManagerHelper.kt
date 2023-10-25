@@ -1,4 +1,4 @@
-package com.example.mytoolbox.permission
+package com.example.mytoolbox.utils
 
 import android.app.NotificationManager
 import android.content.ClipboardManager
