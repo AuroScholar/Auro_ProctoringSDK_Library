@@ -24,58 +24,107 @@ dependencies {
 	}
 ```
 
-## Run ProctoringSDK
+## Setup ProctoringSDK
 
 ```kotlin
-    val proctoringSDK = ProctoringSDK(this)
 
-    binding.mainLayout.gravity = Gravity.END
+// OnProctoringResultListener for detector result
+class MainActivity : AppCompatActivity(), OnProctoringResultListener {
 
-    binding.mainLayout.addView(proctoringSDK)
-        
-    proctoringSDK.startProctoring(this)
+    //init permission
+    private var proctoringPermissionRequest = ProctroringPermissionRequest(this)
+
+    // init Proctoring SDK
+    private val proctoringSDK = ProctoringSDK(this)
+
+    private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(binding.root)
+
+        // Permissions already granted
+        if (proctoringPermissionRequest.checkPermissionGranted()) {
+
+            // add camera output for user alert
+            binding.mainLayout.gravity = Gravity.END
+            binding.mainLayout.addView(proctoringSDK)
+
+            /* start proctoring */
+            proctoringSDK.startProctoring(this)
+
+            proctoringSDK.getCaptureImagesList().observe(this) {
+                //            it?.let { updateUi(it) }
+            }
+
+        } else {
+            proctoringPermissionRequest.requestPermissions()
+        }
+
+
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        proctoringPermissionRequest.onReuestPermissionResult(requestCode,permissions,grantResults)
+     
+    }
+
+
+}
+
 ```
 ## Handle Result 
 
 ```kotlin
 
     override fun onVoiceDetected(
-        amplitude: Double,
-        isNiceDetected: Boolean,
-        isRunning: Boolean,
-        typeOfVoiceDetected: String
+        amplitude: Double, isNiceDetected: Boolean, isRunning: Boolean, typeOfVoiceDetected: String
     ) {
-
+      // detect voice and type of voice
+       
     }
 
-    override fun onFaceCount(faceCount: String) {
+    override fun onFaceCount(faceCount: Int) {
+        // getting face count
 
     }
 
     override fun isRunningDetector(boolean: Boolean?) {
-        super.isRunningDetector(boolean)
-
+        // detect running status
     }
 
     override fun onSuccess(faceBounds: Int) {
-        super.onSuccess(faceBounds)
+        // getting face count
     }
 
-    override fun onLipMovementDetection(mouth: Boolean) {
-
+    override fun onFailure(exception: Exception) {
+        // error on SDK level
     }
 
-    override fun onObjectDetection(object: String) {
-
+    override fun onLipMovementDetection(face: Boolean) {
+        // Lips Movement is mouth is open and close
     }
 
-    override fun onEyeDetectionOnlyOneFace(eye: String) {
+    override fun onObjectDetection(faceError: String) {
+        // object detection on camera  
+    }
 
+    override fun onEyeDetectionOnlyOneFace(faceError: String) {
+        // eye open and close status 
     }
 
     override fun onUserWallDistanceDetector(distance: Float) {
-
+        // user pose detection
     }
+
+    override fun onFaceDirectionMovement(faceDirection: String?) {
+        // user Fave Direction movment left and right movement 
+    }
+
 
 ```
 ## Custom Control
