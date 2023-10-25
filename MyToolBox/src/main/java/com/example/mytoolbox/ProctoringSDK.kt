@@ -43,7 +43,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.MutableLiveData
-import com.example.mytoolbox.utils.DNDCopyPasteManagerHelper
+import com.example.mytoolbox.utils.DNDManagerHelper
 import com.example.mytoolbox.proctoring.FaceDetector
 import com.example.mytoolbox.proctoring.Frame
 import com.example.mytoolbox.proctoring.LensFacing
@@ -117,7 +117,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
              winParams.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_OFF
              win.attributes = winParams
              val layout: WindowManager.LayoutParams = (context as Activity).window.getAttributes()
-             layout.screenBrightness = 0f
+             layout.screenBrightness = 0.1f
              (context as Activity).window.setAttributes(layout)
              AppCompatDelegate
                  .setDefaultNightMode(
@@ -320,8 +320,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                         if (defaultAlert) {
 
                             // DND notification manager
-                            DNDCopyPasteManagerHelper(context).apply {
-                                this.stopCopyPaste()
+                            DNDManagerHelper(context).apply {
+
                                 this.checkDNDPolicyAccessAndRequest()
                             }
 
