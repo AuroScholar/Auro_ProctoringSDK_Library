@@ -9,6 +9,8 @@ import androidx.core.content.ContextCompat
 class MultiplePermissionRequest(private val activity: Activity) {
 
     companion object {
+
+
         const val PERMISSIONS_REQUEST_CODE = 100
     }
 
@@ -48,5 +50,18 @@ class MultiplePermissionRequest(private val activity: Activity) {
             }
         }
         return true
+    }
+
+    fun onReuestPermissionResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == PERMISSIONS_REQUEST_CODE){
+            // permission are granted
+        }else{
+            // permission denied
+            this.requestPermissions()
+        }
     }
 }

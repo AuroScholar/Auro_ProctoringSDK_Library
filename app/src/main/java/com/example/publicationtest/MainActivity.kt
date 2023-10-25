@@ -59,12 +59,7 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == MultiplePermissionRequest.PERMISSIONS_REQUEST_CODE){
-            // permission are granted
-        }else{
-            // permission denied
-            multiplePermissionRequest.requestPermissions()
-        }
+        multiplePermissionRequest.onReuestPermissionResult(requestCode,permissions,grantResults)
     }
 
     override fun onVoiceDetected(
