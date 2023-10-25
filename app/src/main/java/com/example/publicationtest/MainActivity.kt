@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import androidx.appcompat.app.AppCompatActivity
@@ -29,9 +30,13 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
                 proctoringSDK.getCaptureImagesList().observe(this) {
         //            it?.let { updateUi(it) }
                 }
+            //  proctoringSDK.readmode(true)
+
 
 
     }
+
+
 
     private fun updateUi(it: List<Bitmap>) {
        /* val adapter =

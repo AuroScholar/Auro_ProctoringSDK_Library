@@ -22,6 +22,7 @@ import android.hardware.usb.UsbManager
 import android.os.Build
 import android.provider.Settings
 import android.util.AttributeSet
+import android.util.Log
 import android.util.Size
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -29,12 +30,14 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -74,19 +77,73 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
     private var defaultAlert: Boolean = true
     private var usbManager = UsbReceiver()
     private var statusBarLocker: StatusBarLocker? = null
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        if (Build.VERSION.SDK.toInt() > 5 && keyCode == KeyEvent.KEYCODE_BACK && event.repeatCount == 0) {
+            Log.d("CDA", "onKeyDown Called")
+            onBackPressed()
+            return true
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+    fun onBackPressed() {
+        Log.d("CDA", "onBackPressed Called")
+        val dialog = AlertDialog.Builder(this as Context)
+        dialog.setTitle("If you want to close the app, then it will lose data and you have start this again ..!!")
+        dialog.setMessage("Dialog message")
+        dialog.setPositiveButton("OK") { _, _ -> }
+        dialog.setCancelable(false)
+        dialog.show()
+    }
     override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
-        if (event?.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
+        if (event?.keyCode == KeyEvent.KEYCODE_BACK && event?.keyCode == KeyEvent.ACTION_DOWN) {
+
             val dialog = AlertDialog.Builder(this as Context)
+            dialog.setTitle("If you want to close the app, then it will lose data and you have start this again ..!!")
             dialog.setMessage("Dialog message")
             dialog.setPositiveButton("OK") { _, _ -> }
+            dialog.setCancelable(false)
             dialog.show()
             return true
         }
         return super.dispatchKeyEvent(event)
     }
 
-    init {
 
+     fun readmode(isDarkModeOn: Boolean) {
+         if (isDarkModeOn) {
+             val win: Window = (context as Activity).window
+             val winParams = win.attributes
+             winParams.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_OFF
+             win.attributes = winParams
+             val layout: WindowManager.LayoutParams = (context as Activity).window.getAttributes()
+             layout.screenBrightness = 0f
+             (context as Activity).window.setAttributes(layout)
+             AppCompatDelegate
+                 .setDefaultNightMode(
+                     AppCompatDelegate
+                         .MODE_NIGHT_YES);
+
+         }
+         else {
+             AppCompatDelegate
+                 .setDefaultNightMode(
+                     AppCompatDelegate
+                         .MODE_NIGHT_NO);
+         }
+
+
+//         val mode = if ((resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+//            Configuration.UI_MODE_NIGHT_NO
+//        ) {
+//            AppCompatDelegate.MODE_NIGHT_YES
+//        } else {
+//            AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY
+//        }
+//        AppCompatDelegate.setDefaultNightMode(mode)
+    }
+
+    init {
         this.layoutParams = ViewGroup.LayoutParams(300, 300)
         this.setPadding(50, 50, 50, 50)
         this.surfaceHolder = holder
@@ -256,6 +313,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                         }
 
                     }
+
 
                     Lifecycle.Event.ON_CREATE -> {
 
@@ -432,7 +490,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
             private fun isDeveloperModeEnable(context: Context): Boolean {
                 return Settings.Secure.getInt(
                     context.contentResolver, Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0
-                ) != 0
+                ) == 0  //!
             }
 
             private fun turnOffDeveloperMode(context: Context, developerModeEnable: Boolean) {
@@ -511,12 +569,14 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
             activity.runOnUiThread {
                 if (defaultAlert) {
                     if (liveResult.faceCount == 0) {
+                        readmode(false)
                         hide()
                         updateSurfaceViewBoard(null)
                         alert(
                             activity, "Face Count  ", liveResult.faceCount.toString()
                         )
                     } else if (liveResult.faceCount == 1) {
+                        readmode(false)
                         hide()
                         // Face Direction check is user see left or right direction
                         if (!liveResult.faceDirection.isNullOrBlank()) {
@@ -533,6 +593,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                         }
 
                     } else {
+                        readmode(true)
                         hide()
                         var count = liveResult.faceCount
                         animateRightToLeft(this)
@@ -621,13 +682,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
         }
 
     }
-
     fun stopCamera() {
         camera?.stopFaceDetection()
         camera?.stopPreview()
         camera?.stopSmoothZoom()
         camera?.release()
     }
-
-
 }
