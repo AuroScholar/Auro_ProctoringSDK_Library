@@ -40,6 +40,7 @@ import com.example.auroproctoringsdk.detector.Frame
 import com.example.auroproctoringsdk.detector.LensFacing
 import com.example.auroproctoringsdk.usb.UsbReceiver
 import com.example.auroproctoringsdk.developerMode.CheckDeveloperMode
+import com.example.auroproctoringsdk.dnd.DNDManagerHelper
 import com.example.auroproctoringsdk.emulater.EmulatorDetector
 import com.example.auroproctoringsdk.screenBarLock.StatusBarLocker
 import com.example.auroproctoringsdk.screenBrightness.ScreenBrightness
@@ -244,6 +245,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                             if (EmulatorDetector().isEmulatorRun()) {
                                 alert(activity, "Emulator", "Don't use Emulator")
                             }
+
+                            //DND
+                            DNDManagerHelper(context).checkDNDPolicyAccessAndRequest()
 
                             // lock
                             WindowUtils(activity).doNotLockScreen()
