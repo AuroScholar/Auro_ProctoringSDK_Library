@@ -1,5 +1,5 @@
 
-# Auro Proctoring SDK
+# Auro-Proctoring-SDK
 
 Proctoring is a process used to monitor and supervise online exams or assessments to ensure their integrity and prevent cheating. It involves the use of technology and human invigilators to monitor test-takers remotely.
 
