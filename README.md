@@ -20,7 +20,7 @@ dependencyResolutionManagement {
 Step 2. Add the dependency
 ```kotlin
 dependencies {
-	        implementation 'com.github.azzadpandit1:ProctoringSDK:0.0.15'
+	        implementation 'com.github.azzadpandit1:Auro-Proctoring-SDK:0.0.15'
 	}
 ```
 
@@ -34,8 +34,7 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
     //init permission
     private var proctoringPermissionRequest = ProctroringPermissionRequest(this)
 
-    // init Proctoring SDK
-    private val proctoringSDK = ProctoringSDK(this)
+  
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,7 +44,9 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
         // Permissions already granted
         if (proctoringPermissionRequest.checkPermissionGranted()) {
 
-            // add camera output for user alert
+            // init Proctoring SDK
+	    private val proctoringSDK = ProctoringSDK(this)
+	    // add camera output for user alert
             binding.mainLayout.gravity = Gravity.END
             binding.mainLayout.addView(proctoringSDK)
 
