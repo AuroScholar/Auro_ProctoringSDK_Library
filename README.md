@@ -20,7 +20,7 @@ dependencyResolutionManagement {
 Step 2. Add the dependency
 ```kotlin
 dependencies {
-	        implementation 'com.github.azzadpandit1:ProctoringSDK:0.0.9'
+	        implementation 'com.github.azzadpandit1:ProctoringSDK:0.0.15'
 	}
 ```
 
