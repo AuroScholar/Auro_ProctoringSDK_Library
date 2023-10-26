@@ -100,7 +100,7 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
     }
 
     override fun onFaceDirectionMovement(faceDirection: String?) {
-        // user Face Direction movment left and right movement
+        // user Face Direction movement left and right movement
     }
 
 
