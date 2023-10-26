@@ -17,6 +17,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "PublicationTest"
+rootProject.name = "AuroProctoringSDKAPP"
 include(":app")
-include(":MyToolBox")
+include(":AuroProctoringSDK")

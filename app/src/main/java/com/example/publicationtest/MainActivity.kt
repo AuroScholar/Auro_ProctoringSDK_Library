@@ -2,21 +2,21 @@ package com.example.publicationtest
 
 import android.os.Bundle
 import android.view.Gravity
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.example.mytoolbox.ProctoringSDK
-import com.example.mytoolbox.permission.ProctroringPermissionRequest
-import com.example.mytoolbox.proctoring.FaceDetector.OnProctoringResultListener
+import com.example.auroproctoringsdk.detector.FaceDetector.OnProctoringResultListener
+import com.example.auroproctoringsdk.permission.ProctoringPermissionRequest
 import com.example.publicationtest.databinding.ActivityMainBinding
 
 // OnProctoringResultListener for detector result
 class MainActivity : AppCompatActivity(), OnProctoringResultListener {
 
     //init permission
-    private var proctoringPermissionRequest = ProctroringPermissionRequest(this)
-
-
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+
+    private var proctoringPermissionRequest = ProctoringPermissionRequest(this)
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -25,7 +25,8 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
         if (proctoringPermissionRequest.checkPermissionGranted()) {
 
             // init Proctoring SDK
-           val proctoringSDK = ProctoringSDK(this)
+           val proctoringSDK = com.example.auroproctoringsdk.ProctoringSDK(this)
+
             // add camera output for user alert
             binding.mainLayout.gravity = Gravity.END
             binding.mainLayout.addView(proctoringSDK)
