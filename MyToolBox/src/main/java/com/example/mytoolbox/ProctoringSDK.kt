@@ -51,6 +51,7 @@ import com.example.mytoolbox.proctoring.Frame
 import com.example.mytoolbox.proctoring.LensFacing
 import com.example.mytoolbox.usb.UsbReceiver
 import com.example.mytoolbox.utils.DNDManagerHelper
+import com.example.mytoolbox.utils.ScreenBrightness
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.lang.reflect.Method
@@ -76,51 +77,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
 
     private var usbManager = UsbReceiver()
     private var statusBarLocker: StatusBarLocker? = null
-    override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
-        Log.e("TAG", "dispatchKeyEvent: ----- > "+event.toString() )
-        if (event?.keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
-            val dialog = AlertDialog.Builder(this as Context)
-            dialog.setMessage("Dialog message")
-            dialog.setPositiveButton("OK") { _, _ -> }
-            dialog.show()
-            return true
-        }
-        return super.dispatchKeyEvent(event)
-    }
 
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        val mDisableCursorHandle = false
-        if (event?.actionMasked == MotionEvent.ACTION_UP && mDisableCursorHandle) {
-            // Hack to prevent keyboard and insertion handle from showing.
-            cancelLongPress()
-        }
-        return super.onTouchEvent(event)
-    }
 
-    fun readmode(isDarkModeOn: Boolean) {
-        if (isDarkModeOn) {
-            val win: Window = (context as Activity).window
-            val winParams = win.attributes
-            winParams.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_OFF
-            win.attributes = winParams
-            val layout: WindowManager.LayoutParams = (context as Activity).window.attributes
-            layout.screenBrightness = 0.1f
-            (context as Activity).window.attributes = layout
-            AppCompatDelegate
-                .setDefaultNightMode(
-                    AppCompatDelegate
-                        .MODE_NIGHT_YES
-                )
-
-        } else {
-            AppCompatDelegate
-                .setDefaultNightMode(
-                    AppCompatDelegate
-                        .MODE_NIGHT_NO
-                )
-        }
-
-    }
     init {
 
         this.layoutParams = ViewGroup.LayoutParams(300, 300)
@@ -305,9 +263,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                             DNDManagerHelper(context).apply {
                                 this.checkDNDPolicyAccessAndRequest()
                             }
-
+/*
                             //Screen Privery
-                            readmode(defaultAlert)
+                            readmode(defaultAlert)*/
 
 
                             // developer mode
@@ -542,6 +500,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
             activity.runOnUiThread {
                 if (defaultAlert) {
                     if (liveResult.faceCount == 0) {
+                        ScreenBrightness(activity).setScreenBrightness(false)
                         hide()
                         updateSurfaceViewBoard(null)
                         alert(
@@ -549,6 +508,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                         )
                     } else if (liveResult.faceCount == 1) {
                         hide()
+                        ScreenBrightness(activity).setScreenBrightness(false)
                         // Face Direction check is user see left or right direction
                         if (!liveResult.faceDirection.isNullOrBlank()) {
                             hide()
@@ -564,6 +524,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                         }
 
                     } else {
+                        ScreenBrightness(activity).setScreenBrightness(defaultAlert)
                         hide()
                         var count = liveResult.faceCount
                         animateRightToLeft(this)

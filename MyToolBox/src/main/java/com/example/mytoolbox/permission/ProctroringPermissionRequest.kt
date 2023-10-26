@@ -2,6 +2,7 @@ package com.example.mytoolbox.permission
 
 import android.Manifest
 import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -57,6 +58,10 @@ class ProctroringPermissionRequest(private val activity: Activity) {
     ) {
         if (requestCode == PERMISSIONS_REQUEST_CODE){
             // permission are granted
+//            activity.recreate()
+            activity.finish()
+            activity.startActivity(activity.intent)
+            activity.overridePendingTransition(0, 0)
         }else{
             // permission denied
             this.requestPermissions()

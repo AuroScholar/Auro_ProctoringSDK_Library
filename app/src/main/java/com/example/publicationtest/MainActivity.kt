@@ -1,13 +1,8 @@
 package com.example.publicationtest
 
-import android.content.Context
-import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
-import android.view.KeyEvent
-import android.view.ViewGroup
-import android.view.ViewGroup.LayoutParams
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.mytoolbox.ProctoringSDK
 import com.example.mytoolbox.permission.ProctroringPermissionRequest
@@ -20,8 +15,6 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
     //init permission
     private var proctoringPermissionRequest = ProctroringPermissionRequest(this)
 
-    // init Proctoring SDK
-    private val proctoringSDK = ProctoringSDK(this)
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,6 +24,8 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
         // Permissions already granted
         if (proctoringPermissionRequest.checkPermissionGranted()) {
 
+            // init Proctoring SDK
+           val proctoringSDK = ProctoringSDK(this)
             // add camera output for user alert
             binding.mainLayout.gravity = Gravity.END
             binding.mainLayout.addView(proctoringSDK)
@@ -101,6 +96,10 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
 
     override fun onFaceDirectionMovement(faceDirection: String?) {
         // user Face Direction movement left and right movement
+    }
+
+    override fun onFaceNotReal(faceDirection: String) {
+        binding.textView.text = faceDirection
     }
 
 

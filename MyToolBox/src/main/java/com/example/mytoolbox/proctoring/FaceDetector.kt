@@ -109,44 +109,53 @@ class FaceDetector() {
                     //Face Tracking
                     for (face in faceResults) {
 
-                        faceCount = faceResults.size
+                        // Real Face check
+                        if (isReal(face)){
 
-                        onProctoringResultListener?.onFaceCount(faceResults.size)
+                            faceCount = faceResults.size
 
-                        if (faceResults.size == 1) {
+                            onProctoringResultListener?.onFaceCount(faceResults.size)
 
-                            eyeOpenStatus = eyeTracking(face)
-                            // Eye Tracking
-                            onProctoringResultListener?.onEyeDetectionOnlyOneFace(eyeOpenStatus)
+                            if (faceResults.size == 1) {
 
-                            //Lip Tracking
-                            mouthOpen = detectMouth(face)
-                            onProctoringResultListener?.onLipMovementDetection(mouthOpen)
+                                eyeOpenStatus = eyeTracking(face)
+                                // Eye Tracking
+                                onProctoringResultListener?.onEyeDetectionOnlyOneFace(eyeOpenStatus)
 
-                            //Pose Tracking
-                            calculateUserWallDistance = calculateUserWallDistance(poseResults)
+                                //Lip Tracking
+                                mouthOpen = detectMouth(face)
+                                onProctoringResultListener?.onLipMovementDetection(mouthOpen)
 
-                            onProctoringResultListener?.onUserWallDistanceDetector(
-                                calculateUserWallDistance
-                            )
+                                //Pose Tracking
+                                calculateUserWallDistance = calculateUserWallDistance(poseResults)
 
-                            //face direction
-                            faceDirection = faceMovementDetection(face)
-                            onProctoringResultListener?.onFaceDirectionMovement(faceDirection)
+                                onProctoringResultListener?.onUserWallDistanceDetector(
+                                    calculateUserWallDistance
+                                )
+
+                                //face direction
+                                faceDirection = faceMovementDetection(face)
+                                onProctoringResultListener?.onFaceDirectionMovement(faceDirection)
 
 
-                            //Object Tracking
-                            for (detectedObject in objectResults) {
-                                val labels = detectedObject.labels
-                                for (label in labels) {
-                                    onProctoringResultListener?.onObjectDetection(label.text)
-                                    objectSectionNames = label.text
+                                //Object Tracking
+                                for (detectedObject in objectResults) {
+                                    val labels = detectedObject.labels
+                                    for (label in labels) {
+                                        onProctoringResultListener?.onObjectDetection(label.text)
+                                        objectSectionNames = label.text
+                                    }
                                 }
+
+
+
                             }
 
-
-
+                        }else{
+                            onProctoringResultListener?.onFaceNotReal("fake user found")
                         }
+
+
 
                     }
 
@@ -213,6 +222,21 @@ class FaceDetector() {
         return sqrt(dx.pow(2) + dy.pow(2))
     }
 
+    fun isReal(face: Face): Boolean {
+        if (face.smilingProbability != null && face.rightEyeOpenProbability != null && face.leftEyeOpenProbability != null) {
+            val smileProb = face.smilingProbability
+            val rightEyeOpenProb = face.rightEyeOpenProbability
+            val leftEyeOpenProb = face.leftEyeOpenProbability
+            rightEyeOpenProb?.let {
+                leftEyeOpenProb?.let {
+                    val isReal = ((smileProb?.plus(rightEyeOpenProb) ?: it) + leftEyeOpenProb) / 3 > 0.5
+                    return isReal
+                }
+            }
+            // Do something with the result
+        }
+        return false
+    }
 
     private fun detectMouth(face: Face): Boolean {
         val upperLipBottom = face.getContour(FaceContour.UPPER_LIP_BOTTOM)?.points
@@ -287,6 +311,7 @@ class FaceDetector() {
         fun onEyeDetectionOnlyOneFace(face: String)
         fun onUserWallDistanceDetector(distance: Float)
         fun onFaceDirectionMovement(faceDirection: String?)
+        fun onFaceNotReal(faceDirection: String)
 
     }
 
