@@ -122,7 +122,7 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
     }
 
     override fun onFaceDirectionMovement(faceDirection: String?) {
-        // user Fave Direction movment left and right movement 
+        // user Face Direction movment left and right or Up , Down movement 
     }
 
 
