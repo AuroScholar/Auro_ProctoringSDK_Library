@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
 }
 
 ```
-## Handle Result 
+## Handle Result ``` OnProctoringResultListener```
 
 ```kotlin
 
