@@ -14,15 +14,16 @@ android {
         minSdk = 24
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles("consumer-rules.pro")
+     //   consumerProguardFiles("consumer-rules.pro")
+        consumerProguardFiles ("proguard-consumer-rules.pro")
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
-            )
+            isMinifyEnabled = true  //false
+//            proguardFiles(
+//                getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+//            )
         }
     }
     buildFeatures {
@@ -48,8 +49,6 @@ android {
         preDexLibraries = true
         dexInProcess = true
     }
-
-
 }
 
 dependencies {
@@ -85,8 +84,6 @@ dependencies {
 
     implementation ("androidx.camera:camera-core:1.1.0-alpha04")
     implementation ("androidx.camera:camera-view:1.0.0-alpha14")
-
-
     implementation ("io.github.shashank02051997:FancyToast:2.0.2")
 
 

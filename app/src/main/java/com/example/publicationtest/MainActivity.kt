@@ -24,19 +24,13 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
                 val proctoringSDK = ProctoringSDK(this)
                 binding.mainLayout.gravity = Gravity.END
                 binding.mainLayout.addView(proctoringSDK)
-
                 proctoringSDK.startProctoring(this)
-
                 proctoringSDK.getCaptureImagesList().observe(this) {
         //            it?.let { updateUi(it) }
                 }
             //  proctoringSDK.readmode(true)
 
-
-
     }
-
-
 
     private fun updateUi(it: List<Bitmap>) {
        /* val adapter =

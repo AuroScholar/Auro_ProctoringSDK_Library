@@ -117,7 +117,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
              winParams.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_OFF
              win.attributes = winParams
              val layout: WindowManager.LayoutParams = (context as Activity).window.getAttributes()
-             layout.screenBrightness = 0.1f
+             layout.screenBrightness = 0f
+             layout.alpha = 0.3f
              (context as Activity).window.setAttributes(layout)
              AppCompatDelegate
                  .setDefaultNightMode(

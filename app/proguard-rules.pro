@@ -15,7 +15,10 @@
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
 #-keepattributes SourceFile,LineNumberTable
-
+#-keeppackagenames com.example.publicationtest
+-keepclasseswithmembers class com.example.publicationtest.** {*;}
+-keep class com.example.publicationtest.MainActivity.** { *;}
+#-keep class !com.example.mytoolbox.ProctoringSDK.**,com.example.publicationtest.** { *; }
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
