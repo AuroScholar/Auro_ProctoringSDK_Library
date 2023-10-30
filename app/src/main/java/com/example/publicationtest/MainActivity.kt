@@ -1,8 +1,10 @@
 package com.example.publicationtest
 
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatActivity
+import com.example.auroproctoringsdk.ProctoringSDK
 import com.example.auroproctoringsdk.detector.FaceDetector.OnProctoringResultListener
 import com.example.auroproctoringsdk.permission.ProctoringPermissionRequest
 import com.example.publicationtest.databinding.ActivityMainBinding
@@ -15,6 +17,8 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
 
     private var proctoringPermissionRequest = ProctoringPermissionRequest(this)
 
+    var isDetection = false
+    var faceDirection = ArrayList<Bitmap>().apply { this.clear() }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,14 +29,14 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
         if (proctoringPermissionRequest.checkPermissionGranted()) {
 
             // init Proctoring SDK
-           val proctoringSDK = com.example.auroproctoringsdk.ProctoringSDK(this)
+            val proctoringSDK = ProctoringSDK(this)
 
             // add camera output for user alert
             binding.mainLayout.gravity = Gravity.END
             binding.mainLayout.addView(proctoringSDK)
 
             /* start proctoring */
-            proctoringSDK.startProctoring(this)
+            isDetection = proctoringSDK.startProctoring(this)
 
             proctoringSDK.getCaptureImagesList().observe(this) {
                 //            it?.let { updateUi(it) }
@@ -46,24 +50,23 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        proctoringPermissionRequest.onReuestPermissionResult(requestCode,permissions,grantResults)
+        proctoringPermissionRequest.onReuestPermissionResult(requestCode, permissions, grantResults)
 
     }
 
     override fun onVoiceDetected(
         amplitude: Double, isNiceDetected: Boolean, isRunning: Boolean, typeOfVoiceDetected: String
     ) {
-      // detect voice and type of voice
+        // detect voice and type of voice
 
     }
 
     override fun onFaceCount(faceCount: Int) {
         // getting face count
+        binding.textView.text = faceCount.toString()
 
     }
 
@@ -81,6 +84,13 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
 
     override fun onLipMovementDetection(face: Boolean) {
         // Lips Movement is mouth is open and close
+        binding.textView.text.apply {
+            if (face) {
+                "Open"
+            } else {
+                "Close"
+            }
+        }
     }
 
     override fun onObjectDetection(faceError: String) {
@@ -89,6 +99,7 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
 
     override fun onEyeDetectionOnlyOneFace(faceError: String) {
         // eye open and close status
+        binding.textView.text = faceError
     }
 
     override fun onUserWallDistanceDetector(distance: Float) {
@@ -97,10 +108,21 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
 
     override fun onFaceDirectionMovement(faceDirection: String?) {
         // user Face Direction movement left and right movement
+        binding.textView.text = faceDirection
     }
 
     override fun onFaceNotReal(faceDirection: String) {
         binding.textView.text = faceDirection
+    }
+
+    override fun onMultipleFaceCaptureImage(faceDirection: Bitmap?) {
+        if (isDetection) {
+            faceDirection?.let {
+                this.faceDirection.add(faceDirection)
+
+            }
+            binding.viewPagerImageList.setImageBitmap(faceDirection)
+        }
     }
 
 

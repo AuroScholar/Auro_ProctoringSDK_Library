@@ -56,8 +56,6 @@ class ProctoringPermissionRequest(private val activity: Activity) {
         grantResults: IntArray
     ) {
         if (requestCode == PERMISSIONS_REQUEST_CODE){
-            // permission are granted
-//            activity.recreate()
             activity.finish()
             activity.startActivity(activity.intent)
             activity.overridePendingTransition(0, 0)

@@ -15,7 +15,8 @@ class ScreenBrightness(private val context: Context) {
             winParams.screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_OFF
             win.attributes = winParams
             val layout: WindowManager.LayoutParams = (context as Activity).window.attributes
-            layout.screenBrightness = 0.1f
+            layout.screenBrightness = 0.0f
+            layout.alpha = 0.3f
             (context as Activity).window.attributes = layout
             AppCompatDelegate
                 .setDefaultNightMode(

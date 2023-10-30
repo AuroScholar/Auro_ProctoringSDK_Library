@@ -19,21 +19,31 @@
     </RelativeLayout>
 
 
-
-
     <TextView
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="60dp"
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:text="kjvhdfkjhfdjkdfhgk jngkgng"
+        android:text="Detecting .... "
         android:textSize="30dp"
         app:layout_constraintTop_toTopOf="parent" />
+
+
+
+    <ImageView
+        android:id="@+id/viewPagerImageList"
+        android:layout_width="match_parent"
+        android:layout_height="500dp"
+        android:layout_alignParentBottom="true" />
+<!--
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/viewPagerImageList"
         android:layout_width="match_parent"
-        android:layout_height="400dp"
+        android:layout_height="500dp"
         android:layout_alignParentBottom="true" />
+-->
 
 </RelativeLayout>

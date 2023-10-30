@@ -1,6 +1,11 @@
 package com.example.auroproctoringsdk.detector
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.graphics.PointF
+import android.graphics.Rect
+import android.graphics.YuvImage
 import android.util.Log
 import androidx.annotation.GuardedBy
 import androidx.lifecycle.MutableLiveData
@@ -20,6 +25,7 @@ import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase
 import com.google.mlkit.vision.pose.PoseLandmark
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
+import java.io.ByteArrayOutputStream
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -50,6 +56,11 @@ class FaceDetector() {
             .build()
     )
 
+    private var faceCaptureBitmapList = ArrayList<Bitmap>()
+
+    init {
+        faceCaptureBitmapList.clear()
+    }
 
     /** Listener that gets notified when a face detection result is ready. */
     private var onProctoringResultListener: OnProctoringResultListener? = null
@@ -85,6 +96,7 @@ class FaceDetector() {
         val data = data ?: return
         val inputImage = InputImage.fromByteArray(data, size.width, size.height, rotation, format)
 
+
         val faceDetectionTask = faceDetector.process(inputImage)
         val poseDetectionTask = poseDetector.process(inputImage)
         val objectDetectionTask = objectDetector.process(inputImage)
@@ -107,58 +119,62 @@ class FaceDetector() {
                     var faceDirection: String? = null
 
                     onProctoringResultListener?.onFaceCount(faceResults.size)
+                    onProctoringResultListener?.onMultipleFaceCaptureImage(null)
 
                     //Face Tracking
                     for (face in faceResults) {
 
-                        // Real Face check
-                        if (isReal(face)){
+                        faceCount = faceResults.size
 
-                            faceCount = faceResults.size
+                        onProctoringResultListener?.onFaceCount(faceResults.size)
 
-                            onProctoringResultListener?.onFaceCount(faceResults.size)
+                        if (faceResults.size == 1) {
 
-                            if (faceResults.size == 1) {
+                            eyeOpenStatus = eyeTracking(face)
+                            // Eye Tracking
+                            onProctoringResultListener?.onEyeDetectionOnlyOneFace(eyeOpenStatus)
 
-                                eyeOpenStatus = eyeTracking(face)
-                                // Eye Tracking
-                                onProctoringResultListener?.onEyeDetectionOnlyOneFace(eyeOpenStatus)
+                            //Lip Tracking
+                            mouthOpen = detectMouth(face)
+                            onProctoringResultListener?.onLipMovementDetection(mouthOpen)
 
-                                //Lip Tracking
-                                mouthOpen = detectMouth(face)
-                                onProctoringResultListener?.onLipMovementDetection(mouthOpen)
+                            //Pose Tracking
+                            calculateUserWallDistance = calculateUserWallDistance(poseResults)
 
-                                //Pose Tracking
-                                calculateUserWallDistance = calculateUserWallDistance(poseResults)
+                            onProctoringResultListener?.onUserWallDistanceDetector(
+                                calculateUserWallDistance
+                            )
 
-                                onProctoringResultListener?.onUserWallDistanceDetector(
-                                    calculateUserWallDistance
-                                )
-
-                                //face direction
-                                faceDirection = faceDetection(face)
-                                onProctoringResultListener?.onFaceDirectionMovement(faceDirection)
+                            //face direction
+                            faceDirection = faceDetection(face)
+                            onProctoringResultListener?.onFaceDirectionMovement(faceDirection)
 
 
-                                //Object Tracking
-                                for (detectedObject in objectResults) {
-                                    val labels = detectedObject.labels
-                                    for (label in labels) {
-                                        onProctoringResultListener?.onObjectDetection(label.text)
-                                        objectSectionNames = label.text
-                                    }
+                            //Object Tracking
+                            for (detectedObject in objectResults) {
+                                val labels = detectedObject.labels
+                                for (label in labels) {
+                                    onProctoringResultListener?.onObjectDetection(label.text)
+                                    objectSectionNames = label.text
                                 }
                             }
 
-                        }else{
-                            onProctoringResultListener?.onFaceNotReal("fake user found")
+                            onProctoringResultListener?.onMultipleFaceCaptureImage(null)
+                        }
+
+                        if (faceResults.size >= 2) {
+
+                            onProctoringResultListener?.onMultipleFaceCaptureImage(
+                                convectionBitmap(this)
+                            )
+
                         }
                     }
 
                     //live Result
                     faceLiveResult.postValue(
                         FaceDetectorModel(
-                            faceCount, eyeOpenStatus, mouthOpen, objectSectionNames,faceDirection
+                            faceCount, eyeOpenStatus, mouthOpen, objectSectionNames, faceDirection
                         )
                     )
                 }
@@ -170,6 +186,21 @@ class FaceDetector() {
                 }
                 onError(exception)
             }
+    }
+
+    private fun convectionBitmap(frame: Frame): Bitmap {
+        val yuvImage = YuvImage(frame.data, frame.format, frame.size.width, frame.size.height, null)
+        val out = ByteArrayOutputStream()
+        yuvImage.compressToJpeg(Rect(0, 0, frame.size.width, frame.size.height), 100, out)
+        val imageBytes = out.toByteArray()
+        val lastUpdatedBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+        out.flush()
+        out.close()
+        return lastUpdatedBitmap.rotateBitmap(-90F)
+    }
+    fun Bitmap.rotateBitmap(degrees: Float): Bitmap {
+        val matrix = Matrix().apply { postRotate(degrees) }
+        return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
     }
 
     private fun faceDetection(face: Face): String? {
@@ -223,7 +254,8 @@ class FaceDetector() {
             val leftEyeOpenProb = face.leftEyeOpenProbability
             rightEyeOpenProb?.let {
                 leftEyeOpenProb?.let {
-                    val isReal = ((smileProb?.plus(rightEyeOpenProb) ?: it) + leftEyeOpenProb) / 3 > 0.5
+                    val isReal =
+                        ((smileProb?.plus(rightEyeOpenProb) ?: it) + leftEyeOpenProb) / 3 > 0.5
                     return isReal
                 }
             }
@@ -307,6 +339,7 @@ class FaceDetector() {
         fun onUserWallDistanceDetector(distance: Float)
         fun onFaceDirectionMovement(faceDirection: String?)
         fun onFaceNotReal(faceDirection: String)
+        fun onMultipleFaceCaptureImage(faceDirection: Bitmap?)
 
     }
 
