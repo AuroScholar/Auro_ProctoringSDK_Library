@@ -1,16 +1,13 @@
 package com.example.auroproctoringsdk.utils
 
-import android.app.Activity
 import android.os.Handler
 import android.os.Looper
-import android.widget.Toast
-import android.window.OnBackInvokedDispatcher
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 
-object ToastOnBackPressSDK {
-    fun init(activity: AppCompatActivity) {
+class BottomKeyEvent {
+    fun onBackPressHandle(activity: AppCompatActivity) {
         activity.onBackPressedDispatcher.addCallback(
             activity,
             object : OnBackPressedCallback(true) {

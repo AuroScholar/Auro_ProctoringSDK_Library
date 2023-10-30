@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.auroproctoringsdk.ProctoringSDK
 import com.example.auroproctoringsdk.detector.FaceDetector.OnProctoringResultListener
 import com.example.auroproctoringsdk.permission.ProctoringPermissionRequest
-import com.example.auroproctoringsdk.utils.ToastOnBackPressSDK
 import com.example.publicationtest.databinding.ActivityMainBinding
 
 // OnProctoringResultListener for detector result

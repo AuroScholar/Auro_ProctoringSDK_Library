@@ -19,7 +19,6 @@ import android.hardware.usb.UsbManager
 import android.util.AttributeSet
 import android.util.Log
 import android.util.Size
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -27,10 +26,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.AppCompatButton
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -47,7 +44,7 @@ import com.example.auroproctoringsdk.developerMode.CheckDeveloperMode
 import com.example.auroproctoringsdk.dnd.DNDManagerHelper
 import com.example.auroproctoringsdk.emulater.EmulatorDetector
 import com.example.auroproctoringsdk.screenBrightness.ScreenBrightness
-import com.example.auroproctoringsdk.utils.ToastOnBackPressSDK
+import com.example.auroproctoringsdk.utils.BottomKeyEvent
 import com.example.auroproctoringsdk.utils.Utils
 import com.example.auroproctoringsdk.windowFull.WindowUtils
 import com.example.auroproctoringsdk.voiceDetector.NoiseDetector
@@ -378,7 +375,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
             }
         })
 
-        ToastOnBackPressSDK.init(activity)
+        BottomKeyEvent().onBackPressHandle(activity)
 
     }
 
