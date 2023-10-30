@@ -85,12 +85,13 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
     override fun onVoiceDetected(
         amplitude: Double, isNiceDetected: Boolean, isRunning: Boolean, typeOfVoiceDetected: String
     ) {
-      // detect voice and type of voice
-       
+        // detect voice and type of voice
+
     }
 
     override fun onFaceCount(faceCount: Int) {
         // getting face count
+        binding.textView.text = faceCount.toString()
 
     }
 
@@ -108,14 +109,16 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
 
     override fun onLipMovementDetection(face: Boolean) {
         // Lips Movement is mouth is open and close
-    }
+       
+   }
 
     override fun onObjectDetection(faceError: String) {
-        // object detection on camera  
+        // object detection on camera
     }
 
     override fun onEyeDetectionOnlyOneFace(faceError: String) {
-        // eye open and close status 
+        // eye open and close status
+   
     }
 
     override fun onUserWallDistanceDetector(distance: Float) {
@@ -123,8 +126,18 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
     }
 
     override fun onFaceDirectionMovement(faceDirection: String?) {
-        // user Face Direction movment left and right or Up , Down movement 
+        // user Face Direction movement left and right movement
+        
     }
+
+    override fun onFaceNotReal(faceDirection: String) {
+        //Spoof Face
+    }
+
+    override fun onMultipleFaceCaptureImage(faceDirection: Bitmap?) {
+      // multiple face found image 
+    }
+
 
 
 ```
