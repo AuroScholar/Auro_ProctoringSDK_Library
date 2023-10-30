@@ -19,6 +19,7 @@ import android.hardware.usb.UsbManager
 import android.util.AttributeSet
 import android.util.Log
 import android.util.Size
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -46,6 +47,7 @@ import com.example.auroproctoringsdk.developerMode.CheckDeveloperMode
 import com.example.auroproctoringsdk.dnd.DNDManagerHelper
 import com.example.auroproctoringsdk.emulater.EmulatorDetector
 import com.example.auroproctoringsdk.screenBrightness.ScreenBrightness
+import com.example.auroproctoringsdk.utils.ToastOnBackPressSDK
 import com.example.auroproctoringsdk.utils.Utils
 import com.example.auroproctoringsdk.windowFull.WindowUtils
 import com.example.auroproctoringsdk.voiceDetector.NoiseDetector
@@ -375,6 +377,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                 }
             }
         })
+
+        ToastOnBackPressSDK.init(activity)
 
     }
 

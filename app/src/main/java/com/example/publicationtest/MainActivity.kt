@@ -1,14 +1,13 @@
 package com.example.publicationtest
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatActivity
 import com.example.auroproctoringsdk.ProctoringSDK
 import com.example.auroproctoringsdk.detector.FaceDetector.OnProctoringResultListener
 import com.example.auroproctoringsdk.permission.ProctoringPermissionRequest
+import com.example.auroproctoringsdk.utils.ToastOnBackPressSDK
 import com.example.publicationtest.databinding.ActivityMainBinding
 
 // OnProctoringResultListener for detector result
@@ -23,6 +22,8 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+//        ToastOnBackPressSDK.init(this)
 
         // Permissions already granted
         if (proctoringPermissionRequest.checkPermissionGranted()) {
