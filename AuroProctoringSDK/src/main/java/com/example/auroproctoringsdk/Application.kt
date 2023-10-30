@@ -2,6 +2,7 @@ package com.example.auroproctoringsdk
 
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.WindowManager
@@ -12,12 +13,14 @@ class Application : Application() {
 
     companion object {
         var defaultAlert: Boolean = true
+//        var deadlyInMilliseconds: Long = 100000
         var deadlyInMilliseconds: Long = 30000
         var faceDirectionAccuracy : Int = 10
         var faceMouthAccuracy : Float = 3.0F
         var surfaceBoardErrorColor : Int = Color.RED
         var surfaceBoardSuccessColor : Int = Color.GREEN
         var surfaceBoardNoColor : Int = Color.TRANSPARENT
+
     }
 
     override fun onCreate() {
@@ -35,6 +38,7 @@ class Application : Application() {
 
 
     }
+
 
     private fun registerActivityLifecycle() {
         registerActivityLifecycleCallbacks(object : ActivityLifecycleCallbacks {

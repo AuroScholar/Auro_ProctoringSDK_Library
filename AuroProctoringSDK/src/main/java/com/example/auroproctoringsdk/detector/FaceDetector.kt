@@ -119,7 +119,11 @@ class FaceDetector() {
                     var faceDirection: String? = null
 
                     onProctoringResultListener?.onFaceCount(faceResults.size)
-                    onProctoringResultListener?.onMultipleFaceCaptureImage(null)
+
+
+                    onProctoringResultListener?.captureImage(
+                        convectionBitmap(this)
+                    )
 
                     //Face Tracking
                     for (face in faceResults) {
@@ -145,9 +149,9 @@ class FaceDetector() {
                                 calculateUserWallDistance
                             )
 
-                            //face direction
+                          /*  //face direction
                             faceDirection = faceDetection(face)
-                            onProctoringResultListener?.onFaceDirectionMovement(faceDirection)
+                            onProctoringResultListener?.onFaceDirectionMovement(faceDirection)*/
 
 
                             //Object Tracking
@@ -159,16 +163,8 @@ class FaceDetector() {
                                 }
                             }
 
-                            onProctoringResultListener?.onMultipleFaceCaptureImage(null)
                         }
 
-                        if (faceResults.size >= 2) {
-
-                            onProctoringResultListener?.onMultipleFaceCaptureImage(
-                                convectionBitmap(this)
-                            )
-
-                        }
                     }
 
                     //live Result
@@ -337,9 +333,8 @@ class FaceDetector() {
         fun onObjectDetection(face: String)
         fun onEyeDetectionOnlyOneFace(face: String)
         fun onUserWallDistanceDetector(distance: Float)
-        fun onFaceDirectionMovement(faceDirection: String?)
-        fun onFaceNotReal(faceDirection: String)
-        fun onMultipleFaceCaptureImage(faceDirection: Bitmap?)
+//        fun onFaceDirectionMovement(faceDirection: String?)
+        fun captureImage(faceDirection: Bitmap?)
 
     }
 

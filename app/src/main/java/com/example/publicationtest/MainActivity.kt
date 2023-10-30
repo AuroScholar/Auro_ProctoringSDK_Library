@@ -1,7 +1,9 @@
 package com.example.publicationtest
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatActivity
 import com.example.auroproctoringsdk.ProctoringSDK
@@ -16,9 +18,6 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
     private var proctoringPermissionRequest = ProctoringPermissionRequest(this)
-
-    var isDetection = false
-    var faceDirection = ArrayList<Bitmap>().apply { this.clear() }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,11 +35,35 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
             binding.mainLayout.addView(proctoringSDK)
 
             /* start proctoring */
-            isDetection = proctoringSDK.startProctoring(this)
+            proctoringSDK.startProctoring(this)
 
             proctoringSDK.getCaptureImagesList().observe(this) {
                 //            it?.let { updateUi(it) }
             }
+
+
+            binding.btnToggle.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked){
+                    val status = proctoringSDK.startProctoring()
+                    binding.textView.text = "Running"
+                }else{
+                    var status = proctoringSDK.stopProctoring()
+                    if (status){
+                        binding.textView.text = "Stoped"
+                    }
+                }
+            }
+
+
+            binding.btnAlert.setOnCheckedChangeListener { buttonView, isChecked ->
+                if (isChecked){
+                    proctoringSDK.defaultAlert()
+                }else{
+                    proctoringSDK.defaultAlert()
+                }
+            }
+
+
 
         } else {
             proctoringPermissionRequest.requestPermissions()
@@ -53,7 +76,7 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
         requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        proctoringPermissionRequest.onReuestPermissionResult(requestCode, permissions, grantResults)
+        proctoringPermissionRequest.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
     }
 
@@ -106,24 +129,14 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
         // user pose detection
     }
 
-    override fun onFaceDirectionMovement(faceDirection: String?) {
-        // user Face Direction movement left and right movement
-        binding.textView.text = faceDirection
-    }
+    override fun captureImage(faceDirection: Bitmap?) {
 
-    override fun onFaceNotReal(faceDirection: String) {
-        binding.textView.text = faceDirection
-    }
-
-    override fun onMultipleFaceCaptureImage(faceDirection: Bitmap?) {
-        if (isDetection) {
-            faceDirection?.let {
-                this.faceDirection.add(faceDirection)
-
-            }
-            binding.viewPagerImageList.setImageBitmap(faceDirection)
-        }
     }
 
 
 }
+
+// head status
+// perierty base
+// Camera , dev , DND
+// dialog cross button

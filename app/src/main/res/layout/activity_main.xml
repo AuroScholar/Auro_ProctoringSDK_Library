@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
         tools:context=".MainActivity">
 
 
@@ -20,16 +21,15 @@
 
 
     <TextView
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="60dp"
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="60dp"
         android:text="Detecting .... "
-        android:textSize="30dp"
+        android:textSize="20dp"
         app:layout_constraintTop_toTopOf="parent" />
-
 
 
     <ImageView
@@ -37,13 +37,50 @@
         android:layout_width="match_parent"
         android:layout_height="500dp"
         android:layout_alignParentBottom="true" />
-<!--
+    <!--
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewPagerImageList"
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPagerImageList"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            android:layout_alignParentBottom="true" />
+    -->
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="500dp"
-        android:layout_alignParentBottom="true" />
--->
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="Alerts"
+            android:textSize="20dp" />
+
+        <ToggleButton
+            android:id="@+id/btnAlert"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="20dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="proctoring"
+            android:textSize="20dp" />
+
+        <ToggleButton
+            android:id="@+id/btnToggle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/btnAlert"
+            android:hint="alerts"
+            android:text="Alerts" />
+    </LinearLayout>
+
 
 </RelativeLayout>

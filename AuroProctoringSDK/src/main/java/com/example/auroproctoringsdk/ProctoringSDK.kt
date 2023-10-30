@@ -17,15 +17,19 @@ import android.graphics.YuvImage
 import android.hardware.Camera
 import android.hardware.usb.UsbManager
 import android.util.AttributeSet
+import android.util.Log
 import android.util.Size
 import android.view.LayoutInflater
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -42,10 +46,13 @@ import com.example.auroproctoringsdk.developerMode.CheckDeveloperMode
 import com.example.auroproctoringsdk.dnd.DNDManagerHelper
 import com.example.auroproctoringsdk.emulater.EmulatorDetector
 import com.example.auroproctoringsdk.screenBrightness.ScreenBrightness
+import com.example.auroproctoringsdk.utils.Utils
 import com.example.auroproctoringsdk.windowFull.WindowUtils
 import com.example.auroproctoringsdk.voiceDetector.NoiseDetector
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.util.Calendar
+import java.util.Date
 import java.util.Timer
 import java.util.TimerTask
 
@@ -61,6 +68,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
     private val imgList = mutableListOf<Bitmap>()
     private val captureImageList = MutableLiveData<List<Bitmap>>()
     private var timer: Timer? = null
+    private var defaultAlertDialog = false
+    private var saveImageIntoFolder = false
+
 
     private var surfaceViewBorder = Paint().also {
         it.color = Color.TRANSPARENT
@@ -148,6 +158,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
         timer = null
     }
 
+    fun getCurrentDateTime(): Date {
+        return Calendar.getInstance().time
+    }
+
     @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
@@ -187,12 +201,15 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
             val lastUpdatedBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
             out.flush()
             out.close()
-
             lastUpdatedBitmap?.let {
                 imageBitmap = lastUpdatedBitmap
                 if (isDetection) {
+                    Log.e("TAG", "onPreviewFrame: status "+isDetection )
 //                    imgList.add(lastUpdatedBitmap)
 //                    captureImageList.value = imgList.toList()
+                    Thread{
+                        Utils().saveBitmapIntoImageInternalDir(lastUpdatedBitmap,context,false)
+                    }.start()
                     faceDetector.process(
                         Frame(
                             data,
@@ -202,6 +219,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                             LensFacing.FRONT
                         )
                     )
+
+
                 }
 
             }
@@ -212,7 +231,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
 
 
     fun startProctoring(
-        onProctoringResultListener: FaceDetector.OnProctoringResultListener
+        onProctoringResultListener: FaceDetector.OnProctoringResultListener,
     ): Boolean {
         isDetection = true
         faceDetector.setonFaceDetectionFailureListener(onProctoringResultListener)
@@ -228,6 +247,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
             override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
                 when (event) {
                     Lifecycle.Event.ON_START -> {
+                        Log.e("TAG", "onStateChanged: start")
                         if (defaultAlert) {
                             statusBarLocker =
                                 com.example.auroproctoringsdk.screenBarLock.StatusBarLocker(
@@ -239,13 +259,14 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                     }
 
                     Lifecycle.Event.ON_CREATE -> {
+                        Log.e("TAG", "onStateChanged: create")
                         if (defaultAlert) {
-                            // developer mode
-                            CheckDeveloperMode(context).turnOffDeveloperMode(
-                                CheckDeveloperMode(
-                                    context
-                                ).isDeveloperModeEnabled()
-                            )
+                            /*// developer mode
+                            if (!CheckDeveloperMode(context).isDeveloperModeEnabled()) {
+                                CheckDeveloperMode(context).hideDialog()
+                            } else {
+                                CheckDeveloperMode(context).turnOffDeveloperMode()
+                            }
 
                             if (EmulatorDetector().isEmulatorRun()) {
                                 alert(activity, "Emulator", "Don't use Emulator")
@@ -265,7 +286,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                             WindowUtils(activity).disableMultiWindow()
 
                             //ExpandNotificationDrawer
-                            WindowUtils(activity).setExpandNotificationDrawer(context, false)
+                            WindowUtils(activity).setExpandNotificationDrawer(context, false)*/
 
                             //register usb manger
                             val filter = IntentFilter()
@@ -279,11 +300,18 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                     Lifecycle.Event.ON_RESUME -> {
                         if (defaultAlert) {
                             // developer mode
-                            CheckDeveloperMode(context).turnOffDeveloperMode(
-                                CheckDeveloperMode(
+                            Log.e(
+                                "TAG",
+                                " onStateChanged: onresume wala status " + CheckDeveloperMode(
                                     context
                                 ).isDeveloperModeEnabled()
                             )
+                            if (CheckDeveloperMode(context).isDeveloperModeEnabled()) {
+                                CheckDeveloperMode(context).turnOffDeveloperMode()
+                            } else {
+                                CheckDeveloperMode(context).hideDialog()
+                            }
+
 
                             if (EmulatorDetector().isEmulatorRun()) {
                                 alert(activity, "Emulator", "Don't use Emulator")
@@ -291,7 +319,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
 
                             // lock
                             WindowUtils(activity).doNotLockScreen()
-
+                            //DND
+                            DNDManagerHelper(context).checkDNDPolicyAccessAndRequest()
                             // full screen
                             WindowUtils(activity).hideSystemUI()
 
@@ -311,15 +340,19 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                     }
 
                     Lifecycle.Event.ON_PAUSE -> {
-
+                        Log.e("TAG", "onStateChanged: pause")
                         if (defaultAlert) {
                             activity.unregisterReceiver(usbManager)
                         }
 
                     }
 
-                    Lifecycle.Event.ON_STOP -> {}
+                    Lifecycle.Event.ON_STOP -> {
+                        Log.e("TAG", "onStateChanged: stop")
+                    }
+
                     Lifecycle.Event.ON_DESTROY -> {
+                        Log.e("TAG", "onStateChanged: destroy")
                         if (defaultAlert) {
                             statusBarLocker?.release()
                         }
@@ -383,9 +416,12 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
 
                         hide()
                         updateSurfaceViewBoard(null)
-                        alert(
-                            activity, "Face Count  ", liveResult.faceCount.toString()
-                        )
+                        if (defaultAlertDialog) {
+                            alert(
+                                activity, "Face Count  ", liveResult.faceCount.toString()
+                            )
+                        }
+
 
                     } else if (liveResult.faceCount == 1) {
                         hide()
@@ -394,7 +430,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                         if (!liveResult.faceDirection.isNullOrBlank()) {
                             hide()
                             val result = liveResult.faceDirection
-                            alert(activity, "Face Direction", result)
+                            if (defaultAlertDialog) {
+                                alert(activity, "Face Direction", result)
+                            }
                         } else {
                             if (!updateSurfaceViewBoard(liveResult.isMouthOen)) { // return close mouth
 
@@ -404,15 +442,17 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                             }
                         }
 
-                    }
-                    else {
+                    } else {
                         ScreenBrightness(activity).setScreenBrightness(defaultAlert)
                         hide()
                         var count = liveResult.faceCount
                         animateRightToLeft(this)
-                        alert(
-                            activity, "Face Count  ", count.toString()
-                        )
+                        if (defaultAlertDialog) {
+                            alert(
+                                activity, "Face Count  ", count.toString()
+                            )
+                        }
+
                     }
 
                 }
@@ -434,13 +474,31 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
         camera?.setPreviewCallback(this@ProctoringSDK)
     }
 
-    fun proctoringConfig(postprocessingElseThis:FaceDetector.OnProctoringResultListener, proctoringSDKStart:Boolean, delayInMilisecounds:Long, WorningColor: Int, SuccessColor:Int, useDeFaultAlertDialog: Boolean){
-        startProctoring(proctoringSDKStart)
-        useDefaultAlert(useDeFaultAlertDialog)
-        surfaceBoardErrorColor = WorningColor
-        surfaceBoardSuccessColor = SuccessColor
-        proctoringWithDealy(delayInMilisecounds)
+    fun proctoringConfig(
+        postprocessingElseThis: FaceDetector.OnProctoringResultListener,
+        proctoringSDKStart: Boolean,
+        delayInMilisecounds: Long?,
+        WorningColor: Int?,
+        SuccessColor: Int?,
+        useDeFaultAlertDialog: Boolean?,
+    ) {
+        startProctoring()
         startProctoring(postprocessingElseThis)
+
+        useDeFaultAlertDialog?.let {
+            useDefaultAlert(useDeFaultAlertDialog)
+        }
+        WorningColor?.let {
+            surfaceBoardErrorColor = WorningColor
+        }
+        SuccessColor?.let {
+            surfaceBoardSuccessColor = SuccessColor
+
+        }
+        delayInMilisecounds?.let {
+            proctoringWithDealy(delayInMilisecounds)
+        }
+
 
     }
 
@@ -458,11 +516,23 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
         return isDetection
     }
 
-    fun stopProctoring() {
+    fun stopProctoring() :Boolean{
+        saveImageIntoFolder = false
         isDetection = false
+        return isDetection
+
     }
-    fun startProctoring(isDefaultAlert: Boolean) {
-        isDetection = false
+
+    fun startProctoring() :Boolean{
+        isDetection = true
+        saveImageIntoFolder = true
+        return isDetection
+    }
+
+    fun defaultAlert() : Boolean{
+        defaultAlertDialog =! defaultAlertDialog
+
+        return defaultAlertDialog
     }
 
     fun stopCamera() {
@@ -473,37 +543,45 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
     }
 
     private fun hide() {
-     alertDialog?.let {
-             if (it.isShowing) {
-                 it.hide()
-                 it.dismiss()
-                 alertDialog = null
-             }
-         }
+        alertDialog?.let {
+            if (it.isShowing) {
+                it.hide()
+                it.dismiss()
+                alertDialog = null
+            }
+        }
 
     }
 
     @SuppressLint("SuspiciousIndentation")
     private fun alert(context: AppCompatActivity, title: String?, message: String?) {
         hide()
-     if (alertDialog == null) {
-             alertDialog = AlertDialog.Builder(context).create()
-         }
+        if (alertDialog == null) {
+            alertDialog = AlertDialog.Builder(context).create()
+        }
 
-         val layoutInflater: LayoutInflater = LayoutInflater.from(context)
-         val view = layoutInflater.inflate(R.layout.custom_dialog, null)
-         val tvTitle = view.findViewById<TextView>(R.id.tv_title)
-         val tvMessage = view.findViewById<TextView>(R.id.tv_message)
+        val layoutInflater: LayoutInflater = LayoutInflater.from(context)
+        val view = layoutInflater.inflate(R.layout.custom_dialog, null)
+        val tvTitle = view.findViewById<TextView>(R.id.tv_title)
+        val tvMessage = view.findViewById<TextView>(R.id.tv_message)
+        val btnClose = view.findViewById<Button>(R.id.btnClose)
 
-         alertDialog?.apply {
-             this.setView(view)
-             tvTitle.text = title
-             tvMessage.text = message
-             this.show()
-         }
+
+        btnClose.setOnClickListener {
+            hide()
+        }
+
+
+        alertDialog?.apply {
+            this.setView(view)
+            tvTitle.text = title
+            tvMessage.text = message
+            this.show()
+        }
 
 
     }
 
 
 }
+
