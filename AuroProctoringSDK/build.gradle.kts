@@ -9,7 +9,7 @@ android {
     compileSdk = 33
 
     defaultConfig {
-        minSdk = 24
+        minSdk = 23
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
@@ -111,8 +111,8 @@ afterEvaluate {
             create<MavenPublication>("release") {
                 from(components["release"])
                 groupId = "com.github.azzadpandit1"
-                artifactId = "ProctoringSDK"
-                version = "0.0.21"
+                artifactId = "Auro-Proctoring-SDK"
+                version = "0.0.22"
             }
         }
     }
