@@ -22,6 +22,7 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+
 //        ToastOnBackPressSDK.init(this)
 
         // Permissions already granted
@@ -34,7 +35,8 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
             binding.mainLayout.gravity = Gravity.END
             binding.mainLayout.addView(proctoringSDK)
 
-            /* start proctoring */
+// start proctoring
+
             proctoringSDK.startProctoring(this)
 
             proctoringSDK.getCaptureImagesList().observe(this) {

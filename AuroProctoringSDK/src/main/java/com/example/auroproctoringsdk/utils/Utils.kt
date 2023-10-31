@@ -38,12 +38,12 @@ class Utils() {
         return file.absolutePath
     }
 
-    fun Bitmap.rotateBitmap(degrees: Float): Bitmap {
+    private fun Bitmap.rotateBitmap(degrees: Float): Bitmap {
         val matrix = Matrix().apply { postRotate(degrees) }
         return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
     }
 
-    fun Context.getAppName(): String = applicationInfo.loadLabel(packageManager).toString()
+    private fun Context.getAppName(): String = applicationInfo.loadLabel(packageManager).toString()
 
 
 }

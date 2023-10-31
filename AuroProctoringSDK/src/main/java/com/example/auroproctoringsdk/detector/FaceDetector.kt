@@ -91,11 +91,11 @@ class FaceDetector() {
             }
         }
     }
-
+//    ByteArray
     private fun Frame.detectFaces() {
         val data = data ?: return
-        val inputImage = InputImage.fromByteArray(data, size.width, size.height, rotation, format)
 
+        val inputImage = InputImage.fromByteArray(data, size.width, size.height, rotation, format)
 
         val faceDetectionTask = faceDetector.process(inputImage)
         val poseDetectionTask = poseDetector.process(inputImage)
@@ -121,9 +121,9 @@ class FaceDetector() {
                     onProctoringResultListener?.onFaceCount(faceResults.size)
 
 
-                    onProctoringResultListener?.captureImage(
+                   /* onProctoringResultListener?.captureImage(
                         convectionBitmap(this)
-                    )
+                    )*/
 
                     //Face Tracking
                     for (face in faceResults) {
@@ -184,7 +184,7 @@ class FaceDetector() {
             }
     }
 
-    private fun convectionBitmap(frame: Frame): Bitmap {
+   /* private fun convectionBitmap(frame: Frame): Bitmap {
         val yuvImage = YuvImage(frame.data, frame.format, frame.size.width, frame.size.height, null)
         val out = ByteArrayOutputStream()
         yuvImage.compressToJpeg(Rect(0, 0, frame.size.width, frame.size.height), 100, out)
@@ -197,7 +197,7 @@ class FaceDetector() {
     fun Bitmap.rotateBitmap(degrees: Float): Bitmap {
         val matrix = Matrix().apply { postRotate(degrees) }
         return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
-    }
+    }*/
 
     private fun faceDetection(face: Face): String? {
 

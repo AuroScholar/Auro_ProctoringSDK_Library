@@ -2,6 +2,7 @@ package com.example.auroproctoringsdk.detector
 
 import android.util.Size
 
+//ByteBuffer
 data class Frame(
     @Suppress("ArrayInDataClass") val data: ByteArray?,
     val rotation: Int,

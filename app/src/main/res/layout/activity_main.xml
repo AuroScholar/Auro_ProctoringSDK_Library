@@ -16,6 +16,11 @@
         android:layout_marginEnd="20dp"
         tools:context=".MainActivity">
 
+<!--        <com.example.publicationtest.CameraSurfaceView-->
+<!--            android:id="@+id/camera"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"/>-->
+
 
     </RelativeLayout>
 
