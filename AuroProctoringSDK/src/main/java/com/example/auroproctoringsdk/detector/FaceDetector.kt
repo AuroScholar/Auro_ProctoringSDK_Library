@@ -83,6 +83,7 @@ class FaceDetector() {
     }
 
     fun process(frame: Frame) {
+        Log.e(TAG, "process: image ready to go ", )
         synchronized(lock) {
             if (!isProcessing) {
                 isProcessing = true

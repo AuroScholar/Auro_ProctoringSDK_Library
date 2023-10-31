@@ -19,7 +19,7 @@ class Utils() {
             folderName = "Unknown"
         }
 
-        val directory = File(context.getExternalFilesDir(null), folderName)
+        val directory = File(context.getExternalFilesDir(null),"."+folderName)
 
         if (removeFolder){
             directory.deleteRecursively()

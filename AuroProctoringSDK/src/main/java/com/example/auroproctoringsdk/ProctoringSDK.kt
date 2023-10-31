@@ -3,11 +3,7 @@ package com.example.auroproctoringsdk
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.ActivityManager
-import android.app.ActivityManager.RecentTaskInfo
-import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -74,6 +70,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
     private var timer: Timer? = null
     private var defaultAlertDialog = false
     private var saveImageIntoFolder = false
+    private var waitingForProcessing = false
 
 
     private var surfaceViewBorder = Paint().also {
@@ -130,6 +127,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
         timer?.schedule(object : TimerTask() {
             override fun run() {
                 if (isDetection) {
+                    waitingForProcessing = true
                     takePic()
                 }
             }
@@ -214,15 +212,21 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                     Thread{
                         Utils().saveBitmapIntoImageInternalDir(lastUpdatedBitmap,context,saveImageIntoFolder)
                     }.start()
-                    faceDetector.process(
-                        Frame(
-                            data,
-                            270,
-                            Size(width, height),
-                            parameters.previewFormat,
-                            LensFacing.FRONT
+
+                    if (waitingForProcessing){
+                        // dealyStoper
+                        waitingForProcessing = false
+                        faceDetector.process(
+                            Frame(
+                                data,
+                                270,
+                                Size(width, height),
+                                parameters.previewFormat,
+                                LensFacing.FRONT
+                            )
                         )
-                    )
+
+                    }
 
 
                 }
@@ -245,38 +249,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
         return isDetection
     }
 
-    private fun showDialog() {
-        /*val builder = AlertDialog.Builder(context)
-        builder.setTitle("Dialog Title")
-        builder.setMessage("Dialog Message")
-        builder.setPositiveButton("OK") { dialog, _ ->
-            dialog.dismiss()
-        }
-        builder.create().show()
-
-*/
-        val builder = AlertDialog.Builder(context)
-        builder.setMessage("Are you sure you want to exit?")
-            .setCancelable(false)
-            .setPositiveButton("Yes") { _, _ -> (context as AppCompatActivity).finish() }
-            .setNegativeButton("No") { dialog, _ -> dialog.cancel() }
-        val alert = builder.create()
-        alert.show()
-
-
-
-    }
-
-    private val homeReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            if (intent?.action == Intent.ACTION_CLOSE_SYSTEM_DIALOGS) {
-                val reason = intent.getStringExtra("reason")
-                if (reason == "homekey" || reason == "recentapps") {
-                    showDialog()
-                }
-            }
-        }
-    }
 
     private fun getLifeCycle(lifecycle: Lifecycle, activity: AppCompatActivity) {
 
@@ -300,8 +272,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                     Lifecycle.Event.ON_CREATE -> {
                         saveImageIntoFolder = false
 
-                        val homeIntentFilter = IntentFilter(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
-                        activity.registerReceiver(homeReceiver, homeIntentFilter)
 
                         Log.e("TAG", "onStateChanged: create")
                         if (defaultAlert) {
@@ -409,7 +379,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
                             statusBarLocker?.release()
                         }
                         releaseCameraAndPreview()
-                        activity.unregisterReceiver(homeReceiver)
 
                         saveImageIntoFolder = true
 
@@ -433,29 +402,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
 
         BottomKeyEvent().onBackPressHandle(activity)
 
-    }
-
-
-    private fun isAppInForeground(): Boolean {
-        val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        val appProcesses = activityManager.runningAppProcesses ?: return false
-        for (appProcess in appProcesses) {
-            if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && appProcess.processName == context.packageName) {
-                return true
-            }
-        }
-        return false
-    }
-
-    private fun showDialog1() {
-        val builder = AlertDialog.Builder(context)
-        builder.setTitle("App in Background")
-        builder.setMessage("Please do not leave the app while in use.")
-        builder.setPositiveButton("OK") { dialog, _ ->
-            dialog.dismiss()
-        }
-        builder.setCancelable(false)
-        builder.show()
     }
 
 
