@@ -84,7 +84,7 @@
             android:layout_height="wrap_content"
             android:layout_above="@+id/btnAlert"
             android:hint="alerts"
-            android:text="Alerts" />
+            android:text="Alerts"/>
     </LinearLayout>
 
 
