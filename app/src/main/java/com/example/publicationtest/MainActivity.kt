@@ -8,21 +8,16 @@ import com.example.auroproctoringsdk.ProctoringSDK
 import com.example.auroproctoringsdk.detector.FaceDetector.OnProctoringResultListener
 import com.example.auroproctoringsdk.permission.ProctoringPermissionRequest
 import com.example.publicationtest.databinding.ActivityMainBinding
-
 // OnProctoringResultListener for detector result
 class MainActivity : AppCompatActivity(), OnProctoringResultListener {
 
     //init permission
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
-
     private var proctoringPermissionRequest = ProctoringPermissionRequest(this)
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-
-
 //        ToastOnBackPressSDK.init(this)
 
         // Permissions already granted
@@ -92,9 +87,7 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
     override fun onFaceCount(faceCount: Int) {
         // getting face count
         binding.textView.text = faceCount.toString()
-
     }
-
     override fun isRunningDetector(boolean: Boolean?) {
         // detect running status
     }
