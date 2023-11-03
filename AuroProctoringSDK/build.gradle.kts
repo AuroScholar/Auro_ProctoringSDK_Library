@@ -49,18 +49,16 @@ android {
         preDexLibraries = true
         dexInProcess = true
     }
-
 }
 
 dependencies {
-
-    implementation("androidx.core:core-ktx:1.6.0")
+    implementation("androidx.core:core-ktx:1.12.0") // 1.6.0
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.10.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    implementation ("androidx.activity:activity-compose:1.7.2")
+    implementation ("androidx.activity:activity-compose:1.8.0") //1.7.2
     implementation ("com.google.mlkit:pose-detection-common:17.0.0")
     implementation ("com.google.mlkit:pose-detection:17.0.0")
     implementation("com.google.android.gms:play-services-vision-common:19.1.3")
@@ -88,7 +86,6 @@ dependencies {
     // If you want to additionally use the CameraX Extensions library
     implementation("androidx.camera:camera-extensions:${camerax_version2}")
 }
-
 afterEvaluate {
     publishing {
         publications {
@@ -96,7 +93,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.azzadpandit1"
                 artifactId = "Auro-Proctoring-SDK"
-                version = "0.0.25"
+                version = "0.0.26"
             }
         }
     }
