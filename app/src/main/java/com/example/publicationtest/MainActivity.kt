@@ -5,13 +5,13 @@ import android.os.Bundle
 import android.util.AttributeSet
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatActivity
-import com.example.auroproctoringsdk.ProctoringSDK
-import com.example.auroproctoringsdk.detector.FaceDetector.OnProctoringResultListener
-import com.example.auroproctoringsdk.permission.ProctoringPermissionRequest
+import com.auro.proctoringsdk.ProctoringSDK
+import com.auro.proctoringsdk.detector.FaceDetector
+import com.auro.proctoringsdk.permission.ProctoringPermissionRequest
 import com.example.publicationtest.databinding.ActivityMainBinding
 
 // OnProctoringResultListener for detector result
-class MainActivity : AppCompatActivity(), OnProctoringResultListener {
+class MainActivity : AppCompatActivity(), FaceDetector.OnProctoringResultListener {
 
     //init permission
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }

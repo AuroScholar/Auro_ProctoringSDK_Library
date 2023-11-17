@@ -2,7 +2,6 @@ package com.example.publicationtest
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.auroproctoringsdk.permission.ProctoringPermissionRequest
 import com.example.publicationtest.databinding.ActivityMainBinding
 
 // OnProctoringResultListener for detector result
@@ -10,7 +9,6 @@ class ProctoringActivity : AppCompatActivity(){
 
     //init permission
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
-    private var proctoringPermissionRequest = ProctoringPermissionRequest(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
