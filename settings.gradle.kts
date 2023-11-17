@@ -20,3 +20,4 @@ dependencyResolutionManagement {
 rootProject.name = "AuroProctoringSDKAPP"
 include(":app")
 include(":AuroProctoringSDK")
+include(":proctoringSDK")

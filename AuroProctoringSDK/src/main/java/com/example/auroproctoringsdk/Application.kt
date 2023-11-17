@@ -29,7 +29,7 @@ class Application : Application() {
         if (defaultAlert) {
 
             // stop screen short and video recording
-            registerActivityLifecycle()
+          registerActivityLifecycle()
 
 
             // Stop copy paste option

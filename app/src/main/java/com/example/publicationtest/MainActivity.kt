@@ -2,12 +2,14 @@ package com.example.publicationtest
 
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.AttributeSet
 import android.view.Gravity
 import androidx.appcompat.app.AppCompatActivity
 import com.example.auroproctoringsdk.ProctoringSDK
 import com.example.auroproctoringsdk.detector.FaceDetector.OnProctoringResultListener
 import com.example.auroproctoringsdk.permission.ProctoringPermissionRequest
 import com.example.publicationtest.databinding.ActivityMainBinding
+
 // OnProctoringResultListener for detector result
 class MainActivity : AppCompatActivity(), OnProctoringResultListener {
 
@@ -18,13 +20,134 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+
+        val attrs: AttributeSet = object : AttributeSet {
+            override fun getAttributeCount(): Int {
+                return 0
+            }
+
+            override fun getAttributeName(index: Int): String? {
+                return null
+            }
+
+            override fun getAttributeValue(index: Int): String? {
+                return null
+            }
+
+            override fun getAttributeValue(namespace: String, name: String): String? {
+                return null
+            }
+
+            override fun getPositionDescription(): String? {
+                return null
+            }
+
+            override fun getAttributeNameResource(index: Int): Int {
+                return 0
+            }
+
+            override fun getAttributeListValue(
+                namespace: String,
+                attribute: String,
+                options: Array<String>,
+                defaultValue: Int
+            ): Int {
+                return 0
+            }
+
+            override fun getAttributeBooleanValue(
+                namespace: String,
+                attribute: String,
+                defaultValue: Boolean
+            ): Boolean {
+                return false
+            }
+
+            override fun getAttributeResourceValue(
+                namespace: String,
+                attribute: String,
+                defaultValue: Int
+            ): Int {
+                return 0
+            }
+
+            override fun getAttributeIntValue(
+                namespace: String,
+                attribute: String,
+                defaultValue: Int
+            ): Int {
+                return 0
+            }
+
+            override fun getAttributeUnsignedIntValue(
+                namespace: String,
+                attribute: String,
+                defaultValue: Int
+            ): Int {
+                return 0
+            }
+
+            override fun getAttributeFloatValue(
+                namespace: String,
+                attribute: String,
+                defaultValue: Float
+            ): Float {
+                return 0F
+            }
+
+            override fun getAttributeListValue(
+                index: Int,
+                options: Array<String>,
+                defaultValue: Int
+            ): Int {
+                return 0
+            }
+
+            override fun getAttributeBooleanValue(index: Int, defaultValue: Boolean): Boolean {
+                return false
+            }
+
+            override fun getAttributeResourceValue(index: Int, defaultValue: Int): Int {
+                return 0
+            }
+
+            override fun getAttributeIntValue(index: Int, defaultValue: Int): Int {
+                return 0
+            }
+
+            override fun getAttributeUnsignedIntValue(index: Int, defaultValue: Int): Int {
+                return 0
+            }
+
+            override fun getAttributeFloatValue(index: Int, defaultValue: Float): Float {
+                return 0F
+            }
+
+            override fun getIdAttribute(): String? {
+                return null
+            }
+
+            override fun getClassAttribute(): String? {
+                return null
+            }
+
+            override fun getIdAttributeResourceValue(defaultValue: Int): Int {
+                return 0
+            }
+
+            override fun getStyleAttribute(): Int {
+                return 0
+            }
+        }
+
 //        ToastOnBackPressSDK.init(this)
 
         // Permissions already granted
         if (proctoringPermissionRequest.checkPermissionGranted()) {
 
             // init Proctoring SDK
-            val proctoringSDK = ProctoringSDK(this)
+            val proctoringSDK = ProctoringSDK(this, attrs)
 
             // add camera output for user alert
             binding.mainLayout.gravity = Gravity.END
@@ -62,7 +185,8 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
 
 
 
-        } else {
+        }
+        else {
             proctoringPermissionRequest.requestPermissions()
         }
 

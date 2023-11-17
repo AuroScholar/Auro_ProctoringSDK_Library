@@ -60,7 +60,7 @@ import java.util.Timer
 import java.util.TimerTask
 
 
-class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView(context, attrs),
+class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context, attrs),
     SurfaceHolder.Callback, Camera.PreviewCallback {
 
     private var camera: Camera? = null

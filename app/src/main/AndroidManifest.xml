@@ -37,7 +37,7 @@
         android:theme="@style/Theme.PublicationTest"
         tools:replace="android:allowBackup,android:icon,android:roundIcon,android:theme">
         <activity
-            android:name=".MainActivity"
+            android:name=".ProctoringActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
