@@ -30,10 +30,12 @@ class Utils() {
         }
         val fileName = "image_${Calendar.getInstance().time}.jpg"
         val file = File(directory, fileName)
-        val outputStream = FileOutputStream(file)
-        image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-        outputStream.flush()
-        outputStream.close()
+        if(file.exists()){
+            val outputStream = FileOutputStream(file)
+            image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+            outputStream.flush()
+            outputStream.close()
+        }
 
         return file.absolutePath
     }

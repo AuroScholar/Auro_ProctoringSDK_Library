@@ -6,6 +6,7 @@ import android.app.Activity
 import android.app.ActivityManager
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
@@ -46,6 +47,7 @@ import com.example.auroproctoringsdk.detector.LensFacing
 import com.example.auroproctoringsdk.developerMode.CheckDeveloperMode
 import com.example.auroproctoringsdk.dnd.DNDManagerHelper
 import com.example.auroproctoringsdk.emulater.EmulatorDetector
+import com.example.auroproctoringsdk.screenBarLock.StatusBarLocker.setExpandNotificationDrawer
 import com.example.auroproctoringsdk.screenBrightness.ScreenBrightness
 import com.example.auroproctoringsdk.utils.BottomKeyEvent
 import com.example.auroproctoringsdk.utils.Utils
@@ -57,6 +59,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Timer
 import java.util.TimerTask
+import kotlin.math.log
 
 
 class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs),
@@ -277,6 +280,35 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         }
     }
 
+
+
+    public override fun onWindowFocusChanged(hasFocus: Boolean) {
+        if (hasFocus) { // hasFocus is true
+
+            setExpandNotificationDrawer(context,false)
+        }
+
+        else {
+
+            if (!hasFocus) {
+
+                AlertDialog.Builder(context)
+                    .setTitle("You can't access status bar while playing quiz..!!")
+                    .setMessage("Do you want to exit")
+                    .setCancelable(false)
+                    .setPositiveButton("Exit",
+                        DialogInterface.OnClickListener { dialog, which ->  })
+                    .setNegativeButton("Cancel",
+                        DialogInterface.OnClickListener { dialog, which ->  })
+                    .setIcon(android.R.drawable.ic_dialog_dialer)
+                    .setCancelable(false)
+                    .show()
+                setExpandNotificationDrawer(context,false)
+            }
+
+        }
+    }
+
     public fun getLifeCycle(lifecycle: Lifecycle, activity: AppCompatActivity) {
 
         lifecycle.addObserver(object : LifecycleEventObserver {
@@ -295,6 +327,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                         }
 
                     }
+
+
+
 
                     Lifecycle.Event.ON_CREATE -> {
                         saveImageIntoFolder = false
