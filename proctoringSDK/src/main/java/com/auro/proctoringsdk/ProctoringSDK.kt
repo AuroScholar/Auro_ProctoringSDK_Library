@@ -64,20 +64,20 @@ import java.util.TimerTask
 class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs),
     SurfaceHolder.Callback, Camera.PreviewCallback {
 
-    private var camera: Camera? = null
-    private var surfaceHolder: SurfaceHolder? = null
-    private val faceDetector = FaceDetector()
+    public var camera: Camera? = null
+    public var surfaceHolder: SurfaceHolder? = null
+    public val faceDetector = FaceDetector()
 
-    private var imageBitmap: Bitmap? = null
-    private var isDetection = true
-    private val imgList = mutableListOf<Bitmap>()
-    private val captureImageList = MutableLiveData<List<Bitmap>>()
-    private var timer: Timer? = null
-    private var defaultAlertDialog = false
-    private var saveImageIntoFolder = false
+    public var imageBitmap: Bitmap? = null
+    public var isDetection = true
+    public val imgList = mutableListOf<Bitmap>()
+    public val captureImageList = MutableLiveData<List<Bitmap>>()
+    public var timer: Timer? = null
+    public var defaultAlertDialog = false
+    public var saveImageIntoFolder = false
 
 
-    private var surfaceViewBorder = Paint().also {
+    public var surfaceViewBorder = Paint().also {
         it.color = Color.TRANSPARENT
         it.style = Paint.Style.STROKE
         it.strokeWidth = 15f
@@ -87,7 +87,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         it.strokeJoin = Paint.Join.ROUND
         it.strokeCap = Paint.Cap.ROUND
     }
-    private var backgroundPaint = Paint().also {
+    public var backgroundPaint = Paint().also {
         it.color = Color.TRANSPARENT
         it.style = Paint.Style.FILL
         it.isAntiAlias = true
@@ -99,8 +99,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
     private var alertDialog: AlertDialog? = null
 
-    private var usbManager = UsbReceiver()
-    private var statusBarLocker: StatusBarLocker? = null
+    public var usbManager = UsbReceiver()
+    public var statusBarLocker: StatusBarLocker? = null
 
 
     init {
@@ -243,16 +243,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         return isDetection
     }
 
-    private fun showDialog() {
-        /*val builder = AlertDialog.Builder(context)
-        builder.setTitle("Dialog Title")
-        builder.setMessage("Dialog Message")
-        builder.setPositiveButton("OK") { dialog, _ ->
-            dialog.dismiss()
-        }
-        builder.create().show()
+    public fun showDialog() {
 
-*/
         val builder = AlertDialog.Builder(context)
         builder.setMessage("Are you sure you want to exit?")
             .setCancelable(false)
@@ -265,7 +257,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
     }
 
-    private val homeReceiver = object : BroadcastReceiver() {
+    public val homeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == Intent.ACTION_CLOSE_SYSTEM_DIALOGS) {
                 val reason = intent.getStringExtra("reason")
@@ -276,7 +268,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         }
     }
 
-    private fun getLifeCycle(lifecycle: Lifecycle, activity: AppCompatActivity) {
+    public fun getLifeCycle(lifecycle: Lifecycle, activity: AppCompatActivity) {
 
         lifecycle.addObserver(object : LifecycleEventObserver {
 
@@ -433,7 +425,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     }
 
 
-    private fun isAppInForeground(): Boolean {
+    public fun isAppInForeground(): Boolean {
         val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val appProcesses = activityManager.runningAppProcesses ?: return false
         for (appProcess in appProcesses) {
@@ -444,7 +436,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         return false
     }
 
-    private fun showDialog1() {
+    public fun showDialog1() {
         val builder = AlertDialog.Builder(context)
         builder.setTitle("App in Background")
         builder.setMessage("Please do not leave the app while in use.")
@@ -461,7 +453,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     }
 
 
-    private fun updateSurfaceViewBoard(open: Boolean?): Boolean {
+    public fun updateSurfaceViewBoard(open: Boolean?): Boolean {
 
         if (open != null) {
             if (open) {
@@ -483,7 +475,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
     }
 
-    private fun getFaceLiveResult(activity: AppCompatActivity) {
+    public fun getFaceLiveResult(activity: AppCompatActivity) {
         faceDetector.liveFaceResult().observe(activity) { liveResult ->
             activity.runOnUiThread {
                 if (defaultAlert) {
@@ -540,7 +532,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
     }
 
-    private fun animateRightToLeft(view: View) {
+    public fun animateRightToLeft(view: View) {
         val screenWidth = resources.displayMetrics.widthPixels.toFloat()
         val animation = ObjectAnimator.ofFloat(view, "translationX", screenWidth, 0f)
         animation.duration = 10 // Set the duration of the animation (in milliseconds)
@@ -619,7 +611,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         camera?.release()
     }
 
-    private fun hide() {
+    public fun hide() {
         alertDialog?.let {
             if (it.isShowing) {
                 it.hide()
@@ -631,7 +623,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     }
 
     @SuppressLint("SuspiciousIndentation")
-    private fun alert(context: AppCompatActivity, title: String?, message: String?) {
+    public fun alert(context: AppCompatActivity, title: String?, message: String?) {
         hide()
         if (alertDialog == null) {
             alertDialog = AlertDialog.Builder(context).create()
