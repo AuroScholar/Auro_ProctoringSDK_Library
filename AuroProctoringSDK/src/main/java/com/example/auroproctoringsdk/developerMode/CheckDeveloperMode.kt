@@ -10,8 +10,6 @@ import androidx.appcompat.app.AlertDialog
 
 class CheckDeveloperMode(val context: Context) {
     private var dialog: AlertDialog? = null
-
-
     fun isDeveloperModeEnabled(): Boolean {
         return Settings.Secure.getInt(
             context.contentResolver, Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0
@@ -58,14 +56,14 @@ class CheckDeveloperMode(val context: Context) {
 
         if (isDeveloperModeEnabled()) {
 
-            Toast.makeText(context, "is dev -- " + isDeveloperModeEnabled(), Toast.LENGTH_SHORT)
-                .show()
-            showDialog()
+//            Toast.makeText(context, "is dev -- " + isDeveloperModeEnabled(), Toast.LENGTH_SHORT)
+//                .show()
+           showDialog()
 
         } else {
-            Toast.makeText(context, "is dev  -- " + isDeveloperModeEnabled(), Toast.LENGTH_SHORT)
-                .show()
-            hideDialog()
+//            Toast.makeText(context, "is dev  -- " + isDeveloperModeEnabled(), Toast.LENGTH_SHORT)
+//                .show()
+         //   hideDialog()
 
         }
 
