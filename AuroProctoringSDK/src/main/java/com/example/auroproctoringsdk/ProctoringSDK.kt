@@ -244,7 +244,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         return isDetection
     }
 
-    private fun showDialog() {
+    public fun showDialog() {
         /*val builder = AlertDialog.Builder(context)
         builder.setTitle("Dialog Title")
         builder.setMessage("Dialog Message")
@@ -266,7 +266,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
     }
 
-    private val homeReceiver = object : BroadcastReceiver() {
+    public val homeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == Intent.ACTION_CLOSE_SYSTEM_DIALOGS) {
                 val reason = intent.getStringExtra("reason")
@@ -277,7 +277,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         }
     }
 
-    private fun getLifeCycle(lifecycle: Lifecycle, activity: AppCompatActivity) {
+    public fun getLifeCycle(lifecycle: Lifecycle, activity: AppCompatActivity) {
 
         lifecycle.addObserver(object : LifecycleEventObserver {
 
@@ -463,7 +463,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     }
 
 
-    private fun updateSurfaceViewBoard(open: Boolean?): Boolean {
+    public fun updateSurfaceViewBoard(open: Boolean?): Boolean {
 
         if (open != null) {
             if (open) {
@@ -485,7 +485,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
     }
 
-    private fun getFaceLiveResult(activity: AppCompatActivity) {
+    public fun getFaceLiveResult(activity: AppCompatActivity) {
         faceDetector.liveFaceResult().observe(activity) { liveResult ->
             activity.runOnUiThread {
                 if (defaultAlert) {
@@ -542,7 +542,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
     }
 
-    private fun animateRightToLeft(view: View) {
+    public fun animateRightToLeft(view: View) {
         val screenWidth = resources.displayMetrics.widthPixels.toFloat()
         val animation = ObjectAnimator.ofFloat(view, "translationX", screenWidth, 0f)
         animation.duration = 10 // Set the duration of the animation (in milliseconds)
@@ -621,7 +621,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         camera?.release()
     }
 
-    private fun hide() {
+    public fun hide() {
         alertDialog?.let {
             if (it.isShowing) {
                 it.hide()
@@ -633,7 +633,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     }
 
     @SuppressLint("SuspiciousIndentation")
-    private fun alert(context: AppCompatActivity, title: String?, message: String?) {
+    public fun alert(context: AppCompatActivity, title: String?, message: String?) {
         hide()
         if (alertDialog == null) {
             alertDialog = AlertDialog.Builder(context).create()
