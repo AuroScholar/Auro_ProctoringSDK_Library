@@ -1,7 +1,11 @@
 package com.auro.proctoringsdk.detector
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.graphics.PointF
+import android.graphics.Rect
+import android.graphics.YuvImage
 import android.util.Log
 import androidx.annotation.GuardedBy
 import androidx.lifecycle.MutableLiveData
@@ -21,6 +25,7 @@ import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase
 import com.google.mlkit.vision.pose.PoseLandmark
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
+import java.io.ByteArrayOutputStream
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -116,9 +121,9 @@ class FaceDetector() {
                     onProctoringResultListener?.onFaceCount(faceResults.size)
 
 
-                   /* onProctoringResultListener?.captureImage(
+                    onProctoringResultListener?.captureImage(
                         convectionBitmap(this)
-                    )*/
+                    )
 
                     //Face Tracking
                     for (face in faceResults) {
@@ -179,12 +184,13 @@ class FaceDetector() {
             }
     }
 
-   /* private fun convectionBitmap(frame: Frame): Bitmap {
+    private fun convectionBitmap(frame: Frame): Bitmap {
         val yuvImage = YuvImage(frame.data, frame.format, frame.size.width, frame.size.height, null)
         val out = ByteArrayOutputStream()
         yuvImage.compressToJpeg(Rect(0, 0, frame.size.width, frame.size.height), 100, out)
         val imageBytes = out.toByteArray()
         val lastUpdatedBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+        Log.e(TAG, "convectionBitmap: ---> "+lastUpdatedBitmap.toString() )
         out.flush()
         out.close()
         return lastUpdatedBitmap.rotateBitmap(-90F)
@@ -192,7 +198,7 @@ class FaceDetector() {
     fun Bitmap.rotateBitmap(degrees: Float): Bitmap {
         val matrix = Matrix().apply { postRotate(degrees) }
         return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
-    }*/
+    }
 
     private fun faceDetection(face: Face): String? {
 

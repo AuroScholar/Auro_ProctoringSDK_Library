@@ -53,6 +53,7 @@ import com.auro.proctoringsdk.utils.BottomKeyEvent
 import com.auro.proctoringsdk.utils.Utils
 import com.auro.proctoringsdk.voiceDetector.NoiseDetector
 import com.auro.proctoringsdk.windowFull.WindowUtils
+import com.google.android.datatransport.cct.internal.LogEvent
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.util.Calendar
@@ -212,6 +213,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 //                    imgList.add(lastUpdatedBitmap)
 //                    captureImageList.value = imgList.toList()
                     Thread{
+                        Log.e("TAG", "onPreviewFrame: ", )
                         Utils().saveBitmapIntoImageInternalDir(lastUpdatedBitmap,context,saveImageIntoFolder)
                     }.start()
                     faceDetector.process(
@@ -233,8 +235,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
     }
     fun startProctoring(
-        onProctoringResultListener: FaceDetector.OnProctoringResultListener,
-    ): Boolean {
+        onProctoringResultListener: FaceDetector.OnProctoringResultListener, ): Boolean {
         isDetection = true
         faceDetector.setonFaceDetectionFailureListener(onProctoringResultListener)
         NoiseDetector().startNoiseDetector((context as Activity), onProctoringResultListener)
@@ -243,7 +244,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         return isDetection
     }
 
-    public fun showDialog() {
+     fun showDialog() {
 
         val builder = AlertDialog.Builder(context)
         builder.setMessage("Are you sure you want to exit?")
@@ -257,7 +258,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
     }
 
-    public val homeReceiver = object : BroadcastReceiver() {
+     val homeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == Intent.ACTION_CLOSE_SYSTEM_DIALOGS) {
                 val reason = intent.getStringExtra("reason")
@@ -268,7 +269,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         }
     }
 
-    public fun getLifeCycle(lifecycle: Lifecycle, activity: AppCompatActivity) {
+     fun getLifeCycle(lifecycle: Lifecycle, activity: AppCompatActivity) {
 
         lifecycle.addObserver(object : LifecycleEventObserver {
 
