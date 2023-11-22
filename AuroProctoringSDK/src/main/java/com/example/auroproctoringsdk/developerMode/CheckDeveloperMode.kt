@@ -78,8 +78,10 @@ class CheckDeveloperMode(val context: Context) {
                 context.startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
             }
             setIcon(android.R.drawable.stat_notify_error)
+                setCancelable(false)
 
         }.create()
+
         dialog?.show()
 //        try {
 //            Settings.Secure.putInt(

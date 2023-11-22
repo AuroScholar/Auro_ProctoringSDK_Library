@@ -8,13 +8,13 @@
     tools:context=".MainActivity">
 
 
-    <RelativeLayout
+    <com.example.auroproctoringsdk.ProctoringSDK
         android:id="@+id/mainLayout"
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:layout_centerInParent="true">
 
-    </RelativeLayout>
+    </com.example.auroproctoringsdk.ProctoringSDK>
 
   <!--  <com.auro.proctoringsdk.ProctoringSDK
         android:id="@+id/proctview"

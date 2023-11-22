@@ -11,7 +11,7 @@ import com.example.auroproctoringsdk.permission.ProctoringPermissionRequest
 import com.example.publicationtest.databinding.ActivityMainBinding
 
 // OnProctoringResultListener for detector result
-class MainActivity : AppCompatActivity(), FaceDetector.OnProctoringResultListener {
+class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
     //init permission
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
@@ -21,52 +21,11 @@ class MainActivity : AppCompatActivity(), FaceDetector.OnProctoringResultListene
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-
-
 //        ToastOnBackPressSDK.init(this)
 
         // Permissions already granted
         if (proctoringPermissionRequest.checkPermissionGranted()) {
-
-            // init Proctoring SDK
-            val proctoringSDK = ProctoringSDK(this, null)
-
-            // add camera output for user alert
-            binding.mainLayout.gravity = Gravity.END
-            binding.mainLayout.addView(proctoringSDK)
-
-// start proctoring
-
-            proctoringSDK.startProctoring(this)
-
-            proctoringSDK.getCaptureImagesList().observe(this) {
-                //            it?.let { updateUi(it) }
-            }
-
-
-            binding.btnToggle.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked){
-                    val status = proctoringSDK.startProctoring()
-                    binding.textView.text = "Running"
-                }else{
-                    var status = proctoringSDK.stopProctoring()
-                    if (status){
-                        binding.textView.text = "Stoped"
-                    }
-                }
-            }
-
-
-            binding.btnAlert.setOnCheckedChangeListener { buttonView, isChecked ->
-                if (isChecked){
-                    proctoringSDK.defaultAlert()
-                }else{
-                    proctoringSDK.defaultAlert()
-                }
-            }
-
-
-
+            binding.mainLayout.startProctoring(this)
         }
         else {
             proctoringPermissionRequest.requestPermissions()
@@ -79,7 +38,7 @@ class MainActivity : AppCompatActivity(), FaceDetector.OnProctoringResultListene
         requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        proctoringPermissionRequest.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        //proctoringPermissionRequest.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
     }
 
