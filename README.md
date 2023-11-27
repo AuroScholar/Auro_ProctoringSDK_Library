@@ -50,6 +50,10 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
             binding.mainLayout.gravity = Gravity.END
             binding.mainLayout.addView(proctoringSDK)
 
+        //	binding.mainLayout.initActivityLifecycle(this.getLifecycle());
+        //	binding.mainLayout.startProctoring(this);
+
+
             /* start proctoring */
             proctoringSDK.startProctoring(this)
 
