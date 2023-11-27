@@ -79,6 +79,6 @@ class ProctoringPermissionRequest(private val activity: Activity) {
     }
 
     fun checkDeveloperMode() {
-        CheckDeveloperMode(activity).turnOffDeveloperMode()
+        CheckDeveloperMode(activity).disableDeveloperMode()
     }
 }
