@@ -1,71 +1,60 @@
 package com.example.auroproctoringsdk
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.hardware.Camera
 import android.os.Handler
-import android.text.Html
 import android.util.AttributeSet
 import android.util.Log
 import android.util.Size
-import android.view.LayoutInflater
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import android.widget.Button
-import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
 import com.example.auroproctoringsdk.detector.FaceDetector
 import com.example.auroproctoringsdk.detector.Frame
 import com.example.auroproctoringsdk.detector.LensFacing
 import com.example.auroproctoringsdk.dnd.DNDManagerHelper
 import com.example.auroproctoringsdk.emulater.EmulatorDetector
+import com.example.auroproctoringsdk.notification.Notifications
 import com.example.auroproctoringsdk.screenBarLock.StatusBarLocker
 import com.example.auroproctoringsdk.screenBrightness.ScreenBrightness
-import com.example.auroproctoringsdk.windowFull.WindowUtils
+import com.example.auroproctoringsdk.utils.CustomAlertDialog
 import java.io.IOException
 import java.util.Timer
 import java.util.TimerTask
 import kotlin.concurrent.thread
 
-
 class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs),
     SurfaceHolder.Callback, Camera.PreviewCallback {
 
+    private var proctorListener: onProctorResultListener? = null
     private var camera: Camera? = null
     private var surfaceHolder: SurfaceHolder? = null
     private val faceDetector = FaceDetector()
     private var timer: Timer? = null
-    private var alertDialog: AlertDialog? = null
-    private var dialog: AlertDialog? = null
     private var delayMillis: Long = 30000
-
     private val handler = Handler()
-    var isWaiting = false
-    var isAlert = false
-    private var proctorListener: onProctorListener? = null
-
+    private var isWaiting = false
+    private var isAlert = false
     private val changeWaitingStatus = object : Runnable {
         override fun run() {
             isWaiting = !isWaiting
             handler.postDelayed(this, delayMillis) // Change color every 30 seconds
         }
     }
+    private var alertDialog1 = CustomAlertDialog(context)
+
+    companion object {
+        var isViewAvailable = false
+    }
 
     init {
         this.surfaceHolder = holder
         this.surfaceHolder?.addCallback(this)
         handler.post(changeWaitingStatus)
-        onStart()
-    }
-
-    private fun onStart() {
-        WindowUtils(context as AppCompatActivity).doNotLockScreen()
-        WindowUtils(context as AppCompatActivity).disableMultiWindow()
-//        DNDManagerHelper(context as AppCompatActivity).checkDNDPolicyAccessAndRequest()
-
     }
 
     override fun surfaceCreated(p0: SurfaceHolder) {
@@ -133,68 +122,121 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                     data, 270, Size(width, height), parameters.previewFormat, LensFacing.FRONT
                 )
             )
-
-
         }
 
     }
 
-     override fun onWindowFocusChanged(hasFocus: Boolean)
-    {
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
         if (hasFocus) { // hasFocus is true
-
             StatusBarLocker.setExpandNotificationDrawer(context, false)
-        }
-
-        else {
-
+        } else {
             if (!hasFocus) {
-
-                androidx.appcompat.app.AlertDialog.Builder(context)
-                    .setTitle("You can't access status bar while playing quiz..!!")
-                    .setMessage("Do you want to exit")
-                    .setCancelable(false)
-                    .setPositiveButton("Exit",
-                        DialogInterface.OnClickListener { dialog, which ->  })
-                    .setNegativeButton("Cancel",
-                        DialogInterface.OnClickListener { dialog, which ->  })
-                    .setIcon(android.R.drawable.ic_dialog_dialer)
-                    .setCancelable(false)
-                    .show()
                 StatusBarLocker.setExpandNotificationDrawer(context, false)
             }
 
         }
     }
+
     fun takePic() {
         camera?.setPreviewCallback(this@ProctoringSDK)
     }
 
     fun startProctoring(
-        listener: onProctorListener,
+        listener: onProctorResultListener,
     ) {
         proctorListener = listener
         isAlert = true
+
         syncResults()
+
+    }
+
+    fun initLifecycle(lifecycle: Lifecycle) {
+        lifecycle.addObserver(object : LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+            fun onCreate() {
+                isViewAvailable = false
+                // Code to execute when the fragment or activity is created
+                Log.e("statue", "onCreate: ")
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_START)
+            fun onStart() {
+                StatusBarLocker.statusBarLock(context)
+
+                Log.e("statue", "onStart: ")
+                isViewAvailable = true
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            fun onResume() {
+                DNDManagerHelper(context as AppCompatActivity).dndModeON()
+                StatusBarLocker.statusBarLock(context)
+                Log.e("statue", "onResume: ")
+                isViewAvailable = true
+
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+            fun onPause() {
+                isViewAvailable = false
+                // Code to execute when the fragment or activity is paused
+                Log.e("statue", "onPause: ")
+                hideAlert()
+                releaseCamera()
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+            fun onStop() {
+                isViewAvailable = false
+                hideAlert()
+                releaseCamera()
+                Log.e("statue", "onStop: ")
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+            fun onDestroy() {
+                isViewAvailable = false
+                Log.e("statue", "onDestroy: ")
+                DNDManagerHelper(context as AppCompatActivity).dndModeOff()
+            }
+        })
+    }
+
+
+    override fun onDetachedFromWindow() {
+        hideAlert()
+        super.onDetachedFromWindow()
     }
 
     fun changeDelay(delayMillis: Long) {
         this.delayMillis = delayMillis
     }
 
+    fun alertOnOff(): Boolean {
+        isAlert = !isAlert
+        return isAlert
+    }
+
     private fun syncResults() {
-        faceDetector.setonFaceDetectionFailureListener(object :
+        faceDetector.setDetectCallBackListner(object :
             FaceDetector.OnProctoringResultListener {
-
             override fun isRunningDetector(boolean: Boolean?) {
-                if (isWaiting) {
-                    proctorListener?.isRunningDetector(boolean)
-                }
-                if (EmulatorDetector().isEmulatorRun()){
-                    alert(context as AppCompatActivity,"Emulator ","don't use emulator ")
-                }
-                DNDManagerHelper(context as AppCompatActivity).checkDNDPolicyAccessAndRequest()
+                if (isViewAvailable) { // view is ready
 
+                    if (isWaiting) {
+                        proctorListener?.isRunningDetector(boolean)
+                    }
+                    if (EmulatorDetector().isEmulatorRun()) {
+                        alert("Emulator ", "don't use emulator ")
+                    }
+
+                    Log.e("TAG", "isRunningDetector: onStateChanged: dnd request ")
+                    DNDManagerHelper(context as AppCompatActivity).dndModeON()
+                    StatusBarLocker.statusBarLock(context)
+                    Notifications().cancelAllNotifications(context)
+
+                }
             }
 
             override fun onVoiceDetected(
@@ -203,109 +245,167 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                 isRunning: Boolean,
                 typeOfVoiceDetected: String,
             ) {
-                if (isWaiting) {
-                    proctorListener?.onVoiceDetected(
-                        amplitude, isNiceDetected, isRunning, typeOfVoiceDetected
-                    )
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onVoiceDetected(
+                            amplitude, isNiceDetected, isRunning, typeOfVoiceDetected
+                        )
+                    }
                 }
             }
 
             override fun onSuccess(faceBounds: Int) {
-                if (isWaiting) {
-                    proctorListener?.onSuccess(faceBounds)
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onSuccess(faceBounds)
+                    }
                 }
             }
 
             override fun onFailure(exception: Exception) {
-                if (isWaiting) {
-                    proctorListener?.onFailure(exception)
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onFailure(exception)
+                    }
                 }
             }
 
             override fun onFaceCount(face: Int) {
-                if (isWaiting) {
-                    proctorListener?.onFaceCount(face)
-                }
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onFaceCount(face)
+                    }
 
-                if (isAlert) {
-                    when (face) {
-                        0 -> {
-                            ScreenBrightness(context).heightBrightness(context)
-                            hideAlert()
-                        }
+                    if (isAlert) {
+                        when (face) {
+                            0 -> {
+                                ScreenBrightness(context).heightBrightness(context)
+                                hideAlert()
+                            }
 
-                        1 -> {
-                            ScreenBrightness(context).heightBrightness(context)
-                            hideAlert()
-                        }
+                            1 -> {
+                                ScreenBrightness(context).heightBrightness(context)
+                                hideAlert()
+                            }
 
-                        else -> {
-                            ScreenBrightness(context).lowBrightness(context)
-                            alert(context as AppCompatActivity, "'Face Count", "Multiple Face")
+                            else -> {
+                                ScreenBrightness(context).lowBrightness(context)
+                                alert("'Face Count", "Multiple Face")
+                            }
                         }
                     }
                 }
+
 
             }
 
             override fun onLipMovementDetection(islipmovment: Boolean) {
-                if (isWaiting) {
-                    proctorListener?.onLipMovementDetection(islipmovment)
-                }
-                if (isAlert) {
-                    if (islipmovment) {
-                        alert(context as AppCompatActivity, "Lip Movement ", islipmovment.toString())
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onLipMovementDetection(islipmovment)
                     }
                 }
+
             }
 
-            override fun onObjectDetection(face: String) {
-                if (isWaiting) {
-                    proctorListener?.onObjectDetection(face)
-
+            override fun onObjectDetection(face: ArrayList<String>) {
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onObjectDetection(face)
+                    }
+                    if (isAlert && !face.isNullOrEmpty()) {
+                        alert("Object Found", face.toString())
+                    }
                 }
+
             }
 
             override fun onEyeDetectionOnlyOneFace(face: String) {
-                if (isWaiting) {
-                    proctorListener?.onEyeDetectionOnlyOneFace(face)
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onEyeDetectionOnlyOneFace(face)
 
-                }
-                if (isAlert) {
-                    if (!check(face)){
-                        alert(context as AppCompatActivity, "Eye", face)
+                    }
+                    if (isAlert) {
+                        if (!eyeOpenCloseStatus(face)) {
+                            // alert("Eye", face)
+                        }
                     }
                 }
+
             }
 
             override fun onUserWallDistanceDetector(distance: Float) {
-                if (isWaiting) {
-                    proctorListener?.onUserWallDistanceDetector(distance)
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onUserWallDistanceDetector(distance)
+                    }
+                    if (isAlert) {
+                        // defalut alert
+                    }
                 }
-                if (isAlert) {
-                    // defalut alert
+
+            }
+
+            override fun onFaceDirectionMovement(faceDirection: String?) {
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onFaceDirectionMovement(faceDirection)
+                    }
+                    if (isAlert && !checkFaceDirection(faceDirection)) {
+                        alert("Face Direction", faceDirection)
+                    }
                 }
             }
 
             override fun captureImage(faceDirection: Bitmap?) {
-                if (isWaiting) {
-                    proctorListener?.captureImage(faceDirection)
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.captureImage(faceDirection)
+                    }
                 }
             }
 
         })
+
+
     }
 
-    private fun check(face: String): Boolean {
+    private fun checkFaceDirection(faceDirection: String?): Boolean {
+        return when (faceDirection) {
+            "moving to right" -> {
+                false
+            }
+
+            "moving to left" -> {
+                false
+            }
+
+            "moving up" -> {
+                false
+            }
+
+            "moving down" -> {
+                false
+            }
+
+            else -> {
+                true
+            }
+
+        }
+
+
+    }
+
+
+    private fun eyeOpenCloseStatus(face: String): Boolean {
         return when (face) {
             "both eyes are open" -> {
-
                 true
-
             }
 
             "both eyes are closed" -> {
-
                 false
             }
 
@@ -318,7 +418,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
             }
 
             else -> {
-                false
+                true
             }
         }
 
@@ -334,67 +434,23 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         camera = null
     }
 
-
-    @SuppressLint("SuspiciousIndentation")
-    fun alert(context: AppCompatActivity, title: String?, message: String?) {
-        hideAlert()
-
-        if (alertDialog == null) {
-            alertDialog = AlertDialog.Builder(context).create()
+    fun restartCamera() {
+        camera?.apply {
+            stopPreview()
+            setPreviewCallback(this@ProctoringSDK)
+            startPreview()
         }
+    }
 
-        val layoutInflater: LayoutInflater = LayoutInflater.from(context)
-        val view = layoutInflater.inflate(R.layout.custom_dialog, null)
-        val tvTitle = view.findViewById<TextView>(R.id.tv_title)
-        val tvMessage = view.findViewById<TextView>(R.id.tv_message)
-        val btnClose = view.findViewById<Button>(R.id.btnClose)
-
-
-        btnClose.setOnClickListener {
-            alertDialog?.hide()
-            alertDialog?.dismiss()
-            alertDialog = null
-        }
-
-
-        alertDialog?.apply {
-            this.setView(view)
-            tvTitle.text = ""
-            tvMessage.text = ""
-            tvTitle.text = title
-            tvMessage.text = message
-            this.show()
-        }
-
-
+    fun alert(title: String?, message: String?) {
+        alertDialog1.show(title.toString(), message.toString())
     }
 
     private fun hideAlert() {
-        alertDialog?.let {
-            if (it.isShowing) {
-                it.hide()
-                it.dismiss()
-                alertDialog = null
-            }
-        }
+        alertDialog1.hide()
     }
 
-    fun alertDialogForQuit() {
-        val builder = AlertDialog.Builder(context)
-        builder.setMessage("Your session is expired..! Please login again")
-        builder.setCancelable(true)
-        builder.setPositiveButton(
-            Html.fromHtml("<font color='#00A1DB'>" + "OK " + "</font>")
-        ) { dialog, which ->
-            dialog.dismiss()
-        }
-        dialog = builder.create()
-        dialog?.let {
-            dialog!!.show()
-        }
-    }
-
-    interface onProctorListener {
+    interface onProctorResultListener {
 
         fun isRunningDetector(boolean: Boolean?)
 
@@ -409,14 +465,12 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         fun onFailure(exception: Exception)
         fun onFaceCount(face: Int)
         fun onLipMovementDetection(face: Boolean)
-        fun onObjectDetection(face: String)
+        fun onObjectDetection(face: ArrayList<String>)
         fun onEyeDetectionOnlyOneFace(face: String)
         fun onUserWallDistanceDetector(distance: Float)
-
-        //        fun onFaceDirectionMovement(faceDirection: String?)
+        fun onFaceDirectionMovement(faceDirection: String?)
         fun captureImage(faceDirection: Bitmap?)
 
     }
 
 }
-

@@ -28,7 +28,7 @@
         tools:ignore="ProtectedPermissions" />
 
     <application
-        android:name="com.example.auroproctoringsdk.Application"
+        android:name="com.example.auroproctoringsdk.SdkAppLevel"
         android:usesCleartextTraffic="true">
         <meta-data
             android:name="android.hardware.camera"

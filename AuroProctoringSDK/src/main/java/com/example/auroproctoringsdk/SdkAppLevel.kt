@@ -2,13 +2,12 @@ package com.example.auroproctoringsdk
 
 import android.app.Activity
 import android.app.Application
-import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.WindowManager
 import com.example.auroproctoringsdk.copypastestop.ClipboardManagerHelper
 
-class Application : Application() {
+class SdkAppLevel : Application() {
 
 
     companion object {

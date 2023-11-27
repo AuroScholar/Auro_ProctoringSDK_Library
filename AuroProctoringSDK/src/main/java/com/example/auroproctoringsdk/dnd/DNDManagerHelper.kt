@@ -1,22 +1,17 @@
 package com.example.auroproctoringsdk.dnd
 
-import android.R
-import android.app.AlertDialog
 import android.app.NotificationManager
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
-import androidx.core.content.ContextCompat.startActivity
 
 class DNDManagerHelper(private val context: Context) {
 
 //    ACCESS_NOTIFICATION_POLICY
 
-    fun checkDNDPolicyAccessAndRequest() {
-
+    fun dndModeON() {
         val mode = Settings.Global.getInt(context.contentResolver, "zen_mode")
         if (mode==0){
             try {
@@ -40,9 +35,11 @@ class DNDManagerHelper(private val context: Context) {
 
     }
 
-    fun turnOffDndMode(context: Context) {
+    fun dndModeOff() {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+        if (notificationManager.currentInterruptionFilter == NotificationManager.INTERRUPTION_FILTER_NONE) {
+            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+        }
     }
 
 

@@ -2,10 +2,10 @@ package com.example.auroproctoringsdk.permission
 
 import android.Manifest
 import android.app.Activity
-import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.auroproctoringsdk.ProctoringSDK
 import com.example.auroproctoringsdk.developerMode.CheckDeveloperMode
 
 
@@ -58,8 +58,10 @@ class ProctoringPermissionRequest(private val activity: Activity) {
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray,
+        proctoringSDK: ProctoringSDK,
     ) {
-        if (requestCode == PERMISSIONS_REQUEST_CODE){
+        if (requestCode == PERMISSIONS_REQUEST_CODE ){
+/*
             activity.finish()
 //            activity.startActivity(activity.intent)
 //            activity.overridePendingTransition(0, 0)
@@ -67,7 +69,8 @@ class ProctoringPermissionRequest(private val activity: Activity) {
             activity.startActivity(
                 Intent(activity.intent).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
             )
-
+*/
+            proctoringSDK.restartCamera()
 
         }else{
             // permission denied

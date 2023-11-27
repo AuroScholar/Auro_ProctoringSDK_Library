@@ -9,8 +9,8 @@ import android.graphics.YuvImage
 import android.util.Log
 import androidx.annotation.GuardedBy
 import androidx.lifecycle.MutableLiveData
-import com.example.auroproctoringsdk.Application.Companion.faceDirectionAccuracy
-import com.example.auroproctoringsdk.Application.Companion.faceMouthAccuracy
+import com.example.auroproctoringsdk.SdkAppLevel.Companion.faceDirectionAccuracy
+import com.example.auroproctoringsdk.SdkAppLevel.Companion.faceMouthAccuracy
 import com.google.android.gms.tasks.Tasks
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
@@ -56,12 +56,6 @@ class FaceDetector() {
             .build()
     )
 
-    private var faceCaptureBitmapList = ArrayList<Bitmap>()
-
-    init {
-        faceCaptureBitmapList.clear()
-    }
-
     /** Listener that gets notified when a face detection result is ready. */
     private var onProctoringResultListener: OnProctoringResultListener? = null
 
@@ -74,7 +68,7 @@ class FaceDetector() {
     @GuardedBy("lock")
     private var isProcessing = false
 
-    fun setonFaceDetectionFailureListener(listener: OnProctoringResultListener) {
+    fun setDetectCallBackListner(listener: OnProctoringResultListener) {
         onProctoringResultListener = listener
     }
 
@@ -91,7 +85,8 @@ class FaceDetector() {
             }
         }
     }
-//    ByteArray
+
+    //    ByteArray
     private fun Frame.detectFaces() {
         val data = data ?: return
 
@@ -114,7 +109,7 @@ class FaceDetector() {
                     var mouthOpen: Boolean = false
                     var eyeOpenStatus: String = ""
                     var calculateUserWallDistance: Float = -0.0F
-                    var objectSectionNames: String = ""
+                    var objectSectionNames = ArrayList<String>()
                     var faceCount: Int = faceResults.size
                     var faceDirection: String? = null
 
@@ -149,17 +144,23 @@ class FaceDetector() {
                                 calculateUserWallDistance
                             )
 
-                          /*  //face direction
+                            //face direction
                             faceDirection = faceDetection(face)
-                            onProctoringResultListener?.onFaceDirectionMovement(faceDirection)*/
+                            onProctoringResultListener?.onFaceDirectionMovement(faceDirection)
 
 
                             //Object Tracking
                             for (detectedObject in objectResults) {
                                 val labels = detectedObject.labels
+                                val objectName = detectedObject.labels.firstOrNull()?.text
                                 for (label in labels) {
-                                    onProctoringResultListener?.onObjectDetection(label.text)
-                                    objectSectionNames = label.text
+                                    labels.firstOrNull()
+                                        ?.let { it1 -> listOf(it1.text) }
+                                        ?.let { it2 -> objectSectionNames.addAll(it2) }
+
+                                    onProctoringResultListener?.onObjectDetection(objectSectionNames)
+
+//                                    labels.firstOrNull().text
                                 }
                             }
 
@@ -184,7 +185,7 @@ class FaceDetector() {
             }
     }
 
-   private fun convectionBitmap(frame: Frame): Bitmap {
+    private fun convectionBitmap(frame: Frame): Bitmap {
         val yuvImage = YuvImage(frame.data, frame.format, frame.size.width, frame.size.height, null)
         val out = ByteArrayOutputStream()
         yuvImage.compressToJpeg(Rect(0, 0, frame.size.width, frame.size.height), 100, out)
@@ -194,6 +195,7 @@ class FaceDetector() {
         out.close()
         return lastUpdatedBitmap.rotateBitmap(-90F)
     }
+
     fun Bitmap.rotateBitmap(degrees: Float): Bitmap {
         val matrix = Matrix().apply { postRotate(degrees) }
         return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
@@ -314,7 +316,6 @@ class FaceDetector() {
         Log.e(TAG, "An error occurred while running a face detection", exception)
     }
 
-
     interface OnProctoringResultListener {
 
         fun isRunningDetector(boolean: Boolean?)
@@ -323,17 +324,17 @@ class FaceDetector() {
             amplitude: Double,
             isNiceDetected: Boolean,
             isRunning: Boolean,
-            typeOfVoiceDetected: String
+            typeOfVoiceDetected: String,
         )
 
         fun onSuccess(faceBounds: Int)
         fun onFailure(exception: Exception)
         fun onFaceCount(face: Int)
         fun onLipMovementDetection(face: Boolean)
-        fun onObjectDetection(face: String)
+        fun onObjectDetection(face: ArrayList<String>)
         fun onEyeDetectionOnlyOneFace(face: String)
         fun onUserWallDistanceDetector(distance: Float)
-//        fun onFaceDirectionMovement(faceDirection: String?)
+        fun onFaceDirectionMovement(faceDirection: String?)
         fun captureImage(faceDirection: Bitmap?)
 
     }
@@ -347,6 +348,6 @@ data class FaceDetectorModel(
     var faceCount: Int = -1,
     var eyeOpenStatus: String = "",
     var isMouthOen: Boolean = false,
-    var objectDectionNames: String = "",
-    var faceDirection: String? = null
+    var objectDectionNames: ArrayList<String>,
+    var faceDirection: String? = null,
 )
