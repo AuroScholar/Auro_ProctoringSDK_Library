@@ -6,24 +6,33 @@ import android.content.DialogInterface
 
 class CustomAlertDialog(context: Context) {
 
+
     private val dialog: AlertDialog
+    private var isDialogShowing = false
 
     init {
         val builder = AlertDialog.Builder(context).setCancelable(false)
-            .setPositiveButton("OK", DialogInterface.OnClickListener { dialog, which -> })
+            .setPositiveButton("OK", DialogInterface.OnClickListener { dialog, which ->
+                isDialogShowing = true
+            })
         dialog = builder.create()
     }
 
     fun show(title: String, message: String) {
-        dialog.setTitle(title)
-        dialog.setMessage(message)
-        dialog.show()
+        if (!isDialogShowing && !message.isNullOrBlank() && !title.isNullOrBlank()) {
+            dialog.setTitle(title)
+            dialog.setMessage(message)
+            dialog.show()
+
+        }
+
     }
 
     fun hide() {
-        if (dialog.isShowing) {
+        if (isDialogShowing && !dialog.isShowing) {
             dialog.dismiss()
             dialog.hide()
+            isDialogShowing = false
         }
     }
 }

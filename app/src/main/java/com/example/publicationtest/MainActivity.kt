@@ -1,7 +1,10 @@
 package com.example.publicationtest
 
+import android.app.NotificationManager
+import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.auroproctoringsdk.ProctoringSDK
 import com.example.auroproctoringsdk.permission.ProctoringPermissionRequest
@@ -18,6 +21,20 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorResultListener 
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val activeNotifications = notificationManager.activeNotifications
+
+        val notificationIds = activeNotifications.map { it.id }
+
+        binding.notificationId.text = notificationIds.toString()
+        Log.e("TAG", "onCreate: notification id "+notificationIds )
+
+        binding.notificationId.setOnClickListener {
+            clearAll(notificationManager,notificationIds)
+        }
+
+
         // Permissions already granted
         if (proctoringPermissionRequest.checkPermissionGranted()) {
 
@@ -27,6 +44,16 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorResultListener 
         } else {
             proctoringPermissionRequest.requestPermissions()
         }
+
+    }
+    fun clearAll(notificationManager: NotificationManager, notificationIds: List<Int>) {
+
+        notificationIds.forEach { number ->
+            println("Square of notification id ----> $number")
+            notificationManager.cancel(number)
+
+        }
+
 
     }
 
