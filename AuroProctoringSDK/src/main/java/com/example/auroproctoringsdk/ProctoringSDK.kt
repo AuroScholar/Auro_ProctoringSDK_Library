@@ -312,10 +312,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                     if (isWaiting) {
                         proctorListener?.onObjectDetection(face)
                     }
-                    Log.e("TAG", "onObjectDetection: --> "+face.toString() )
 
                     if (isAlert && !face.isNotEmpty()) {
-//                        alert("Object Found", face.toString())
+                        alert("Object Found", face.toString())
                     }
                 }
 

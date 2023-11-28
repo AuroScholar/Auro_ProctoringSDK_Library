@@ -153,6 +153,7 @@ class FaceDetector() {
                             for (detectedObject in objectResults) {
                                 val labels = detectedObject.labels
                                 val objectName = detectedObject.labels.firstOrNull()?.text
+                                Log.e(TAG, "detectFaces: object data -- >  "+objectName )
                                 for (label in labels) {
                                     labels.firstOrNull()
                                         ?.let { it1 -> listOf(it1.text) }
