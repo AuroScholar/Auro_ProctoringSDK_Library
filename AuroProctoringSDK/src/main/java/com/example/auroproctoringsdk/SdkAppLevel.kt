@@ -12,9 +12,7 @@ class SdkAppLevel : Application() {
 
     companion object {
         var defaultAlert: Boolean = true
-//        var deadlyInMilliseconds: Long = 100000
-        var deadlyInMilliseconds: Long = 1000
-        var faceDirectionAccuracy : Int = 10
+        var faceDirectionAccuracy : Int = 30//20//10 //default 10
         var faceMouthAccuracy : Float = 5.0F //3.0 f defalut
         var surfaceBoardErrorColor : Int = Color.RED
         var surfaceBoardSuccessColor : Int = Color.GREEN

@@ -2,9 +2,14 @@ package com.example.auroproctoringsdk.permission
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import com.example.auroproctoringsdk.ProctoringSDK
 import com.example.auroproctoringsdk.developerMode.CheckDeveloperMode
 
@@ -58,19 +63,15 @@ class ProctoringPermissionRequest(private val activity: Activity) {
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray,
-        proctoringSDK: ProctoringSDK,
     ) {
         if (requestCode == PERMISSIONS_REQUEST_CODE ){
-/*
             activity.finish()
 //            activity.startActivity(activity.intent)
 //            activity.overridePendingTransition(0, 0)
-
             activity.startActivity(
                 Intent(activity.intent).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
             )
-*/
-            proctoringSDK.restartCamera()
+
 
         }else{
             // permission denied
@@ -81,4 +82,26 @@ class ProctoringPermissionRequest(private val activity: Activity) {
     fun checkDeveloperMode() {
         CheckDeveloperMode(activity).disableDeveloperMode()
     }
+}
+
+fun isFragment(context: Context): Boolean {
+    return context is FragmentActivity
+}
+
+fun isActivity(context: Context): Boolean {
+    return context is Activity && !(context is FragmentActivity)
+}
+fun Fragment.restartFragment() {
+    val fragmentManager = requireFragmentManager()
+    val fragmentTransaction = fragmentManager.beginTransaction()
+    fragmentTransaction.detach(this)
+    fragmentTransaction.attach(this)
+    fragmentTransaction.commit()
+}
+// Restart Activity Programmatically
+fun Activity.restartActivity() {
+    val intent = intent
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NO_ANIMATION)
+    finish()
+    startActivity(intent)
 }

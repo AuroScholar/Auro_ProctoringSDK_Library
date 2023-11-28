@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorResultListener 
         requestCode: Int, permissions: Array<out String>, grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        proctoringPermissionRequest.onRequestPermissionsResult(requestCode, permissions, grantResults,binding.mainLayout)
+        proctoringPermissionRequest.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
     }
 

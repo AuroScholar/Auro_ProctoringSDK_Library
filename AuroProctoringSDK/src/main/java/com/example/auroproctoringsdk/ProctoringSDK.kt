@@ -27,8 +27,7 @@ import java.util.Timer
 import java.util.TimerTask
 import kotlin.concurrent.thread
 
-class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs),
-    SurfaceHolder.Callback, Camera.PreviewCallback {
+class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs), SurfaceHolder.Callback, Camera.PreviewCallback {
 
     private var proctorListener: onProctorResultListener? = null
     private var camera: Camera? = null
@@ -313,8 +312,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                     if (isWaiting) {
                         proctorListener?.onObjectDetection(face)
                     }
-                    if (isAlert && !face.isNullOrEmpty()) {
-                        alert("Object Found", face.toString())
+                    if (isAlert && !face.isNotEmpty()) {
+                        Log.e("TAG", "onObjectDetection: --> "+face.toString() )
+//                        alert("Object Found", face.toString())
                     }
                 }
 
@@ -432,14 +432,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
             release()
         }
         camera = null
-    }
-
-    fun restartCamera() {
-        camera?.apply {
-            stopPreview()
-            setPreviewCallback(this@ProctoringSDK)
-            startPreview()
-        }
     }
 
     fun alert(title: String?, message: String?) {
