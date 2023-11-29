@@ -106,5 +106,22 @@ public class StatusBarLocker {
             e.printStackTrace();
         }
     }
+    public static void statusBarLock(Context context){
+        int currentApiVersion = android.os.Build.VERSION.SDK_INT;
+        Object sbservice = context.getSystemService("statusbar");
+        try {
+            Class statusbarManager = Class.forName("android.app.StatusBarManager");
+            if (currentApiVersion <= 16) {
+                Method collapse = statusbarManager.getMethod("collapse");
+                collapse.invoke(sbservice);
+            } else {
+                Method collapse2 = statusbarManager.getMethod("collapsePanels");
+                collapse2.invoke(sbservice);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
 }

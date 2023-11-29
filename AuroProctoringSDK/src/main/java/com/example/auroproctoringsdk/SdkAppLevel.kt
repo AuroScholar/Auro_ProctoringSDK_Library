@@ -2,21 +2,18 @@ package com.example.auroproctoringsdk
 
 import android.app.Activity
 import android.app.Application
-import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.view.WindowManager
 import com.example.auroproctoringsdk.copypastestop.ClipboardManagerHelper
 
-class Application : Application() {
+class SdkAppLevel : Application() {
 
 
     companion object {
         var defaultAlert: Boolean = true
-        //        var deadlyInMilliseconds: Long = 100000
-        var deadlyInMilliseconds: Long = 1000
-        var faceDirectionAccuracy : Int = 50 // 10 is Default
-        var faceMouthAccuracy : Float = 10.0f//5.0F //3.0 f defalut
+        var faceDirectionAccuracy : Int = 30//20//10 //default 10
+        var faceMouthAccuracy : Float = 5.0F //3.0 f defalut
         var surfaceBoardErrorColor : Int = Color.RED
         var surfaceBoardSuccessColor : Int = Color.GREEN
         var surfaceBoardNoColor : Int = Color.TRANSPARENT
@@ -29,7 +26,7 @@ class Application : Application() {
         if (defaultAlert) {
 
             // stop screen short and video recording
-            registerActivityLifecycle()
+          registerActivityLifecycle()
 
 
             // Stop copy paste option

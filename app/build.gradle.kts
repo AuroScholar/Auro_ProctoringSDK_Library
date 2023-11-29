@@ -53,6 +53,5 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     implementation(project(mapOf("path" to ":AuroProctoringSDK")))
-   // implementation(project(mapOf("path" to ":proctoringSDK")))
-    implementation("com.github.pankaj89:SimpleAdapter:3.4.1")
+//    implementation("com.github.pankaj89:SimpleAdapter:3.4.1")
 }

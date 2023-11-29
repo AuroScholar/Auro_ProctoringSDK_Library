@@ -1,5 +1,6 @@
 package com.example.auroproctoringsdk.detector
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
@@ -11,6 +12,7 @@ import androidx.annotation.GuardedBy
 import androidx.lifecycle.MutableLiveData
 import com.example.auroproctoringsdk.Application.Companion.faceDirectionAccuracy
 import com.example.auroproctoringsdk.Application.Companion.faceMouthAccuracy
+import com.example.auroproctoringsdk.voiceDetector.NoiseDetector
 import com.google.android.gms.tasks.Tasks
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.Face
@@ -91,7 +93,7 @@ class FaceDetector() {
             }
         }
     }
-//    ByteArray
+    //    ByteArray
     private fun Frame.detectFaces() {
         val data = data ?: return
 
@@ -149,9 +151,9 @@ class FaceDetector() {
                                 calculateUserWallDistance
                             )
 
-                          /*  //face direction
+                            //face direction
                             faceDirection = faceDetection(face)
-                            onProctoringResultListener?.onFaceDirectionMovement(faceDirection)*/
+                            onProctoringResultListener?.onFaceDirectionMovement(faceDirection)
 
 
                             //Object Tracking
@@ -184,7 +186,7 @@ class FaceDetector() {
             }
     }
 
-   private fun convectionBitmap(frame: Frame): Bitmap {
+    private fun convectionBitmap(frame: Frame): Bitmap {
         val yuvImage = YuvImage(frame.data, frame.format, frame.size.width, frame.size.height, null)
         val out = ByteArrayOutputStream()
         yuvImage.compressToJpeg(Rect(0, 0, frame.size.width, frame.size.height), 100, out)
@@ -206,9 +208,9 @@ class FaceDetector() {
         val eulerX = face.headEulerAngleX // Pitch
 
         if (eulerY > faceDirectionAccuracy) {
-            return "moving to right"
-        } else if (eulerY < -faceDirectionAccuracy) {
             return "moving to left"
+        } else if (eulerY < -faceDirectionAccuracy) {
+            return "moving to right"
         } else if (eulerX > faceDirectionAccuracy) {
             return "moving up"
         } else if (eulerX < -faceDirectionAccuracy) {
@@ -314,6 +316,12 @@ class FaceDetector() {
         Log.e(TAG, "An error occurred while running a face detection", exception)
     }
 
+    fun noticeDetect(context: Context?) {
+        if (context != null) {
+            onProctoringResultListener?.let { NoiseDetector().startNoiseDetector(context, it) }
+        }
+    }
+
 
     interface OnProctoringResultListener {
 
@@ -333,7 +341,7 @@ class FaceDetector() {
         fun onObjectDetection(face: String)
         fun onEyeDetectionOnlyOneFace(face: String)
         fun onUserWallDistanceDetector(distance: Float)
-//        fun onFaceDirectionMovement(faceDirection: String?)
+        fun onFaceDirectionMovement(faceDirection: String?)
         fun captureImage(faceDirection: Bitmap?)
 
     }

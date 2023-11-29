@@ -2,29 +2,30 @@ package com.example.auroproctoringsdk
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.hardware.Camera
 import android.os.Handler
-import android.text.Html
 import android.util.AttributeSet
 import android.util.Log
 import android.util.Size
-import android.view.LayoutInflater
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import android.widget.Button
-import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.OnLifecycleEvent
+import com.example.auroproctoringsdk.copypastestop.ClipboardManagerHelper
 import com.example.auroproctoringsdk.detector.FaceDetector
 import com.example.auroproctoringsdk.detector.Frame
 import com.example.auroproctoringsdk.detector.LensFacing
 import com.example.auroproctoringsdk.dnd.DNDManagerHelper
 import com.example.auroproctoringsdk.emulater.EmulatorDetector
+import com.example.auroproctoringsdk.notification.ClearAllNotifications
 import com.example.auroproctoringsdk.screenBarLock.StatusBarLocker
 import com.example.auroproctoringsdk.screenBrightness.ScreenBrightness
-import com.example.auroproctoringsdk.windowFull.WindowUtils
+import com.example.auroproctoringsdk.utils.CustomAlertDialog
+import com.example.auroproctoringsdk.utils.Utils
 import java.io.IOException
 import java.util.Timer
 import java.util.TimerTask
@@ -38,13 +39,16 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     private var surfaceHolder: SurfaceHolder? = null
     private val faceDetector = FaceDetector()
     private var timer: Timer? = null
-    private var alertDialog: AlertDialog? = null
-    private var dialog: AlertDialog? = null
     private var delayMillis: Long = 30000
 
     private val handler = Handler()
     var isWaiting = false
     var isAlert = false
+
+    companion object {
+        var isViewAvailable = false
+    }
+
     private var proctorListener: onProctorListener? = null
 
     private val changeWaitingStatus = object : Runnable {
@@ -53,20 +57,15 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
             handler.postDelayed(this, delayMillis) // Change color every 30 seconds
         }
     }
+    var alertDialog1 = CustomAlertDialog(context)
 
     init {
         this.surfaceHolder = holder
         this.surfaceHolder?.addCallback(this)
         handler.post(changeWaitingStatus)
-        onStart()
+        Utils().getSaveImageInit(context)
     }
 
-    private fun onStart() {
-        WindowUtils(context as AppCompatActivity).doNotLockScreen()
-        WindowUtils(context as AppCompatActivity).disableMultiWindow()
-//        DNDManagerHelper(context as AppCompatActivity).checkDNDPolicyAccessAndRequest()
-
-    }
 
     override fun surfaceCreated(p0: SurfaceHolder) {
         try {
@@ -139,33 +138,19 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
     }
 
-     override fun onWindowFocusChanged(hasFocus: Boolean)
-    {
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
         if (hasFocus) { // hasFocus is true
 
             StatusBarLocker.setExpandNotificationDrawer(context, false)
-        }
-
-        else {
+        } else {
 
             if (!hasFocus) {
-
-                androidx.appcompat.app.AlertDialog.Builder(context)
-                    .setTitle("You can't access status bar while playing quiz..!!")
-                    .setMessage("Do you want to exit")
-                    .setCancelable(false)
-                    .setPositiveButton("Exit",
-                        DialogInterface.OnClickListener { dialog, which ->  })
-                    .setNegativeButton("Cancel",
-                        DialogInterface.OnClickListener { dialog, which ->  })
-                    .setIcon(android.R.drawable.ic_dialog_dialer)
-                    .setCancelable(false)
-                    .show()
                 StatusBarLocker.setExpandNotificationDrawer(context, false)
             }
 
         }
     }
+
     fun takePic() {
         camera?.setPreviewCallback(this@ProctoringSDK)
     }
@@ -175,26 +160,170 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     ) {
         proctorListener = listener
         isAlert = true
+
         syncResults()
+        faceDetector.noticeDetect(context)
+
+
     }
+
+
+    fun observeLifecycle(lifecycle: Lifecycle) {
+        lifecycle.addObserver(object : LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+            fun onCreate() {
+                isViewAvailable = false
+                // Code to execute when the fragment or activity is created
+                Log.e("RAMU", "onCreate: ")
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_START)
+            fun onStart() {
+                StatusBarLocker.statusBarLock(context)
+
+                // Code to execute when the fragment or activity is started
+                Log.e("RAMU", "onStart: ")
+                isViewAvailable = true
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            fun onResume() {
+                /*                CheckDeveloperMode(context).turnOffDeveloperMode()
+                                if (!CheckDeveloperMode(context).isDeveloperModeEnabled()){
+                                    DNDManagerHelper(context as AppCompatActivity).checkDNDModeON()
+                                }*/
+                StatusBarLocker.statusBarLock(context)
+                ClipboardManagerHelper(context).clearClipboard()
+                Log.e("RAMU", "onResume: ")
+                DNDManagerHelper(context).checkDNDModeON()
+                isViewAvailable = true
+
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+            fun onPause() {
+                isViewAvailable = false
+                // Code to execute when the fragment or activity is paused
+                Log.e("RAMU", "onPause: ")
+                DNDManagerHelper(context).DndModeOff(context)
+                hideAlert()
+
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+            fun onStop() {
+                isViewAvailable = false
+                hideAlert()
+                Log.e("RAMU", "onStop: ")
+
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+            fun onDestroy() {
+                Log.e("RAMU", "onDestroy: ")
+
+//                Log.e("TAG", "onDestroy: -- result "+Utils(context).removeDir() )
+                isViewAvailable = false
+                DNDManagerHelper(context as AppCompatActivity).DndModeOff(context)
+            }
+        })
+
+    }
+    fun LifecycleOwner.observeLifecycle() {
+        val lifecycle = this.lifecycle
+        lifecycle.addObserver(object : LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+            fun onCreate() {
+                isViewAvailable = false
+                // Code to execute when the fragment or activity is created
+                Log.e("RAMU", "onCreate: ")
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_START)
+            fun onStart() {
+                StatusBarLocker.statusBarLock(context)
+
+                // Code to execute when the fragment or activity is started
+                Log.e("RAMU", "onStart: ")
+                isViewAvailable = true
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            fun onResume() {
+                /*                CheckDeveloperMode(context).turnOffDeveloperMode()
+                                if (!CheckDeveloperMode(context).isDeveloperModeEnabled()){
+                                    DNDManagerHelper(context as AppCompatActivity).checkDNDModeON()
+                                }*/
+                StatusBarLocker.statusBarLock(context)
+                ClipboardManagerHelper(context).clearClipboard()
+                Log.e("RAMU", "onResume: ")
+                DNDManagerHelper(context).checkDNDModeON()
+                isViewAvailable = true
+
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+            fun onPause() {
+                isViewAvailable = false
+                // Code to execute when the fragment or activity is paused
+                Log.e("RAMU", "onPause: ")
+                DNDManagerHelper(context).DndModeOff(context)
+                hideAlert()
+
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+            fun onStop() {
+                isViewAvailable = false
+                hideAlert()
+                Log.e("RAMU", "onStop: ")
+
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+            fun onDestroy() {
+                Log.e("RAMU", "onDestroy: ")
+
+//                Log.e("TAG", "onDestroy: -- result "+Utils(context).removeDir() )
+                isViewAvailable = false
+                DNDManagerHelper(context as AppCompatActivity).DndModeOff(context)
+            }
+        })
+
+    }
+
 
     fun changeDelay(delayMillis: Long) {
         this.delayMillis = delayMillis
     }
 
+    fun alertOnOff(): Boolean {
+        isAlert = !isAlert
+        return isAlert
+    }
+
     private fun syncResults() {
+
         faceDetector.setonFaceDetectionFailureListener(object :
             FaceDetector.OnProctoringResultListener {
 
             override fun isRunningDetector(boolean: Boolean?) {
-                if (isWaiting) {
-                    proctorListener?.isRunningDetector(boolean)
-                }
-                if (EmulatorDetector().isEmulatorRun()){
-                    alert(context as AppCompatActivity,"Emulator ","don't use emulator ")
-                }
-                DNDManagerHelper(context as AppCompatActivity).checkDNDPolicyAccessAndRequest()
+                if (isViewAvailable) { // view is ready
 
+                    if (isWaiting) {
+                        proctorListener?.isRunningDetector(boolean)
+                    }
+                    if (EmulatorDetector().isEmulatorRun()) {
+                        alert("Emulator ", "don't use emulator ")
+                    }
+
+                    ClearAllNotifications(context as AppCompatActivity)
+                    Log.e("TAG", "isRunningDetector: onStateChanged: dnd request ")
+                    DNDManagerHelper(context as AppCompatActivity).checkDNDModeON()
+                    StatusBarLocker.statusBarLock(context)
+
+
+                }
             }
 
             override fun onVoiceDetected(
@@ -203,98 +332,181 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                 isRunning: Boolean,
                 typeOfVoiceDetected: String,
             ) {
-                if (isWaiting) {
-                    proctorListener?.onVoiceDetected(
-                        amplitude, isNiceDetected, isRunning, typeOfVoiceDetected
-                    )
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onVoiceDetected(
+                            amplitude, isNiceDetected, isRunning, typeOfVoiceDetected
+                        )
+
+                        if (isAlert) {
+                            if (isNiceDetected) {
+                                (context as AppCompatActivity).runOnUiThread {
+//                                    alert("HIGH SOUND", typeOfVoiceDetected)
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
             override fun onSuccess(faceBounds: Int) {
-                if (isWaiting) {
-                    proctorListener?.onSuccess(faceBounds)
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onSuccess(faceBounds)
+                    }
                 }
             }
 
             override fun onFailure(exception: Exception) {
-                if (isWaiting) {
-                    proctorListener?.onFailure(exception)
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onFailure(exception)
+                    }
                 }
             }
 
             override fun onFaceCount(face: Int) {
-                if (isWaiting) {
-                    proctorListener?.onFaceCount(face)
-                }
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onFaceCount(face)
+                    }
 
-                if (isAlert) {
-                    when (face) {
-                        0 -> {
-                            ScreenBrightness(context).heightBrightness(context)
-                            hideAlert()
-                        }
+                    if (isAlert) {
+                        when (face) {
+                            0 -> {
+                                ScreenBrightness(context).heightBrightness(context)
+                                hideAlert()
+                            }
 
-                        1 -> {
-                            ScreenBrightness(context).heightBrightness(context)
-                            hideAlert()
-                        }
+                            1 -> {
+                                ScreenBrightness(context).heightBrightness(context)
+                                hideAlert()
+                            }
 
-                        else -> {
-                            ScreenBrightness(context).lowBrightness(context)
-                            alert(context as AppCompatActivity, "'Face Count", "Multiple Face")
+                            else -> {
+                                ScreenBrightness(context).lowBrightness(context)
+                                alert("'Face Count", "Multiple Face")
+                            }
                         }
                     }
                 }
+
 
             }
 
             override fun onLipMovementDetection(islipmovment: Boolean) {
-                if (isWaiting) {
-                    proctorListener?.onLipMovementDetection(islipmovment)
-                }
-                if (isAlert) {
-                    if (islipmovment) {
-                        alert(context as AppCompatActivity, "Lip Movement ", islipmovment.toString())
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onLipMovementDetection(islipmovment)
+                    }
+                    if (isAlert) {
+                        if (islipmovment) {
+                            /*alert(
+                                "Lip Movement ",
+                                islipmovment.toString()
+                            )*/
+                        }
                     }
                 }
+
             }
 
             override fun onObjectDetection(face: String) {
-                if (isWaiting) {
-                    proctorListener?.onObjectDetection(face)
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onObjectDetection(face)
 
+                    }
                 }
+
             }
 
             override fun onEyeDetectionOnlyOneFace(face: String) {
-                if (isWaiting) {
-                    proctorListener?.onEyeDetectionOnlyOneFace(face)
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onEyeDetectionOnlyOneFace(face)
 
-                }
-                if (isAlert) {
-                    if (!check(face)){
-                        alert(context as AppCompatActivity, "Eye", face)
+                    }
+                    if (isAlert) {
+                        if (!check(face) && !face.isNullOrBlank() ) {
+                            alert("Eye", face)
+                        }
                     }
                 }
+
             }
 
             override fun onUserWallDistanceDetector(distance: Float) {
-                if (isWaiting) {
-                    proctorListener?.onUserWallDistanceDetector(distance)
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onUserWallDistanceDetector(distance)
+                    }
+                    if (isAlert) {
+                        // defalut alert
+                    }
                 }
-                if (isAlert) {
-                    // defalut alert
+
+            }
+
+            override fun onFaceDirectionMovement(faceDirection: String?) {
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onFaceDirectionMovement(faceDirection)
+                    }
+                    if (isAlert) {
+                        if (!checkFaceDirection(faceDirection)) {
+                            alert("Face Direction", faceDirection)
+                        }
+                    }
+
                 }
             }
 
             override fun captureImage(faceDirection: Bitmap?) {
-                if (isWaiting) {
-                    proctorListener?.captureImage(faceDirection)
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        if (faceDirection != null) {
+                            Log.e(
+                                "TAG",
+                                "captureImage:-->  " + Utils().saveBitmapIntoImageInternalDir(
+                                    faceDirection,
+                                    context
+                                )
+                            )
+                        }
+                        proctorListener?.captureImage(faceDirection)
+                    }
                 }
             }
 
         })
     }
+
+    private fun checkFaceDirection(faceDirection: String?): Boolean {
+        return when (faceDirection) {
+            "moving to right" -> {
+                false
+            }
+
+            "moving to left" -> {
+                false
+            }
+
+            "moving up" -> {
+                false
+            }
+
+            "moving down" -> {
+                false
+            }
+
+            else -> {
+                true
+            }
+
+        }
+    }
+
 
     private fun check(face: String): Boolean {
         return when (face) {
@@ -336,62 +548,12 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
 
     @SuppressLint("SuspiciousIndentation")
-    fun alert(context: AppCompatActivity, title: String?, message: String?) {
-        hideAlert()
-
-        if (alertDialog == null) {
-            alertDialog = AlertDialog.Builder(context).create()
-        }
-
-        val layoutInflater: LayoutInflater = LayoutInflater.from(context)
-        val view = layoutInflater.inflate(R.layout.custom_dialog, null)
-        val tvTitle = view.findViewById<TextView>(R.id.tv_title)
-        val tvMessage = view.findViewById<TextView>(R.id.tv_message)
-        val btnClose = view.findViewById<Button>(R.id.btnClose)
-
-
-        btnClose.setOnClickListener {
-            alertDialog?.hide()
-            alertDialog?.dismiss()
-            alertDialog = null
-        }
-
-
-        alertDialog?.apply {
-            this.setView(view)
-            tvTitle.text = ""
-            tvMessage.text = ""
-            tvTitle.text = title
-            tvMessage.text = message
-            this.show()
-        }
-
-
+    fun alert(title: String?, message: String?) {
+        alertDialog1.show(title.toString(), message.toString())
     }
 
     private fun hideAlert() {
-        alertDialog?.let {
-            if (it.isShowing) {
-                it.hide()
-                it.dismiss()
-                alertDialog = null
-            }
-        }
-    }
-
-    fun alertDialogForQuit() {
-        val builder = AlertDialog.Builder(context)
-        builder.setMessage("Your session is expired..! Please login again")
-        builder.setCancelable(true)
-        builder.setPositiveButton(
-            Html.fromHtml("<font color='#00A1DB'>" + "OK " + "</font>")
-        ) { dialog, which ->
-            dialog.dismiss()
-        }
-        dialog = builder.create()
-        dialog?.let {
-            dialog!!.show()
-        }
+        alertDialog1.hide()
     }
 
     interface onProctorListener {
@@ -412,8 +574,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         fun onObjectDetection(face: String)
         fun onEyeDetectionOnlyOneFace(face: String)
         fun onUserWallDistanceDetector(distance: Float)
-
-        //        fun onFaceDirectionMovement(faceDirection: String?)
+        fun onFaceDirectionMovement(faceDirection: String?)
         fun captureImage(faceDirection: Bitmap?)
 
     }

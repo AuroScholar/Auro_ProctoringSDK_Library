@@ -7,14 +7,18 @@
     android:background="@color/white"
     tools:context=".MainActivity">
 
-
     <com.example.auroproctoringsdk.ProctoringSDK
+        android:id="@+id/mainLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+   <!-- <com.example.auroproctoringsdk.ProctoringSDK
         android:id="@+id/mainLayout"
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:layout_centerInParent="true">
 
-    </com.example.auroproctoringsdk.ProctoringSDK>
+    </com.example.auroproctoringsdk.ProctoringSDK>-->
 
   <!--  <com.auro.proctoringsdk.ProctoringSDK
         android:id="@+id/proctview"
