@@ -1,138 +1,93 @@
 package com.example.auroproctoringsdk
 
-import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
-import android.content.IntentFilter
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.DashPathEffect
-import android.graphics.Paint
-import android.graphics.Rect
-import android.graphics.RectF
-import android.graphics.YuvImage
 import android.hardware.Camera
-import android.hardware.usb.UsbManager
+import android.os.Handler
 import android.util.AttributeSet
 import android.util.Log
 import android.util.Size
-import android.view.LayoutInflater
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import android.view.View
-import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.MutableLiveData
-import com.example.auroproctoringsdk.Application.Companion.deadlyInMilliseconds
-import com.example.auroproctoringsdk.Application.Companion.defaultAlert
-import com.example.auroproctoringsdk.Application.Companion.surfaceBoardErrorColor
-import com.example.auroproctoringsdk.Application.Companion.surfaceBoardNoColor
-import com.example.auroproctoringsdk.Application.Companion.surfaceBoardSuccessColor
+import androidx.lifecycle.OnLifecycleEvent
+import com.example.auroproctoringsdk.copypastestop.ClipboardManagerHelper
 import com.example.auroproctoringsdk.detector.FaceDetector
 import com.example.auroproctoringsdk.detector.Frame
 import com.example.auroproctoringsdk.detector.LensFacing
-import com.example.auroproctoringsdk.developerMode.CheckDeveloperMode
 import com.example.auroproctoringsdk.dnd.DNDManagerHelper
 import com.example.auroproctoringsdk.emulater.EmulatorDetector
+import com.example.auroproctoringsdk.notification.ClearAllNotifications
+import com.example.auroproctoringsdk.screenBarLock.StatusBarLocker
 import com.example.auroproctoringsdk.screenBrightness.ScreenBrightness
-import com.example.auroproctoringsdk.utils.BottomKeyEvent
+import com.example.auroproctoringsdk.utils.CustomAlertDialog
 import com.example.auroproctoringsdk.utils.Utils
-import com.example.auroproctoringsdk.voiceDetector.NoiseDetector
-import com.example.auroproctoringsdk.windowFull.WindowUtils
-import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.util.Calendar
-import java.util.Date
 import java.util.Timer
 import java.util.TimerTask
+import kotlin.concurrent.thread
 
 
-class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView(context, attrs),
+class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs),
     SurfaceHolder.Callback, Camera.PreviewCallback {
 
     private var camera: Camera? = null
     private var surfaceHolder: SurfaceHolder? = null
     private val faceDetector = FaceDetector()
-
-    private var imageBitmap: Bitmap? = null
-    private var isDetection = true
-    private val imgList = mutableListOf<Bitmap>()
-    private val captureImageList = MutableLiveData<List<Bitmap>>()
     private var timer: Timer? = null
-    private var defaultAlertDialog = false
-    private var saveImageIntoFolder = false
-    private var waitingForProcessing = false
+    private var delayMillis: Long = 30000
 
+    private val handler = Handler()
+    var isWaiting = false
+    var isAlert = false
 
-    private var surfaceViewBorder = Paint().also {
-        it.color = Color.TRANSPARENT
-        it.style = Paint.Style.STROKE
-        it.strokeWidth = 15f
-        it.isAntiAlias = true
-        it.isDither = true
-        it.pathEffect = DashPathEffect(floatArrayOf(10f, 10f), 0f)
-        it.strokeJoin = Paint.Join.ROUND
-        it.strokeCap = Paint.Cap.ROUND
-    }
-    private var backgroundPaint = Paint().also {
-        it.color = Color.TRANSPARENT
-        it.style = Paint.Style.FILL
-        it.isAntiAlias = true
-        it.isDither = true
-        it.pathEffect = DashPathEffect(floatArrayOf(10f, 10f), 0f)
-        it.strokeJoin = Paint.Join.ROUND
-        it.strokeCap = Paint.Cap.ROUND
+    companion object {
+        var isViewAvailable = false
     }
 
-    private var alertDialog: AlertDialog? = null
+    private var proctorListener: onProctorListener? = null
 
-    private var usbManager = com.example.auroproctoringsdk.usb.UsbReceiver()
-    private var statusBarLocker: com.example.auroproctoringsdk.screenBarLock.StatusBarLocker? = null
-
+    private val changeWaitingStatus = object : Runnable {
+        override fun run() {
+            isWaiting = !isWaiting
+            handler.postDelayed(this, delayMillis) // Change color every 30 seconds
+        }
+    }
+    var alertDialog1 = CustomAlertDialog(context)
 
     init {
-
-        this.layoutParams = ViewGroup.LayoutParams(300, 300)
-
-        this.setPadding(50, 50, 50, 50)
-
         this.surfaceHolder = holder
         this.surfaceHolder?.addCallback(this)
-
-        this.imgList.clear()
-
-        setWillNotDraw(false)
-
+        handler.post(changeWaitingStatus)
+        Utils().getSaveImageInit(context)
     }
+
 
     override fun surfaceCreated(p0: SurfaceHolder) {
         try {
             camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT)
             camera?.setDisplayOrientation(90)
+//            setCameraDisplayOrientation(Camera.CameraInfo.CAMERA_FACING_FRONT, camera)
             camera?.setPreviewDisplay(holder)
             camera?.startPreview()
         } catch (e: IOException) {
             e.printStackTrace()
         }
-        timer = Timer()
-        timer?.schedule(object : TimerTask() {
-            override fun run() {
-                if (isDetection) {
-                    waitingForProcessing = true
+
+        run {
+            timer = Timer()
+            timer?.schedule(object : TimerTask() {
+                override fun run() {
                     takePic()
                 }
-            }
-        }, 0, deadlyInMilliseconds) // 1 sec
-        //        }, 0, 60000) // 1 mint
+            }, 0, 30000) // 1 sec
+
+        }
+
     }
 
     override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {
@@ -142,48 +97,22 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
         try {
             camera?.setPreviewDisplay(surfaceHolder)
             camera?.startPreview()
+            thread {
+                camera?.startPreview()
+            }.start()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+    }
+
+    override fun surfaceDestroyed(p0: SurfaceHolder) {
+        try {
+            releaseCamera()
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
-
-    override fun surfaceDestroyed(p0: SurfaceHolder) {
-
-        if (camera != null) {
-            camera?.stopPreview()
-            camera?.setPreviewCallback(null)
-            camera?.release()
-            camera = null
-        }
-
-        timer?.cancel()
-        timer = null
-    }
-
-    fun getCurrentDateTime(): Date {
-        return Calendar.getInstance().time
-    }
-
-    @SuppressLint("DrawAllocation")
-    override fun onDraw(canvas: Canvas?) {
-        super.onDraw(canvas)
-        canvas?.let {
-            (context as Activity).runOnUiThread {
-                if (defaultAlert) {
-                    surfaceViewBorder.let { borderPaint ->
-                        backgroundPaint.let { backgroundPaint ->
-                            val borderRect = RectF(0f, 0f, width.toFloat(), height.toFloat())
-                            it.drawRect(borderRect, borderPaint)
-                            val backgroundRect =
-                                RectF(5f, 5f, width.toFloat() - 5f, height.toFloat() - 5f)
-                            it.drawRect(backgroundRect, backgroundPaint)
-                        }
-                    }
-                }
-            }
-        }
-    }
-
 
     override fun onPreviewFrame(data: ByteArray, camera: Camera?) {
 
@@ -196,418 +125,459 @@ class ProctoringSDK(context: Context, attrs: AttributeSet? = null) : SurfaceView
             val parameters = camera.parameters
             val width = parameters.previewSize.width
             val height = parameters.previewSize.height
-            val yuvImage = YuvImage(data, parameters.previewFormat, width, height, null)
-            val out = ByteArrayOutputStream()
-            yuvImage.compressToJpeg(Rect(0, 0, width, height), 100, out)
-            val imageBytes = out.toByteArray()
-            val lastUpdatedBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-            out.flush()
-            out.close()
-            lastUpdatedBitmap?.let {
-                imageBitmap = lastUpdatedBitmap
-                if (isDetection) {
-                    Log.e("TAG", "onPreviewFrame: status "+isDetection )
-//                    imgList.add(lastUpdatedBitmap)
-//                    captureImageList.value = imgList.toList()
-                    Thread{
-                        Utils().saveBitmapIntoImageInternalDir(lastUpdatedBitmap,context,saveImageIntoFolder)
-                    }.start()
 
-                    if (waitingForProcessing){
-                        // dealyStoper
-                        waitingForProcessing = false
-                        faceDetector.process(
-                            Frame(
-                                data,
-                                270,
-                                Size(width, height),
-                                parameters.previewFormat,
-                                LensFacing.FRONT
-                            )
-                        )
+            Log.e("TAG", "onPreviewFrame: ")
+            faceDetector.process(
+                Frame(
+                    data, 270, Size(width, height), parameters.previewFormat, LensFacing.FRONT
+                )
+            )
 
-                    }
-
-
-                }
-
-            }
 
         }
 
     }
 
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        if (hasFocus) { // hasFocus is true
 
-    fun startProctoring(
-        onProctoringResultListener: FaceDetector.OnProctoringResultListener,
-    ): Boolean {
-        isDetection = true
-        faceDetector.setonFaceDetectionFailureListener(onProctoringResultListener)
-        NoiseDetector().startNoiseDetector((context as Activity), onProctoringResultListener)
-        getFaceLiveResult(context as AppCompatActivity)
-        getLifeCycle((context as AppCompatActivity).lifecycle, context as AppCompatActivity)
-        return isDetection
-    }
-
-
-    private fun getLifeCycle(lifecycle: Lifecycle, activity: AppCompatActivity) {
-
-        lifecycle.addObserver(object : LifecycleEventObserver {
-
-            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-                when (event) {
-                    Lifecycle.Event.ON_START -> {
-                        Log.e("TAG", "onStateChanged: start")
-                        if (defaultAlert) {
-                            saveImageIntoFolder = true
-                            statusBarLocker =
-                                com.example.auroproctoringsdk.screenBarLock.StatusBarLocker(
-                                    activity
-                                )
-                            statusBarLocker?.lock()
-                        }
-
-                    }
-
-                    Lifecycle.Event.ON_CREATE -> {
-                        saveImageIntoFolder = false
-
-
-                        Log.e("TAG", "onStateChanged: create")
-                        if (defaultAlert) {
-                            /*// developer mode
-                            if (!CheckDeveloperMode(context).isDeveloperModeEnabled()) {
-                                CheckDeveloperMode(context).hideDialog()
-                            } else {
-                                CheckDeveloperMode(context).turnOffDeveloperMode()
-                            }
-
-                            if (EmulatorDetector().isEmulatorRun()) {
-                                alert(activity, "Emulator", "Don't use Emulator")
-                            }
-
-                            //DND
-                            DNDManagerHelper(context).checkDNDPolicyAccessAndRequest()
-
-                            // lock
-                            WindowUtils(activity).doNotLockScreen()
-
-                            // full screen
-                            WindowUtils(activity).hideSystemUI()
-
-                            // multi window
-                            activity.onMultiWindowModeChanged(false)
-                            WindowUtils(activity).disableMultiWindow()
-
-                            //ExpandNotificationDrawer
-                            WindowUtils(activity).setExpandNotificationDrawer(context, false)*/
-
-                            //register usb manger
-                            val filter = IntentFilter()
-                            filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
-                            filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
-                            activity.registerReceiver(usbManager, filter)
-
-
-
-                        }
-
-                    }
-
-                    Lifecycle.Event.ON_RESUME -> {
-                        saveImageIntoFolder = false
-                        if (defaultAlert) {
-
-                            // developer mode
-                            Log.e(
-                                "TAG",
-                                " onStateChanged: onresume wala status " + CheckDeveloperMode(
-                                    context
-                                ).isDeveloperModeEnabled()
-                            )
-
-                            if (CheckDeveloperMode(context).isDeveloperModeEnabled()) {
-                                CheckDeveloperMode(context).turnOffDeveloperMode()
-                            } else {
-                                CheckDeveloperMode(context).hideDialog()
-                            }
-
-
-                            if (EmulatorDetector().isEmulatorRun()) {
-                                alert(activity, "Emulator", "Don't use Emulator")
-                            }
-
-                            // lock
-                            WindowUtils(activity).doNotLockScreen()
-                            //DND
-                            DNDManagerHelper(context).checkDNDPolicyAccessAndRequest()
-                            // full screen
-                            WindowUtils(activity).hideSystemUI()
-
-                            // multi window
-                            activity.onMultiWindowModeChanged(false)
-                            WindowUtils(activity).disableMultiWindow()
-
-                            //ExpandNotificationDrawer
-                            WindowUtils(activity).setExpandNotificationDrawer(context, false)
-
-                            //usb manger
-                            val filter = IntentFilter()
-                            filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED)
-                            filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED)
-                            activity.registerReceiver(usbManager, filter)
-                        }
-                    }
-
-                    Lifecycle.Event.ON_PAUSE -> {
-                        Log.e("TAG", "onStateChanged: pause")
-                        if (defaultAlert) {
-                            activity.unregisterReceiver(usbManager)
-                        }
-                        saveImageIntoFolder = false
-
-                    }
-
-                    Lifecycle.Event.ON_STOP -> {
-                        Log.e("TAG", "onStateChanged: stop")
-                        saveImageIntoFolder = false
-                    }
-
-                    Lifecycle.Event.ON_DESTROY -> {
-                        Log.e("TAG", "onStateChanged: destroy")
-                        if (defaultAlert) {
-                            statusBarLocker?.release()
-                        }
-                        releaseCameraAndPreview()
-
-                        saveImageIntoFolder = true
-
-                    }
-
-                    else -> {}
-
-                }
-
-            }
-
-            fun releaseCameraAndPreview() {
-                if (camera != null) {
-                    camera?.stopPreview()
-                    camera?.setPreviewCallback(null)
-                    camera?.release()
-                    camera = null
-                }
-            }
-        })
-
-        BottomKeyEvent().onBackPressHandle(activity)
-
-    }
-
-
-    fun getCaptureImagesList(): MutableLiveData<List<Bitmap>> {
-        return captureImageList
-    }
-
-
-    private fun updateSurfaceViewBoard(open: Boolean?): Boolean {
-
-        if (open != null) {
-            if (open) {
-                surfaceViewBorder?.color = surfaceBoardErrorColor
-                invalidate()
-                postInvalidate()
-            } else {
-                surfaceViewBorder?.color = surfaceBoardSuccessColor
-                invalidate()
-                postInvalidate()
-            }
-            return open
+            StatusBarLocker.setExpandNotificationDrawer(context, false)
         } else {
-            surfaceViewBorder?.color = surfaceBoardNoColor
-            invalidate()
-            postInvalidate()
-            return false
-        }
 
-    }
-
-    private fun getFaceLiveResult(activity: AppCompatActivity) {
-        faceDetector.liveFaceResult().observe(activity) { liveResult ->
-            activity.runOnUiThread {
-                if (defaultAlert) {
-                    if (liveResult.faceCount == 0) {
-                        //brightness
-                        ScreenBrightness(activity).setScreenBrightness(false)
-
-                        hide()
-                        updateSurfaceViewBoard(null)
-                        if (defaultAlertDialog) {
-                            alert(
-                                activity, "Face Count  ", liveResult.faceCount.toString()
-                            )
-                        }
-
-
-                    } else if (liveResult.faceCount == 1) {
-                        hide()
-                        ScreenBrightness(activity).setScreenBrightness(false)
-                        // Face Direction check is user see left or right direction
-                        if (!liveResult.faceDirection.isNullOrBlank()) {
-                            hide()
-                            val result = liveResult.faceDirection
-                            if (defaultAlertDialog) {
-                                alert(activity, "Face Direction", result)
-                            }
-                        } else {
-                            if (!updateSurfaceViewBoard(liveResult.isMouthOen)) { // return close mouth
-
-
-                            } else {
-
-                            }
-                        }
-
-                    } else {
-                        ScreenBrightness(activity).setScreenBrightness(defaultAlert)
-                        hide()
-                        var count = liveResult.faceCount
-                        animateRightToLeft(this)
-                        if (defaultAlertDialog) {
-                            alert(
-                                activity, "Face Count  ", count.toString()
-                            )
-                        }
-
-                    }
-
-                }
-
-
+            if (!hasFocus) {
+                StatusBarLocker.setExpandNotificationDrawer(context, false)
             }
+
         }
-
-    }
-
-    private fun animateRightToLeft(view: View) {
-        val screenWidth = resources.displayMetrics.widthPixels.toFloat()
-        val animation = ObjectAnimator.ofFloat(view, "translationX", screenWidth, 0f)
-        animation.duration = 10 // Set the duration of the animation (in milliseconds)
-        animation.start()
     }
 
     fun takePic() {
         camera?.setPreviewCallback(this@ProctoringSDK)
     }
 
-    fun proctoringConfig(
-        postprocessingElseThis: FaceDetector.OnProctoringResultListener,
-        proctoringSDKStart: Boolean,
-        delayInMilisecounds: Long?,
-        WorningColor: Int?,
-        SuccessColor: Int?,
-        useDeFaultAlertDialog: Boolean?,
+    fun startProctoring(
+        listener: onProctorListener,
     ) {
-        startProctoring()
-        startProctoring(postprocessingElseThis)
+        proctorListener = listener
+        isAlert = true
 
-        useDeFaultAlertDialog?.let {
-            useDefaultAlert(useDeFaultAlertDialog)
+        syncResults()
+        faceDetector.noticeDetect(context)
+
+
+    }
+
+
+    fun observeLifecycle(lifecycle: Lifecycle) {
+        lifecycle.addObserver(object : LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+            fun onCreate() {
+                isViewAvailable = false
+                // Code to execute when the fragment or activity is created
+                Log.e("RAMU", "onCreate: ")
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_START)
+            fun onStart() {
+                StatusBarLocker.statusBarLock(context)
+
+                // Code to execute when the fragment or activity is started
+                Log.e("RAMU", "onStart: ")
+                isViewAvailable = true
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            fun onResume() {
+                /*                CheckDeveloperMode(context).turnOffDeveloperMode()
+                                if (!CheckDeveloperMode(context).isDeveloperModeEnabled()){
+                                    DNDManagerHelper(context as AppCompatActivity).checkDNDModeON()
+                                }*/
+                StatusBarLocker.statusBarLock(context)
+                ClipboardManagerHelper(context).clearClipboard()
+                Log.e("RAMU", "onResume: ")
+                DNDManagerHelper(context).checkDNDModeON()
+                isViewAvailable = true
+
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+            fun onPause() {
+                isViewAvailable = false
+                // Code to execute when the fragment or activity is paused
+                Log.e("RAMU", "onPause: ")
+                DNDManagerHelper(context).DndModeOff(context)
+                hideAlert()
+
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+            fun onStop() {
+                isViewAvailable = false
+                hideAlert()
+                Log.e("RAMU", "onStop: ")
+
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+            fun onDestroy() {
+                Log.e("RAMU", "onDestroy: ")
+
+//                Log.e("TAG", "onDestroy: -- result "+Utils(context).removeDir() )
+                isViewAvailable = false
+                DNDManagerHelper(context as AppCompatActivity).DndModeOff(context)
+            }
+        })
+
+    }
+    fun LifecycleOwner.observeLifecycle() {
+        val lifecycle = this.lifecycle
+        lifecycle.addObserver(object : LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+            fun onCreate() {
+                isViewAvailable = false
+                // Code to execute when the fragment or activity is created
+                Log.e("RAMU", "onCreate: ")
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_START)
+            fun onStart() {
+                StatusBarLocker.statusBarLock(context)
+
+                // Code to execute when the fragment or activity is started
+                Log.e("RAMU", "onStart: ")
+                isViewAvailable = true
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+            fun onResume() {
+                /*                CheckDeveloperMode(context).turnOffDeveloperMode()
+                                if (!CheckDeveloperMode(context).isDeveloperModeEnabled()){
+                                    DNDManagerHelper(context as AppCompatActivity).checkDNDModeON()
+                                }*/
+                StatusBarLocker.statusBarLock(context)
+                ClipboardManagerHelper(context).clearClipboard()
+                Log.e("RAMU", "onResume: ")
+                DNDManagerHelper(context).checkDNDModeON()
+                isViewAvailable = true
+
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+            fun onPause() {
+                isViewAvailable = false
+                // Code to execute when the fragment or activity is paused
+                Log.e("RAMU", "onPause: ")
+                DNDManagerHelper(context).DndModeOff(context)
+                hideAlert()
+
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
+            fun onStop() {
+                isViewAvailable = false
+                hideAlert()
+                Log.e("RAMU", "onStop: ")
+
+            }
+
+            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+            fun onDestroy() {
+                Log.e("RAMU", "onDestroy: ")
+
+//                Log.e("TAG", "onDestroy: -- result "+Utils(context).removeDir() )
+                isViewAvailable = false
+                DNDManagerHelper(context as AppCompatActivity).DndModeOff(context)
+            }
+        })
+
+    }
+
+
+    fun changeDelay(delayMillis: Long) {
+        this.delayMillis = delayMillis
+    }
+
+    fun alertOnOff(): Boolean {
+        isAlert = !isAlert
+        return isAlert
+    }
+
+    private fun syncResults() {
+
+        faceDetector.setonFaceDetectionFailureListener(object :
+            FaceDetector.OnProctoringResultListener {
+
+            override fun isRunningDetector(boolean: Boolean?) {
+                if (isViewAvailable) { // view is ready
+
+                    if (isWaiting) {
+                        proctorListener?.isRunningDetector(boolean)
+                    }
+                    if (EmulatorDetector().isEmulatorRun()) {
+                        alert("Emulator ", "don't use emulator ")
+                    }
+
+                    ClearAllNotifications(context as AppCompatActivity)
+                    Log.e("TAG", "isRunningDetector: onStateChanged: dnd request ")
+                    DNDManagerHelper(context as AppCompatActivity).checkDNDModeON()
+                    StatusBarLocker.statusBarLock(context)
+
+
+                }
+            }
+
+            override fun onVoiceDetected(
+                amplitude: Double,
+                isNiceDetected: Boolean,
+                isRunning: Boolean,
+                typeOfVoiceDetected: String,
+            ) {
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onVoiceDetected(
+                            amplitude, isNiceDetected, isRunning, typeOfVoiceDetected
+                        )
+
+                        if (isAlert) {
+                            if (isNiceDetected) {
+                                (context as AppCompatActivity).runOnUiThread {
+//                                    alert("HIGH SOUND", typeOfVoiceDetected)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            override fun onSuccess(faceBounds: Int) {
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onSuccess(faceBounds)
+                    }
+                }
+            }
+
+            override fun onFailure(exception: Exception) {
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onFailure(exception)
+                    }
+                }
+            }
+
+            override fun onFaceCount(face: Int) {
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onFaceCount(face)
+                    }
+
+                    if (isAlert) {
+                        when (face) {
+                            0 -> {
+                                ScreenBrightness(context).heightBrightness(context)
+                                hideAlert()
+                            }
+
+                            1 -> {
+                                ScreenBrightness(context).heightBrightness(context)
+                                hideAlert()
+                            }
+
+                            else -> {
+                                ScreenBrightness(context).lowBrightness(context)
+                                alert("'Face Count", "Multiple Face")
+                            }
+                        }
+                    }
+                }
+
+
+            }
+
+            override fun onLipMovementDetection(islipmovment: Boolean) {
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onLipMovementDetection(islipmovment)
+                    }
+                    if (isAlert) {
+                        if (islipmovment) {
+                            /*alert(
+                                "Lip Movement ",
+                                islipmovment.toString()
+                            )*/
+                        }
+                    }
+                }
+
+            }
+
+            override fun onObjectDetection(face: String) {
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onObjectDetection(face)
+
+                    }
+                }
+
+            }
+
+            override fun onEyeDetectionOnlyOneFace(face: String) {
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onEyeDetectionOnlyOneFace(face)
+
+                    }
+                    if (isAlert) {
+                        if (!check(face) && !face.isNullOrBlank() ) {
+                            alert("Eye", face)
+                        }
+                    }
+                }
+
+            }
+
+            override fun onUserWallDistanceDetector(distance: Float) {
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onUserWallDistanceDetector(distance)
+                    }
+                    if (isAlert) {
+                        // defalut alert
+                    }
+                }
+
+            }
+
+            override fun onFaceDirectionMovement(faceDirection: String?) {
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        proctorListener?.onFaceDirectionMovement(faceDirection)
+                    }
+                    if (isAlert) {
+                        if (!checkFaceDirection(faceDirection)) {
+                            alert("Face Direction", faceDirection)
+                        }
+                    }
+
+                }
+            }
+
+            override fun captureImage(faceDirection: Bitmap?) {
+                if (isViewAvailable) {
+                    if (isWaiting) {
+                        if (faceDirection != null) {
+                            Log.e(
+                                "TAG",
+                                "captureImage:-->  " + Utils().saveBitmapIntoImageInternalDir(
+                                    faceDirection,
+                                    context
+                                )
+                            )
+                        }
+                        proctorListener?.captureImage(faceDirection)
+                    }
+                }
+            }
+
+        })
+    }
+
+    private fun checkFaceDirection(faceDirection: String?): Boolean {
+        return when (faceDirection) {
+            "moving to right" -> {
+                false
+            }
+
+            "moving to left" -> {
+                false
+            }
+
+            "moving up" -> {
+                false
+            }
+
+            "moving down" -> {
+                false
+            }
+
+            else -> {
+                true
+            }
+
         }
-        WorningColor?.let {
-            surfaceBoardErrorColor = WorningColor
-        }
-        SuccessColor?.let {
-            surfaceBoardSuccessColor = SuccessColor
-
-        }
-        delayInMilisecounds?.let {
-            proctoringWithDealy(delayInMilisecounds)
-        }
-
-
     }
 
-    fun useDefaultAlert(isDefaultAlert: Boolean): Boolean {
-        defaultAlert = isDefaultAlert
-        return defaultAlert
-    }
 
-    fun proctoringWithDealy(dealInMilliseconds: Long) {
-        deadlyInMilliseconds = dealInMilliseconds
-    }
+    private fun check(face: String): Boolean {
+        return when (face) {
+            "both eyes are open" -> {
 
-    fun startStopDetection(): Boolean {
-        isDetection = !isDetection
-        return isDetection
-    }
+                true
 
-    fun stopProctoring() :Boolean{
-        saveImageIntoFolder = false
-        isDetection = false
-        return isDetection
+            }
 
-    }
+            "both eyes are closed" -> {
 
-    fun startProctoring() :Boolean{
-        isDetection = true
-        saveImageIntoFolder = true
-        return isDetection
-    }
+                false
+            }
 
-    fun defaultAlert() : Boolean{
-        defaultAlertDialog =! defaultAlertDialog
+            "right eye is open" -> {
+                false
+            }
 
-        return defaultAlertDialog
-    }
+            "left eye is open" -> {
+                false
+            }
 
-    fun stopCamera() {
-        camera?.stopFaceDetection()
-        camera?.stopPreview()
-        camera?.stopSmoothZoom()
-        camera?.release()
-    }
-
-    private fun hide() {
-        alertDialog?.let {
-            if (it.isShowing) {
-                it.hide()
-                it.dismiss()
-                alertDialog = null
+            else -> {
+                false
             }
         }
 
+
     }
+
+    private fun releaseCamera() {
+        camera?.apply {
+            stopPreview()
+            setPreviewCallback(null)
+            release()
+        }
+        camera = null
+    }
+
 
     @SuppressLint("SuspiciousIndentation")
-    private fun alert(context: AppCompatActivity, title: String?, message: String?) {
-        hide()
-        if (alertDialog == null) {
-            alertDialog = AlertDialog.Builder(context).create()
-        }
-
-        val layoutInflater: LayoutInflater = LayoutInflater.from(context)
-        val view = layoutInflater.inflate(R.layout.custom_dialog, null)
-        val tvTitle = view.findViewById<TextView>(R.id.tv_title)
-        val tvMessage = view.findViewById<TextView>(R.id.tv_message)
-        val btnClose = view.findViewById<Button>(R.id.btnClose)
-
-
-        btnClose.setOnClickListener {
-            hide()
-        }
-
-
-        alertDialog?.apply {
-            this.setView(view)
-            tvTitle.text = title
-            tvMessage.text = message
-            this.show()
-        }
-
-
+    fun alert(title: String?, message: String?) {
+        alertDialog1.show(title.toString(), message.toString())
     }
 
+    private fun hideAlert() {
+        alertDialog1.hide()
+    }
+
+    interface onProctorListener {
+
+        fun isRunningDetector(boolean: Boolean?)
+
+        fun onVoiceDetected(
+            amplitude: Double,
+            isNiceDetected: Boolean,
+            isRunning: Boolean,
+            typeOfVoiceDetected: String,
+        )
+
+        fun onSuccess(faceBounds: Int)
+        fun onFailure(exception: Exception)
+        fun onFaceCount(face: Int)
+        fun onLipMovementDetection(face: Boolean)
+        fun onObjectDetection(face: String)
+        fun onEyeDetectionOnlyOneFace(face: String)
+        fun onUserWallDistanceDetector(distance: Float)
+        fun onFaceDirectionMovement(faceDirection: String?)
+        fun captureImage(faceDirection: Bitmap?)
+
+    }
 
 }
 

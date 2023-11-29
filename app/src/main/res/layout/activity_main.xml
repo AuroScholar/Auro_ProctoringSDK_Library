@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,85 +7,38 @@
     android:background="@color/white"
     tools:context=".MainActivity">
 
-
-    <RelativeLayout
-        android:id="@+id/mainLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        tools:context=".MainActivity">
-
-<!--        <com.example.publicationtest.CameraSurfaceView-->
-<!--            android:id="@+id/camera"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="match_parent"/>-->
-
-
-    </RelativeLayout>
-
-
     <TextView
         android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="60dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="30dp"
+        android:gravity="center"
         android:text="Detecting .... "
         android:textSize="20dp"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.3"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.5" />
 
-
-    <ImageView
-        android:id="@+id/viewPagerImageList"
-        android:layout_width="match_parent"
-        android:layout_height="500dp"
-        android:layout_alignParentBottom="true" />
-    <!--
-
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/viewPagerImageList"
-            android:layout_width="match_parent"
-            android:layout_height="500dp"
-            android:layout_alignParentBottom="true" />
-    -->
-
-    <LinearLayout
+    <TextView
+        android:id="@+id/notificationId"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="vertical">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:text="Alerts"
-            android:textSize="20dp" />
+    <com.example.auroproctoringsdk.ProctoringSDK
+        android:id="@+id/mainLayout"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView">
 
-        <ToggleButton
-            android:id="@+id/btnAlert"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_margin="20dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:text="proctoring"
-            android:textSize="20dp" />
-
-        <ToggleButton
-            android:id="@+id/btnToggle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_above="@+id/btnAlert"
-            android:hint="alerts"
-            android:text="Alerts" />
-    </LinearLayout>
+    </com.example.auroproctoringsdk.ProctoringSDK>
 
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

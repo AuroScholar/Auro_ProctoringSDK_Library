@@ -9,8 +9,11 @@ import android.media.MediaRecorder
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.example.auroproctoringsdk.detector.FaceDetector
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-class NoiseDetector() {
+class NoiseDetector {
     private val SAMPLE_RATE = 44100
     private val CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO
     private val AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT
@@ -25,8 +28,7 @@ class NoiseDetector() {
         ) {
             return
         }
-
-        Thread {
+        CoroutineScope(Dispatchers.IO).launch{
             val audioRecord = AudioRecord(
                 MediaRecorder.AudioSource.MIC,
                 SAMPLE_RATE,
@@ -51,7 +53,7 @@ class NoiseDetector() {
                     }
 
                     val averageAmplitude = sumAmplitude / readSize
-                    val humanVoiceThreshold = 5000
+                    val humanVoiceThreshold = 5000 // 5000
                     val nonHumanVoiceThreshold = 2000
                     var typeOfVoiceDetected: String = ""
                     if (averageAmplitude > humanVoiceThreshold) {
@@ -63,7 +65,11 @@ class NoiseDetector() {
                     }
 
                     Log.e("TAG", "start: voice  $amplitude")
-                    if (amplitude > 350) {
+
+                    // max voice detected 350
+//                    if (amplitude > 350) {
+//                    if (amplitude > 700) {
+                    if (amplitude > 1500) {
                         listener.onVoiceDetected(amplitude, true, isRunning, typeOfVoiceDetected)
                     } else {
                         listener.onVoiceDetected(amplitude, false, isRunning, typeOfVoiceDetected)
@@ -73,8 +79,7 @@ class NoiseDetector() {
 
             audioRecord.stop()
             audioRecord.release()
-
-        }.start()
+        }
 
     }
 

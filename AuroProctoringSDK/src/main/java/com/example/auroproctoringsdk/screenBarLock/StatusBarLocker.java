@@ -1,6 +1,9 @@
 package com.example.auroproctoringsdk.screenBarLock;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Build;
@@ -9,6 +12,8 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+
+import java.lang.reflect.Method;
 
 public class StatusBarLocker {
     private Context context;
@@ -79,4 +84,44 @@ public class StatusBarLocker {
             return true;
         }
     }
+
+
+    @SuppressLint({"WrongConstant", "PrivateApi"})
+    public static void setExpandNotificationDrawer(Context context, boolean expand) {
+        try {
+            Object statusBarService = context.getSystemService("statusbar");
+            String methodName;
+
+            if (expand) {
+                methodName = (Build.VERSION.SDK_INT >= 22) ? "expandNotificationsPanel" : "expand";
+            } else {
+                methodName = (Build.VERSION.SDK_INT >= 22) ? "collapsePanels" : "collapse";
+            }
+
+            Class<?> statusBarManager = Class.forName("android.app.StatusBarManager");
+            Method method = statusBarManager.getMethod(methodName);
+            method.invoke(statusBarService);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void statusBarLock(Context context){
+        int currentApiVersion = android.os.Build.VERSION.SDK_INT;
+        Object sbservice = context.getSystemService("statusbar");
+        try {
+            Class statusbarManager = Class.forName("android.app.StatusBarManager");
+            if (currentApiVersion <= 16) {
+                Method collapse = statusbarManager.getMethod("collapse");
+                collapse.invoke(sbservice);
+            } else {
+                Method collapse2 = statusbarManager.getMethod("collapsePanels");
+                collapse2.invoke(sbservice);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

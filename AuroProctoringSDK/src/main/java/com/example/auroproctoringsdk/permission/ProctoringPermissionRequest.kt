@@ -63,7 +63,6 @@ class ProctoringPermissionRequest(private val activity: Activity) {
             activity.finish()
 //            activity.startActivity(activity.intent)
 //            activity.overridePendingTransition(0, 0)
-
             activity.startActivity(
                 Intent(activity.intent).addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
             )
@@ -75,7 +74,4 @@ class ProctoringPermissionRequest(private val activity: Activity) {
         }
     }
 
-    fun checkDeveloperMode() {
-        CheckDeveloperMode(activity).turnOffDeveloperMode()
-    }
 }

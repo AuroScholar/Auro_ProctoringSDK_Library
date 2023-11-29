@@ -1,98 +1,66 @@
 package com.example.publicationtest
 
+import android.app.NotificationManager
+import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.view.Gravity
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.auroproctoringsdk.ProctoringSDK
-import com.example.auroproctoringsdk.detector.FaceDetector.OnProctoringResultListener
 import com.example.auroproctoringsdk.permission.ProctoringPermissionRequest
 import com.example.publicationtest.databinding.ActivityMainBinding
 
 // OnProctoringResultListener for detector result
-class MainActivity : AppCompatActivity(), OnProctoringResultListener {
+class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
     //init permission
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
-
     private var proctoringPermissionRequest = ProctoringPermissionRequest(this)
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-
-//        ToastOnBackPressSDK.init(this)
-
         // Permissions already granted
         if (proctoringPermissionRequest.checkPermissionGranted()) {
 
-            // init Proctoring SDK
-            val proctoringSDK = ProctoringSDK(this)
-
-            // add camera output for user alert
-            binding.mainLayout.gravity = Gravity.END
-            binding.mainLayout.addView(proctoringSDK)
-
-// start proctoring
-
-            proctoringSDK.startProctoring(this)
-
-            proctoringSDK.getCaptureImagesList().observe(this) {
-                //            it?.let { updateUi(it) }
-            }
-
-
-            binding.btnToggle.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked){
-                    val status = proctoringSDK.startProctoring()
-                    binding.textView.text = "Running"
-                }else{
-                    var status = proctoringSDK.stopProctoring()
-                    if (status){
-                        binding.textView.text = "Stoped"
-                    }
-                }
-            }
-
-
-            binding.btnAlert.setOnCheckedChangeListener { buttonView, isChecked ->
-                if (isChecked){
-                    proctoringSDK.defaultAlert()
-                }else{
-                    proctoringSDK.defaultAlert()
-                }
-            }
-
-
+            binding.mainLayout.observeLifecycle(this.lifecycle)
 
         } else {
             proctoringPermissionRequest.requestPermissions()
         }
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (proctoringPermissionRequest.checkPermissionGranted()) {
+            binding.mainLayout.startProctoring(this)
+        }
 
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        proctoringPermissionRequest.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        proctoringPermissionRequest.onRequestPermissionsResult(
+            requestCode,
+            permissions,
+            grantResults
+        )
 
     }
 
     override fun onVoiceDetected(
-        amplitude: Double, isNiceDetected: Boolean, isRunning: Boolean, typeOfVoiceDetected: String
+        amplitude: Double, isNiceDetected: Boolean, isRunning: Boolean, typeOfVoiceDetected: String,
     ) {
-        // detect voice and type of voice
 
     }
 
     override fun onFaceCount(faceCount: Int) {
         // getting face count
         binding.textView.text = faceCount.toString()
-
     }
 
     override fun isRunningDetector(boolean: Boolean?) {
@@ -118,17 +86,20 @@ class MainActivity : AppCompatActivity(), OnProctoringResultListener {
         }
     }
 
-    override fun onObjectDetection(faceError: String) {
-        // object detection on camera
+    override fun onObjectDetection(face: String) {
+
     }
 
-    override fun onEyeDetectionOnlyOneFace(faceError: String) {
-        // eye open and close status
-        binding.textView.text = faceError
+    override fun onEyeDetectionOnlyOneFace(face: String) {
+
     }
 
     override fun onUserWallDistanceDetector(distance: Float) {
-        // user pose detection
+
+    }
+
+    override fun onFaceDirectionMovement(faceDirection: String?) {
+
     }
 
     override fun captureImage(faceDirection: Bitmap?) {

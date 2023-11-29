@@ -14,9 +14,9 @@ class Application : Application() {
     companion object {
         var defaultAlert: Boolean = true
 //        var deadlyInMilliseconds: Long = 100000
-        var deadlyInMilliseconds: Long = 30000
-        var faceDirectionAccuracy : Int = 10
-        var faceMouthAccuracy : Float = 3.0F
+        var deadlyInMilliseconds: Long = 1000
+        var faceDirectionAccuracy : Int = 50 // 10 is Default
+        var faceMouthAccuracy : Float = 10.0f//5.0F //3.0 f defalut
         var surfaceBoardErrorColor : Int = Color.RED
         var surfaceBoardSuccessColor : Int = Color.GREEN
         var surfaceBoardNoColor : Int = Color.TRANSPARENT
@@ -29,8 +29,7 @@ class Application : Application() {
         if (defaultAlert) {
 
             // stop screen short and video recording
-            registerActivityLifecycle()
-
+          registerActivityLifecycle()
 
             // Stop copy paste option
             ClipboardManagerHelper(this).clearClipboard()

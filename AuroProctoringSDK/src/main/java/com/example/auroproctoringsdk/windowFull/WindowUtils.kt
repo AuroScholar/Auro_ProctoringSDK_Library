@@ -12,9 +12,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import java.lang.reflect.Method
 
-class WindowUtils(private val activity: AppCompatActivity) {
+class WindowUtils() {
 
-    fun disableMultiWindow() {
+    fun disableMultiWindow( activity: AppCompatActivity) {
         activity.window.setFlags(
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
@@ -36,7 +36,7 @@ class WindowUtils(private val activity: AppCompatActivity) {
         }
     }
 
-    fun hideSystemUI() {
+    fun hideSystemUI( activity: AppCompatActivity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             WindowCompat.setDecorFitsSystemWindows(activity.window, false)
             val controller = activity.window.decorView.windowInsetsController
@@ -51,7 +51,7 @@ class WindowUtils(private val activity: AppCompatActivity) {
         }
     }
 
-    fun doNotLockScreen() {
+    fun doNotLockScreen( activity: AppCompatActivity) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
             activity.setShowWhenLocked(true)
             activity.setTurnScreenOn(true)
