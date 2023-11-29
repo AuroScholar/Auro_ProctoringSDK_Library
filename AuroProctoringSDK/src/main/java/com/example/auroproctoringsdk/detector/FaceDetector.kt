@@ -93,7 +93,7 @@ class FaceDetector() {
             }
         }
     }
-    //    ByteArray
+//    ByteArray
     private fun Frame.detectFaces() {
         val data = data ?: return
 
@@ -186,7 +186,7 @@ class FaceDetector() {
             }
     }
 
-    private fun convectionBitmap(frame: Frame): Bitmap {
+   private fun convectionBitmap(frame: Frame): Bitmap {
         val yuvImage = YuvImage(frame.data, frame.format, frame.size.width, frame.size.height, null)
         val out = ByteArrayOutputStream()
         yuvImage.compressToJpeg(Rect(0, 0, frame.size.width, frame.size.height), 100, out)

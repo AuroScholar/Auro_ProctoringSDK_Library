@@ -7,55 +7,39 @@ import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 
 class CheckDeveloperMode(val context: Context) {
-
-    fun disableDeveloperMode() {
-        try {
-            // Disable developer mode
-            Settings.Global.putInt(
-                context.contentResolver,
-                Settings.Global.DEVELOPMENT_SETTINGS_ENABLED,
-                0
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+    private var dialog: AlertDialog? = null
+    fun isDeveloperModeEnabled(): Boolean {
+        return Settings.Secure.getInt(
+            context.contentResolver, Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0
+        ) != 0
     }
 
-    fun enableDeveloperMode() {
-        try {
-            // Enable developer mode
-            Settings.Global.putInt(
-                context.contentResolver,
-                Settings.Global.DEVELOPMENT_SETTINGS_ENABLED,
-                1
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
+    fun turnOffDeveloperMode() {
+        Log.e("TAG", "turnOffDeveloperMode: developer status " + isDeveloperModeEnabled())
+        if (isDeveloperModeEnabled()) {
+            (context as AppCompatActivity).startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
         }
+
+
     }
 
-    fun checkDeveloperMode(): Boolean {
-        val developerModeEnabled = Settings.Global.getInt(
-            context.contentResolver,
-            Settings.Global.DEVELOPMENT_SETTINGS_ENABLED,
-            0
-        ) == 1
-        return if (developerModeEnabled) {
-            disableDeveloperMode()
-            true
-        } else {
-            false
-        }
+    fun showDialog() {
+        dialog = AlertDialog.Builder(context).apply {
+            setTitle("Please Disable Developer Mode")
+            setMessage("You will not be able to proceed if developer mode is enabled status ")
+            setPositiveButton("Go to Settings") { _, _ ->
+                context.startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
+            }
+            setIcon(android.R.drawable.stat_notify_error)
+            setCancelable(false)
+
+        }.create()
+
+        dialog?.show()
     }
 
-    /*if (developerModeEnabled) {
-        // Developer mode is enabled
-        // Perform your actions here
-    } else {
-        // Developer mode is disabled
-        // Perform your actions here
-    }*/
 
 }

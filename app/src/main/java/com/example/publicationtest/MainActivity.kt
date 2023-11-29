@@ -1,18 +1,22 @@
 package com.example.publicationtest
 
+import android.app.NotificationManager
+import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LifecycleOwner
 import com.example.auroproctoringsdk.ProctoringSDK.onProctorListener
+import android.util.Log
 import com.example.auroproctoringsdk.permission.ProctoringPermissionRequest
-import com.example.publicationtest.databinding.ActivityMainBinding
 
 // OnProctoringResultListener for detector result
+
 class MainActivity : AppCompatActivity(), onProctorListener {
 
+
+
     //init permission
-    private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+    private val binding by lazy { com.example.publicationtest.databinding.ActivityMainBinding.inflate(layoutInflater) }
     private var proctoringPermissionRequest = ProctoringPermissionRequest(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,20 +24,48 @@ class MainActivity : AppCompatActivity(), onProctorListener {
         setContentView(binding.root)
 
 
+
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val activeNotifications = notificationManager.activeNotifications
+
+        val notificationIds = activeNotifications.map { it.id }
+
+
+        Log.e("TAG", "onCreate: notification id "+notificationIds )
+
+
+
+
+
         if (proctoringPermissionRequest.checkPermissionGranted()) {
+
             binding.mainLayout.observeLifecycle(lifecycle)
+
+
+
 
 
         } else {
             proctoringPermissionRequest.requestPermissions()
         }
+
+    }
+    fun clearAll(notificationManager: NotificationManager, notificationIds: List<Int>) {
+
+        notificationIds.forEach { number ->
+            println("Square of notification id ----> $number")
+            notificationManager.cancel(number)
+
+        }
+
+
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        //proctoringPermissionRequest.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        proctoringPermissionRequest.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
     }
 
@@ -85,6 +117,7 @@ class MainActivity : AppCompatActivity(), onProctorListener {
     override fun captureImage(faceDirection: Bitmap?) {
         TODO("Not yet implemented")
     }
+
 
 }
 
