@@ -30,6 +30,9 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
             proctoringPermissionRequest.requestPermissions()
         }
 
+        binding.textView.setOnClickListener {
+        }
+
     }
 
     override fun onResume() {
@@ -60,7 +63,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
     override fun onFaceCount(faceCount: Int) {
         // getting face count
-        binding.textView.text = faceCount.toString()
+       // binding.textView.text = faceCount.toString()
     }
 
     override fun isRunningDetector(boolean: Boolean?) {
@@ -77,13 +80,13 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
     override fun onLipMovementDetection(face: Boolean) {
         // Lips Movement is mouth is open and close
-        binding.textView.text.apply {
+        /*binding.textView.text.apply {
             if (face) {
                 "Open"
             } else {
                 "Close"
             }
-        }
+        }*/
     }
 
     override fun onObjectDetection(face: String) {

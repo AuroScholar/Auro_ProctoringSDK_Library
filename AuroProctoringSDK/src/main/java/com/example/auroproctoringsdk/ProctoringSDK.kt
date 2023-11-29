@@ -11,6 +11,7 @@ import android.util.Size
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -22,15 +23,17 @@ import com.example.auroproctoringsdk.detector.LensFacing
 import com.example.auroproctoringsdk.dnd.DNDManagerHelper
 import com.example.auroproctoringsdk.emulater.EmulatorDetector
 import com.example.auroproctoringsdk.notification.ClearAllNotifications
+import com.example.auroproctoringsdk.screenBarLock.PinUnpinApp
 import com.example.auroproctoringsdk.screenBarLock.StatusBarLocker
 import com.example.auroproctoringsdk.screenBrightness.ScreenBrightness
+import com.example.auroproctoringsdk.screenBrightness.isScreenReaderOn
+import com.example.auroproctoringsdk.screenBrightness.stopTalkBackText
 import com.example.auroproctoringsdk.utils.CustomAlertDialog
 import com.example.auroproctoringsdk.utils.Utils
 import java.io.IOException
 import java.util.Timer
 import java.util.TimerTask
 import kotlin.concurrent.thread
-
 
 class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs),
     SurfaceHolder.Callback, Camera.PreviewCallback {
@@ -64,6 +67,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         this.surfaceHolder?.addCallback(this)
         handler.post(changeWaitingStatus)
         Utils().getSaveImageInit(context)
+//        view.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
+
+
     }
 
 
@@ -133,21 +139,17 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                 )
             )
 
-
         }
 
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         if (hasFocus) { // hasFocus is true
-
             StatusBarLocker.setExpandNotificationDrawer(context, false)
         } else {
-
             if (!hasFocus) {
                 StatusBarLocker.setExpandNotificationDrawer(context, false)
             }
-
         }
     }
 
@@ -163,74 +165,26 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
         syncResults()
         faceDetector.noticeDetect(context)
-
-
+        stopTalkBackText(context)
+        ViewCompat.setImportantForAccessibility(
+            (context as AppCompatActivity).window.decorView,
+            ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO
+        )
     }
 
 
+    //For Activity
     fun observeLifecycle(lifecycle: Lifecycle) {
-        lifecycle.addObserver(object : LifecycleObserver {
-            @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-            fun onCreate() {
-                isViewAvailable = false
-                // Code to execute when the fragment or activity is created
-                Log.e("RAMU", "onCreate: ")
-            }
-
-            @OnLifecycleEvent(Lifecycle.Event.ON_START)
-            fun onStart() {
-                StatusBarLocker.statusBarLock(context)
-
-                // Code to execute when the fragment or activity is started
-                Log.e("RAMU", "onStart: ")
-                isViewAvailable = true
-            }
-
-            @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-            fun onResume() {
-                /*                CheckDeveloperMode(context).turnOffDeveloperMode()
-                                if (!CheckDeveloperMode(context).isDeveloperModeEnabled()){
-                                    DNDManagerHelper(context as AppCompatActivity).checkDNDModeON()
-                                }*/
-                StatusBarLocker.statusBarLock(context)
-                ClipboardManagerHelper(context).clearClipboard()
-                Log.e("RAMU", "onResume: ")
-                DNDManagerHelper(context).checkDNDModeON()
-                isViewAvailable = true
-
-            }
-
-            @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-            fun onPause() {
-                isViewAvailable = false
-                // Code to execute when the fragment or activity is paused
-                Log.e("RAMU", "onPause: ")
-                DNDManagerHelper(context).DndModeOff(context)
-                hideAlert()
-
-            }
-
-            @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-            fun onStop() {
-                isViewAvailable = false
-                hideAlert()
-                Log.e("RAMU", "onStop: ")
-
-            }
-
-            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-            fun onDestroy() {
-                Log.e("RAMU", "onDestroy: ")
-
-//                Log.e("TAG", "onDestroy: -- result "+Utils(context).removeDir() )
-                isViewAvailable = false
-                DNDManagerHelper(context as AppCompatActivity).DndModeOff(context)
-            }
-        })
-
+        lifeProcess(lifecycle)
     }
+
+    // For Fragment
     fun LifecycleOwner.observeLifecycle() {
         val lifecycle = this.lifecycle
+        lifeProcess(lifecycle)
+    }
+
+    private fun lifeProcess(lifecycle: Lifecycle) {
         lifecycle.addObserver(object : LifecycleObserver {
             @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
             fun onCreate() {
@@ -289,9 +243,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                 DNDManagerHelper(context as AppCompatActivity).DndModeOff(context)
             }
         })
-
     }
-
 
     fun changeDelay(delayMillis: Long) {
         this.delayMillis = delayMillis
@@ -375,7 +327,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                         when (face) {
                             0 -> {
                                 ScreenBrightness(context).heightBrightness(context)
-                                hideAlert()
+                                alert("Face", "Unable to find face ")
                             }
 
                             1 -> {
@@ -428,7 +380,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
                     }
                     if (isAlert) {
-                        if (!check(face) && !face.isNullOrBlank() ) {
+                        if (!check(face) && !face.isNullOrBlank()) {
                             alert("Eye", face)
                         }
                     }

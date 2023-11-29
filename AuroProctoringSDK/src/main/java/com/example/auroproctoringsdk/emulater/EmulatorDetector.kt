@@ -1,6 +1,7 @@
 package com.example.auroproctoringsdk.emulater
 
 import android.os.Build
+import java.io.File
 
 class EmulatorDetector {
     fun isEmulatorRun(): Boolean {
@@ -16,6 +17,23 @@ class EmulatorDetector {
             "sdk_x86"
         ) || Build.PRODUCT.contains("vbox86p") || Build.PRODUCT.contains("emulator") || Build.PRODUCT.contains(
             "simulator"
-        ) || Build.PRODUCT.contains("Genymotion") || Build.PRODUCT.contains("Bluestacks"))
+        ) || Build.PRODUCT.contains("Genymotion") || Build.PRODUCT.contains("Bluestacks") ||  Build.MANUFACTURER.equals("BlueStacks", ignoreCase = true))
+    }
+
+    fun checkFilesExist(files: Array<String>): Boolean {
+        files.forEach {
+            val file = File(it)
+            if (file.exists()) {
+                return true
+            }
+        }
+        return false
+    }
+
+    fun isBlueStacks(): Boolean {
+        val BLUE_STACKS_FILES = arrayOf(
+            "/mnt/windows/BstSharedFolder"
+        )
+        return checkFilesExist(BLUE_STACKS_FILES)
     }
 }

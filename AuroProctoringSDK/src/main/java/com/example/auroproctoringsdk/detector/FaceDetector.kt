@@ -1,5 +1,4 @@
 package com.example.auroproctoringsdk.detector
-
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -22,6 +21,7 @@ import com.google.mlkit.vision.face.FaceDetectorOptions
 import com.google.mlkit.vision.objects.ObjectDetection
 import com.google.mlkit.vision.objects.ObjectDetectorOptionsBase
 import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions
+import com.google.mlkit.vision.objects.defaults.PredefinedCategory
 import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase
@@ -93,7 +93,7 @@ class FaceDetector() {
             }
         }
     }
-//    ByteArray
+    //    ByteArray
     private fun Frame.detectFaces() {
         val data = data ?: return
 
@@ -165,6 +165,32 @@ class FaceDetector() {
                                 }
                             }
 
+
+                            // Object Tracking
+                            for (detectedObject in objectResults) {
+                                val labels = detectedObject.labels
+                                for (label in labels) {
+
+                                    if (PredefinedCategory.FOOD == label.text) {
+                                        // Process for detecting food objects
+                                    }else if (PredefinedCategory.FASHION_GOOD ==label.text){
+
+                                    }else if (PredefinedCategory.HOME_GOOD ==label.text){
+
+                                    }else if (PredefinedCategory.PLACE ==label.text){
+
+                                    }
+
+                                    val labelText = label.text.toLowerCase()
+                                    if (labelText.contains("phone")) {
+                                        onProctoringResultListener?.onObjectDetection(labelText)
+                                    } else if (labelText.contains("camera")) {
+                                        onProctoringResultListener?.onObjectDetection(labelText)
+                                    }
+                                }
+                            }
+
+
                         }
 
                     }
@@ -186,7 +212,7 @@ class FaceDetector() {
             }
     }
 
-   private fun convectionBitmap(frame: Frame): Bitmap {
+    private fun convectionBitmap(frame: Frame): Bitmap {
         val yuvImage = YuvImage(frame.data, frame.format, frame.size.width, frame.size.height, null)
         val out = ByteArrayOutputStream()
         yuvImage.compressToJpeg(Rect(0, 0, frame.size.width, frame.size.height), 100, out)
