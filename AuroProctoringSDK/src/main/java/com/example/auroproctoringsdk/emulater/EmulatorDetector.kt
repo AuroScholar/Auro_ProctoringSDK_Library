@@ -30,6 +30,7 @@ class EmulatorDetector {
         return false
     }
 
+    //Working fine in BlueStack 5.14.0.1061 P64
     fun isBlueStacks(): Boolean {
         val BLUE_STACKS_FILES = arrayOf(
             "/mnt/windows/BstSharedFolder"
@@ -64,8 +65,9 @@ class EmulatorDetector {
         return realDeviceTTLs.containsValue(ttl)
     }
 
-    //v2 emulator
-    fun isEmulatorbyhardware(): Boolean {
+    //v2 emulator not wokring
+/*
+    fun isEmulatorByHardware(): Boolean {
         val hardwareFeatures = listOf(
             "Hardware",
             "Camera",
@@ -98,12 +100,14 @@ class EmulatorDetector {
 
         for (i in hardwareFeatures.indices) {
             val feature = emulatorFeatures[i]
-            val deviceFeature = feature[emulatorFeatures[0].indexOf("YES")]
+            val deviceFeature = feature.getOrElse(emulatorFeatures[0].indexOf("YES")) { "NO" }
             deviceFeatures.add(deviceFeature)
         }
 
         return deviceFeatures.any { it == "NO" }
     }
+
+*/
 
 
     //v3 code
@@ -120,5 +124,42 @@ class EmulatorDetector {
                 || "sdk_google" == Build.PRODUCT
                 || "vbox86p" == Build.PRODUCT
     }
+
+    fun isEmulatorRunning() : Boolean{
+        val isProbablyRunningOnEmulator: Boolean by lazy {
+            // Android SDK emulator
+            return@lazy ((Build.MANUFACTURER == "Google" && Build.BRAND == "google" &&
+                    ((Build.FINGERPRINT.startsWith("google/sdk_gphone_")
+                            && Build.FINGERPRINT.endsWith(":user/release-keys")
+                            && Build.PRODUCT.startsWith("sdk_gphone_")
+                            && Build.MODEL.startsWith("sdk_gphone_"))
+                            //alternative
+                            || (Build.FINGERPRINT.startsWith("google/sdk_gphone64_")
+                            && (Build.FINGERPRINT.endsWith(":userdebug/dev-keys") || Build.FINGERPRINT.endsWith(":user/release-keys"))
+                            && Build.PRODUCT.startsWith("sdk_gphone64_")
+                            && Build.MODEL.startsWith("sdk_gphone64_"))))
+                    //
+                    || Build.FINGERPRINT.startsWith("generic")
+                    || Build.FINGERPRINT.startsWith("unknown")
+                    || Build.MODEL.contains("google_sdk")
+                    || Build.MODEL.contains("Emulator")
+                    || Build.MODEL.contains("Android SDK built for x86")
+                    //bluestacks
+                    || "QC_Reference_Phone" == Build.BOARD && !"Xiaomi".equals(Build.MANUFACTURER, ignoreCase = true)
+                    //bluestacks
+                    || Build.MANUFACTURER.contains("Genymotion")
+                    || Build.HOST.startsWith("Build")
+                    //MSI App Player
+                    || Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic")
+                    || Build.PRODUCT == "google_sdk"
+                    // another Android SDK emulator check
+                    || SystemProperties.getProp("ro.kernel.qemu") == "1")
+
+        }
+        return isProbablyRunningOnEmulator
+    }
+
+
+
 
 }

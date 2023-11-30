@@ -255,7 +255,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                     if (isWaiting) {
                         proctorListener?.isRunningDetector(boolean)
                     }
-                    if (EmulatorDetector().isBlueStacks()) {
+                    if (EmulatorDetector().isEmulatorRunning()) {
                         alert("Emulator ", "don't use emulator ")
                     }
 
