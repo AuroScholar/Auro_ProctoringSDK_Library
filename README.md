@@ -169,3 +169,9 @@ stopProctoring()
 stopCamera()
 
 ```
+## TensoFLow Models  Download Models into assets folder 
+```
+
+Url = https://www.tensorflow.org/lite/examples/object_detection/overview
+
+```

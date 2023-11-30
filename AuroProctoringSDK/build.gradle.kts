@@ -62,16 +62,13 @@ dependencies {
 
     implementation ("com.google.mlkit:pose-detection-common:17.0.0")
     implementation ("com.google.mlkit:pose-detection:17.0.0")
-//    implementation("com.google.android.gms:play-services-vision-common:19.1.3")
-//    implementation("com.google.android.gms:play-services-vision:20.1.3")
-//    implementation("com.google.android.gms:play-services-mlkit-face-detection:17.1.0")
-    implementation("com.google.mlkit:object-detection:17.0.0")
+//    implementation("com.google.mlkit:object-detection:17.0.0")
     implementation("com.google.mlkit:face-detection:16.1.5")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
-    implementation("com.google.android.gms:play-services-mlkit-subject-segmentation:16.0.0-beta1")
-
+    implementation ("com.google.mlkit:image-labeling:17.0.7")
+    implementation ("com.google.mlkit:image-labeling-custom:17.0.1")
 
 
     // CameraX core library using the camera2 implementation
@@ -90,6 +87,18 @@ dependencies {
     implementation("androidx.camera:camera-mlkit-vision:${camerax_version2}")
     // If you want to additionally use the CameraX Extensions library
     implementation("androidx.camera:camera-extensions:${camerax_version2}")*/
+
+
+//    implementation("com.google.android.gms:play-services-vision-common:19.1.3")
+//    implementation("com.google.android.gms:play-services-vision:20.1.3")
+//    implementation("com.google.android.gms:play-services-mlkit-face-detection:17.1.0")
+
+
+/*    implementation ("org.tensorflow:tensorflow-lite-task-vision:0.4.0")
+    // Import the GPU delegate plugin Library for GPU inference
+    implementation ("org.tensorflow:tensorflow-lite-gpu-delegate-plugin:0.4.0")
+    implementation ("org.tensorflow:tensorflow-lite-gpu:2.9.0")*/
+
 }
 afterEvaluate {
     publishing {

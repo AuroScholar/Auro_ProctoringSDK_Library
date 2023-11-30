@@ -1,4 +1,5 @@
 package com.example.auroproctoringsdk.detector
+
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -18,17 +19,13 @@ import com.google.mlkit.vision.face.Face
 import com.google.mlkit.vision.face.FaceContour
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
-import com.google.mlkit.vision.objects.ObjectDetection
-import com.google.mlkit.vision.objects.ObjectDetectorOptionsBase
-import com.google.mlkit.vision.objects.defaults.ObjectDetectorOptions
-import com.google.mlkit.vision.objects.defaults.PredefinedCategory
+import com.google.mlkit.vision.label.ImageLabeling
+import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
 import com.google.mlkit.vision.pose.Pose
 import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase
 import com.google.mlkit.vision.pose.PoseLandmark
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
-import com.google.mlkit.vision.segmentation.subject.SubjectSegmentation
-import com.google.mlkit.vision.segmentation.subject.SubjectSegmenterOptions
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
@@ -48,23 +45,14 @@ class FaceDetector() {
             .setMinFaceSize(0.20f).build()
     )
 
-    // Create an object detector using the options
-    private val objectDetector = ObjectDetection.getClient(
-        ObjectDetectorOptions.Builder().setDetectorMode(
-            ObjectDetectorOptionsBase.SINGLE_IMAGE_MODE
-        ).enableClassification().enableMultipleObjects().enableClassification().build()
-    )
 
     private val poseDetector = PoseDetection.getClient(
         PoseDetectorOptions.Builder().setDetectorMode(PoseDetectorOptionsBase.SINGLE_IMAGE_MODE)
             .build()
     )
 
-    // Subject Segmenter instance initialized with the specified options
-    private val subjectSegment = SubjectSegmentation.getClient(SubjectSegmenterOptions.Builder()
-        .enableForegroundConfidenceMask()
-        .enableForegroundBitmap()
-        .build())
+
+    private val objectDetector = ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS)
 
 
     /** Listener that gets notified when a face detection result is ready. */
@@ -96,6 +84,7 @@ class FaceDetector() {
             }
         }
     }
+
     //    ByteArray
     private fun Frame.detectFaces() {
         val data = data ?: return
@@ -105,9 +94,9 @@ class FaceDetector() {
         val faceDetectionTask = faceDetector.process(inputImage)
         val poseDetectionTask = poseDetector.process(inputImage)
         val objectDetectionTask = objectDetector.process(inputImage)
-        val subjectSegmentationTask = subjectSegment.process(inputImage)
 
-        Tasks.whenAll(faceDetectionTask, poseDetectionTask, objectDetectionTask , subjectSegmentationTask)
+
+        Tasks.whenAll(faceDetectionTask, poseDetectionTask, objectDetectionTask)
             .addOnSuccessListener {
                 synchronized(lock) {
                     isProcessing = false
@@ -116,7 +105,6 @@ class FaceDetector() {
                     val faceResults = faceDetectionTask.result
                     val poseResults = poseDetectionTask.result
                     val objectResults = objectDetectionTask.result
-                    val subjectSegmentationResult = subjectSegmentationTask.result
 
                     var mouthOpen: Boolean = false
                     var eyeOpenStatus: String = ""
@@ -127,7 +115,6 @@ class FaceDetector() {
 
                     onProctoringResultListener?.onFaceCount(faceResults.size)
 
-                    Log.e(TAG, "detectFaces: subjectSegmentationResult   "+subjectSegmentationResult.subjects )
 
                     onProctoringResultListener?.captureImage(
                         convectionBitmap(this)
@@ -162,39 +149,23 @@ class FaceDetector() {
                             onProctoringResultListener?.onFaceDirectionMovement(faceDirection)
 
 
+                            var labelsList: ArrayList<String> = arrayListOf()
+
+
                             //Object Tracking
-                            for (detectedObject in objectResults) {
-                                val labels = detectedObject.labels
-                                for (label in labels) {
-                                    onProctoringResultListener?.onObjectDetection(label.text)
-                                    objectSectionNames = label.text
-                                }
+                            for (label in objectResults) {
+                                val text = label.text
+                                val confidence = label.confidence
+                                labelsList.add(text)
+                                Log.e(TAG, "Label:---->    $text, Confidence: $confidence")
+                                /*
+                                                                E  Label:---->     Desk, Confidence: 0.5930478
+                                                                E  Label:---->     Mobile phone, Confidence: 0.8290278
+                                                                E  Label:---->     Computer, Confidence: 0.503058
+                                */
                             }
+                            onProctoringResultListener?.onObjectDetection(labelsList)
 
-
-                            // Object Tracking
-                            for (detectedObject in objectResults) {
-                                val labels = detectedObject.labels
-                                for (label in labels) {
-
-                                    if (PredefinedCategory.FOOD == label.text) {
-                                        // Process for detecting food objects
-                                    }else if (PredefinedCategory.FASHION_GOOD ==label.text){
-
-                                    }else if (PredefinedCategory.HOME_GOOD ==label.text){
-
-                                    }else if (PredefinedCategory.PLACE ==label.text){
-
-                                    }
-
-                                    val labelText = label.text.toLowerCase()
-                                    if (labelText.contains("phone")) {
-                                        onProctoringResultListener?.onObjectDetection(labelText)
-                                    } else if (labelText.contains("camera")) {
-                                        onProctoringResultListener?.onObjectDetection(labelText)
-                                    }
-                                }
-                            }
 
 
                         }
@@ -228,6 +199,7 @@ class FaceDetector() {
         out.close()
         return lastUpdatedBitmap.rotateBitmap(-90F)
     }
+
     fun Bitmap.rotateBitmap(degrees: Float): Bitmap {
         val matrix = Matrix().apply { postRotate(degrees) }
         return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
@@ -363,14 +335,14 @@ class FaceDetector() {
             amplitude: Double,
             isNiceDetected: Boolean,
             isRunning: Boolean,
-            typeOfVoiceDetected: String
+            typeOfVoiceDetected: String,
         )
 
         fun onSuccess(faceBounds: Int)
         fun onFailure(exception: Exception)
         fun onFaceCount(face: Int)
         fun onLipMovementDetection(face: Boolean)
-        fun onObjectDetection(face: String)
+        fun onObjectDetection(face: ArrayList<String>)
         fun onEyeDetectionOnlyOneFace(face: String)
         fun onUserWallDistanceDetector(distance: Float)
         fun onFaceDirectionMovement(faceDirection: String?)
@@ -383,10 +355,11 @@ class FaceDetector() {
     }
 }
 
+data class ObjectDetectionModel(val name: String, val confidence: String)
 data class FaceDetectorModel(
     var faceCount: Int = -1,
     var eyeOpenStatus: String = "",
     var isMouthOen: Boolean = false,
     var objectDectionNames: String = "",
-    var faceDirection: String? = null
+    var faceDirection: String? = null,
 )

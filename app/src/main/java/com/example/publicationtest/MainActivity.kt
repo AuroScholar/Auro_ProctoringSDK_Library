@@ -1,10 +1,7 @@
 package com.example.publicationtest
 
-import android.app.NotificationManager
-import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.auroproctoringsdk.ProctoringSDK
 import com.example.auroproctoringsdk.permission.ProctoringPermissionRequest
@@ -30,8 +27,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
             proctoringPermissionRequest.requestPermissions()
         }
 
-        binding.textView.setOnClickListener {
-        }
+        binding.textView.setOnClickListener {}
 
     }
 
@@ -48,9 +44,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         proctoringPermissionRequest.onRequestPermissionsResult(
-            requestCode,
-            permissions,
-            grantResults
+            requestCode, permissions, grantResults
         )
 
     }
@@ -63,7 +57,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
     override fun onFaceCount(faceCount: Int) {
         // getting face count
-       // binding.textView.text = faceCount.toString()
+        // binding.textView.text = faceCount.toString()
     }
 
     override fun isRunningDetector(boolean: Boolean?) {
@@ -83,7 +77,8 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
     }
 
-    override fun onObjectDetection(face: String) {
+    override fun onObjectDetection(face: ArrayList<String>) {
+        binding.textView.text = face.toString()
 
     }
 
@@ -92,7 +87,6 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
     }
 
     override fun onUserWallDistanceDetector(distance: Float) {
-        binding.textView.text = distance.toString()
     }
 
     override fun onFaceDirectionMovement(faceDirection: String?) {

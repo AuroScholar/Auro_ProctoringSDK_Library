@@ -23,10 +23,8 @@ import com.example.auroproctoringsdk.detector.LensFacing
 import com.example.auroproctoringsdk.dnd.DNDManagerHelper
 import com.example.auroproctoringsdk.emulater.EmulatorDetector
 import com.example.auroproctoringsdk.notification.ClearAllNotifications
-import com.example.auroproctoringsdk.screenBarLock.PinUnpinApp
 import com.example.auroproctoringsdk.screenBarLock.StatusBarLocker
 import com.example.auroproctoringsdk.screenBrightness.ScreenBrightness
-import com.example.auroproctoringsdk.screenBrightness.isScreenReaderOn
 import com.example.auroproctoringsdk.screenBrightness.stopTalkBackText
 import com.example.auroproctoringsdk.utils.CustomAlertDialog
 import com.example.auroproctoringsdk.utils.Utils
@@ -35,8 +33,7 @@ import java.util.Timer
 import java.util.TimerTask
 import kotlin.concurrent.thread
 
-class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs),
-    SurfaceHolder.Callback, Camera.PreviewCallback {
+class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs), SurfaceHolder.Callback, Camera.PreviewCallback {
 
     private var camera: Camera? = null
     private var surfaceHolder: SurfaceHolder? = null
@@ -69,9 +66,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         Utils().getSaveImageInit(context)
 //        view.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
 
-
     }
-
 
     override fun surfaceCreated(p0: SurfaceHolder) {
         try {
@@ -90,7 +85,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                 override fun run() {
                     takePic()
                 }
-            }, 0, 30000) // 1 sec
+            }, 0, 10000) // 1 sec
 
         }
 
@@ -231,6 +226,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                 isViewAvailable = false
                 hideAlert()
                 Log.e("RAMU", "onStop: ")
+                alertDialog1.hideForcefully()
 
             }
 
@@ -241,6 +237,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 //                Log.e("TAG", "onDestroy: -- result "+Utils(context).removeDir() )
                 isViewAvailable = false
                 DNDManagerHelper(context as AppCompatActivity).DndModeOff(context)
+                alertDialog1.hideForcefully()
             }
         })
     }
@@ -364,7 +361,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
             }
 
-            override fun onObjectDetection(face: String) {
+            override fun onObjectDetection(face: ArrayList<String>) {
                 if (isViewAvailable) {
                     if (isWaiting) {
                         proctorListener?.onObjectDetection(face)
@@ -430,6 +427,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                         proctorListener?.captureImage(faceDirection)
                     }
                 }
+
             }
 
         })
@@ -524,7 +522,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         fun onFailure(exception: Exception)
         fun onFaceCount(face: Int)
         fun onLipMovementDetection(face: Boolean)
-        fun onObjectDetection(face: String)
+        fun onObjectDetection(face: ArrayList<String>)
         fun onEyeDetectionOnlyOneFace(face: String)
         fun onUserWallDistanceDetector(distance: Float)
         fun onFaceDirectionMovement(faceDirection: String?)

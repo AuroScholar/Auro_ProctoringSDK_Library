@@ -10,20 +10,16 @@ class CustomAlertDialog(context: Context) {
     private var isAlertDialog = false
 
     init {
-        val builder = AlertDialog.Builder(context)
-            .setCancelable(false)
-            .setPositiveButton("Exit",
-                DialogInterface.OnClickListener { dialog, which ->
-
-                    isAlertDialog = true
-
-                })
+        val builder = AlertDialog.Builder(context).setCancelable(false)
+            .setPositiveButton("Exit", DialogInterface.OnClickListener { dialog, which ->
+                isAlertDialog = true
+            })
 
         dialog = builder.create()
     }
 
     fun show(title: String?, message: String?) {
-        if (!isAlertDialog){
+        if (!isAlertDialog) {
             dialog.setTitle(title)
             dialog.setMessage(message)
             dialog.show()
@@ -32,6 +28,14 @@ class CustomAlertDialog(context: Context) {
 
     fun hide() {
         if (isAlertDialog) {
+            dialog.dismiss()
+            dialog.hide()
+            isAlertDialog = false
+        }
+    }
+
+    fun hideForcefully() {
+        if (dialog.isShowing) {
             dialog.dismiss()
             dialog.hide()
             isAlertDialog = false
