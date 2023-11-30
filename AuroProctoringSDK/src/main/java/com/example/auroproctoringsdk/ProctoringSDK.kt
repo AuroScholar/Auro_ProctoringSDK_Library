@@ -25,7 +25,6 @@ import com.example.auroproctoringsdk.emulater.EmulatorDetector
 import com.example.auroproctoringsdk.notification.ClearAllNotifications
 import com.example.auroproctoringsdk.screenBarLock.StatusBarLocker
 import com.example.auroproctoringsdk.screenBrightness.ScreenBrightness
-import com.example.auroproctoringsdk.screenBrightness.stopTalkBackText
 import com.example.auroproctoringsdk.utils.CustomAlertDialog
 import com.example.auroproctoringsdk.utils.Utils
 import java.io.IOException
@@ -157,14 +156,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     ) {
         proctorListener = listener
         isAlert = true
-
         syncResults()
         faceDetector.noticeDetect(context)
-        stopTalkBackText(context)
-        ViewCompat.setImportantForAccessibility(
-            (context as AppCompatActivity).window.decorView,
-            ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO
-        )
     }
 
 
@@ -262,7 +255,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                     if (isWaiting) {
                         proctorListener?.isRunningDetector(boolean)
                     }
-                    if (EmulatorDetector().isEmulatorRun()) {
+                    if (EmulatorDetector().isBlueStacks()) {
                         alert("Emulator ", "don't use emulator ")
                     }
 
