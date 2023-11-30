@@ -275,6 +275,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                     StatusBarLocker.statusBarLock(context)
 
 
+
                 }
             }
 

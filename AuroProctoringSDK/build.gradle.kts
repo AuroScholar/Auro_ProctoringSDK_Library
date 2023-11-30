@@ -70,8 +70,9 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
-    implementation ("com.google.firebase:firebase-ml-vision:20.0.0")
-    implementation ("com.google.firebase:firebase-ml-vision-object-detection-model:16.0.0")
+    implementation("com.google.android.gms:play-services-mlkit-subject-segmentation:16.0.0-beta1")
+
+
 
     // CameraX core library using the camera2 implementation
    /* val camerax_version = "1.0.0-alpha06"*//*"1.4.0-alpha01"*//*
@@ -97,7 +98,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.azzadpandit1"
                 artifactId = "Auro-Proctoring-SDK"
-                version = "0.0.41"
+                version = "0.0.44"
             }
         }
     }

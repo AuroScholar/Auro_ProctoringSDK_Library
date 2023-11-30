@@ -80,13 +80,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
     override fun onLipMovementDetection(face: Boolean) {
         // Lips Movement is mouth is open and close
-        /*binding.textView.text.apply {
-            if (face) {
-                "Open"
-            } else {
-                "Close"
-            }
-        }*/
+
     }
 
     override fun onObjectDetection(face: String) {
@@ -98,7 +92,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
     }
 
     override fun onUserWallDistanceDetector(distance: Float) {
-
+        binding.textView.text = distance.toString()
     }
 
     override fun onFaceDirectionMovement(faceDirection: String?) {

@@ -27,6 +27,8 @@ import com.google.mlkit.vision.pose.PoseDetection
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase
 import com.google.mlkit.vision.pose.PoseLandmark
 import com.google.mlkit.vision.pose.defaults.PoseDetectorOptions
+import com.google.mlkit.vision.segmentation.subject.SubjectSegmentation
+import com.google.mlkit.vision.segmentation.subject.SubjectSegmenterOptions
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.Executor
 import java.util.concurrent.ExecutorService
@@ -58,11 +60,12 @@ class FaceDetector() {
             .build()
     )
 
-    private var faceCaptureBitmapList = ArrayList<Bitmap>()
+    // Subject Segmenter instance initialized with the specified options
+    private val subjectSegment = SubjectSegmentation.getClient(SubjectSegmenterOptions.Builder()
+        .enableForegroundConfidenceMask()
+        .enableForegroundBitmap()
+        .build())
 
-    init {
-        faceCaptureBitmapList.clear()
-    }
 
     /** Listener that gets notified when a face detection result is ready. */
     private var onProctoringResultListener: OnProctoringResultListener? = null
@@ -102,8 +105,9 @@ class FaceDetector() {
         val faceDetectionTask = faceDetector.process(inputImage)
         val poseDetectionTask = poseDetector.process(inputImage)
         val objectDetectionTask = objectDetector.process(inputImage)
+        val subjectSegmentationTask = subjectSegment.process(inputImage)
 
-        Tasks.whenAll(faceDetectionTask, poseDetectionTask, objectDetectionTask)
+        Tasks.whenAll(faceDetectionTask, poseDetectionTask, objectDetectionTask , subjectSegmentationTask)
             .addOnSuccessListener {
                 synchronized(lock) {
                     isProcessing = false
@@ -112,6 +116,7 @@ class FaceDetector() {
                     val faceResults = faceDetectionTask.result
                     val poseResults = poseDetectionTask.result
                     val objectResults = objectDetectionTask.result
+                    val subjectSegmentationResult = subjectSegmentationTask.result
 
                     var mouthOpen: Boolean = false
                     var eyeOpenStatus: String = ""
@@ -122,6 +127,7 @@ class FaceDetector() {
 
                     onProctoringResultListener?.onFaceCount(faceResults.size)
 
+                    Log.e(TAG, "detectFaces: subjectSegmentationResult   "+subjectSegmentationResult.subjects )
 
                     onProctoringResultListener?.captureImage(
                         convectionBitmap(this)
