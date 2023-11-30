@@ -20,6 +20,7 @@ import com.example.auroproctoringsdk.copypastestop.ClipboardManagerHelper
 import com.example.auroproctoringsdk.detector.FaceDetector
 import com.example.auroproctoringsdk.detector.Frame
 import com.example.auroproctoringsdk.detector.LensFacing
+import com.example.auroproctoringsdk.developerMode.CheckDeveloperMode
 import com.example.auroproctoringsdk.dnd.DNDManagerHelper
 import com.example.auroproctoringsdk.emulater.EmulatorDetector
 import com.example.auroproctoringsdk.notification.ClearAllNotifications
@@ -32,7 +33,8 @@ import java.util.Timer
 import java.util.TimerTask
 import kotlin.concurrent.thread
 
-class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs), SurfaceHolder.Callback, Camera.PreviewCallback {
+class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs),
+    SurfaceHolder.Callback, Camera.PreviewCallback {
 
     private var camera: Camera? = null
     private var surfaceHolder: SurfaceHolder? = null
@@ -192,10 +194,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
             @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
             fun onResume() {
-                /*                CheckDeveloperMode(context).turnOffDeveloperMode()
-                                if (!CheckDeveloperMode(context).isDeveloperModeEnabled()){
-                                    DNDManagerHelper(context as AppCompatActivity).checkDNDModeON()
-                                }*/
+                CheckDeveloperMode(context).turnOffDeveloperMode()
+                if (!CheckDeveloperMode(context).isDeveloperModeEnabled()) {
+                    alert("Developer Mode","off Developer Mode ")
+                }
                 StatusBarLocker.statusBarLock(context)
                 ClipboardManagerHelper(context).clearClipboard()
                 Log.e("RAMU", "onResume: ")
@@ -255,6 +257,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                     if (isWaiting) {
                         proctorListener?.isRunningDetector(boolean)
                     }
+
                     if (EmulatorDetector().isEmulatorRunning()) {
                         alert("Emulator ", "don't use emulator ")
                     }
@@ -263,7 +266,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                     Log.e("TAG", "isRunningDetector: onStateChanged: dnd request ")
                     DNDManagerHelper(context as AppCompatActivity).checkDNDModeON()
                     StatusBarLocker.statusBarLock(context)
-
 
 
                 }
