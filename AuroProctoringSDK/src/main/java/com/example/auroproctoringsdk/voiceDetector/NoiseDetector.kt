@@ -65,7 +65,7 @@ class NoiseDetector {
                         typeOfVoiceDetected = "Unknown Voice Detected"
                     }
 
-                    Log.e("TAG", "start: voice  $amplitude")
+//                    Log.e("TAG", "start: voice  $amplitude")
 
                     // max voice detected 350
 //                    if (amplitude > 350) {

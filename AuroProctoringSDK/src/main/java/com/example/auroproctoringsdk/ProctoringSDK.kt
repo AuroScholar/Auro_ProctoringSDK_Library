@@ -11,7 +11,6 @@ import android.util.Size
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -20,7 +19,6 @@ import com.example.auroproctoringsdk.copypastestop.ClipboardManagerHelper
 import com.example.auroproctoringsdk.detector.FaceDetector
 import com.example.auroproctoringsdk.detector.Frame
 import com.example.auroproctoringsdk.detector.LensFacing
-import com.example.auroproctoringsdk.developerMode.CheckDeveloperMode
 import com.example.auroproctoringsdk.dnd.DNDManagerHelper
 import com.example.auroproctoringsdk.emulater.EmulatorDetector
 import com.example.auroproctoringsdk.notification.ClearAllNotifications
@@ -35,27 +33,23 @@ import kotlin.concurrent.thread
 
 class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs),
     SurfaceHolder.Callback, Camera.PreviewCallback {
+    companion object {
+        var isViewAvailable = false
+    }
 
     private var camera: Camera? = null
     private var surfaceHolder: SurfaceHolder? = null
     private val faceDetector = FaceDetector()
     private var timer: Timer? = null
-    private var delayMillis: Long = 30000
-
+    private var isWaitingDelayInMillis: Long = 30000
     private val handler = Handler()
     var isWaiting = false
     var isAlert = false
-
-    companion object {
-        var isViewAvailable = false
-    }
-
     private var proctorListener: onProctorListener? = null
-
     private val changeWaitingStatus = object : Runnable {
         override fun run() {
             isWaiting = !isWaiting
-            handler.postDelayed(this, delayMillis) // Change color every 30 seconds
+            handler.postDelayed(this, isWaitingDelayInMillis) // Change color every 30 seconds
         }
     }
     var alertDialog1 = CustomAlertDialog(context)
@@ -64,7 +58,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         this.surfaceHolder = holder
         this.surfaceHolder?.addCallback(this)
         handler.post(changeWaitingStatus)
-        Utils().getSaveImageInit(context)
 
     }
 
@@ -79,6 +72,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
             e.printStackTrace()
         }
 
+        //real time image create
         run {
             timer = Timer()
             timer?.schedule(object : TimerTask() {
@@ -127,7 +121,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
             val width = parameters.previewSize.width
             val height = parameters.previewSize.height
 
-            Log.e("TAG", "onPreviewFrame: ")
+//            Log.e("TAG", "onPreviewFrame: ")
             faceDetector.process(
                 Frame(
                     data, 270, Size(width, height), parameters.previewFormat, LensFacing.FRONT
@@ -157,10 +151,16 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     ) {
         proctorListener = listener
         isAlert = true
-        syncResults()
-        faceDetector.noticeDetect(context)
+        if (isAlert){
+            syncResults()
+            faceDetector.noticeDetect(context)
+            Utils().getSaveImageInit(context)
+        }
     }
 
+    fun stopProctoring(){
+        isAlert = false
+    }
 
     //For Activity
     fun observeLifecycle(lifecycle: Lifecycle) {
@@ -194,10 +194,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
             @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
             fun onResume() {
                 Log.e("RAMU", "onResume: ")
-                CheckDeveloperMode(context).turnOffDeveloperMode()
-                if (!CheckDeveloperMode(context).isDeveloperModeEnabled()) {
-                    alert("Developer Mode", "off Developer Mode ")
-                }
+                /* CheckDeveloperMode(context).turnOffDeveloperMode()
+                 if (!CheckDeveloperMode(context).isDeveloperModeEnabled()) {
+                     alert("Developer Mode", "off Developer Mode ")
+                 }*/
                 StatusBarLocker.statusBarLock(context)
                 ClipboardManagerHelper(context).clearClipboard()
                 DNDManagerHelper(context).checkDNDModeON()
@@ -236,7 +236,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     }
 
     fun changeDelay(delayMillis: Long) {
-        this.delayMillis = delayMillis
+        this.isWaitingDelayInMillis = delayMillis
     }
 
     fun alertOnOff(): Boolean {
@@ -261,7 +261,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                     }
 
                     ClearAllNotifications(context as AppCompatActivity)
-                    Log.e("TAG", "isRunningDetector: onStateChanged: dnd request ")
+//                    Log.e("TAG", "isRunningDetector: onStateChanged: dnd request ")
                     DNDManagerHelper(context as AppCompatActivity).checkDNDModeON()
                     StatusBarLocker.statusBarLock(context)
 
@@ -354,11 +354,17 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
             }
 
-            override fun onObjectDetection(face: ArrayList<String>) {
+            override fun onObjectDetection(objectList: ArrayList<String>) {
                 if (isViewAvailable) {
                     if (isWaiting) {
-                        proctorListener?.onObjectDetection(face)
+                        proctorListener?.onObjectDetection(objectList)
+                    }
+                    val blockedDeviceList = listOf("Mobile phone", "Computer", "Camera")
 
+                    val data = checkObject(objectList, blockedDeviceList)
+
+                    if (isAlert && !data.isNullOrEmpty()) {
+                        alert("Devices", data)
                     }
                 }
 
@@ -371,9 +377,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
                     }
                     if (isAlert) {
-                        if (!check(face) && !face.isNullOrBlank()) {
+                        // eye movement stopped by sir facing quick eye open and close
+                        /*if (!check(face) && !face.isNullOrBlank()) {
                             alert("Eye", face)
-                        }
+                        }*/
                     }
                 }
 
@@ -424,6 +431,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
             }
 
         })
+    }
+
+    private fun checkObject(face: ArrayList<String>, blockedDeviceList: List<String>?): String? {
+        return blockedDeviceList?.firstOrNull { face.contains(it) }
     }
 
     private fun checkFaceDirection(faceDirection: String?): Boolean {

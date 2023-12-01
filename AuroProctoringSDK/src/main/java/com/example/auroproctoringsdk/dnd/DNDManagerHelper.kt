@@ -29,7 +29,7 @@ class DNDManagerHelper(private val context: Context) {
                 e.printStackTrace()
             }
         }else{
-            Log.e("TAG", "checkDNDPolicyAccessAndRequest: error print toast", )
+//            Log.e("TAG", "checkDNDPolicyAccessAndRequest: error print toast", )
         }
 
 

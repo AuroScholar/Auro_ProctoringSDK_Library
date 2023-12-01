@@ -1,10 +1,17 @@
 package com.example.publicationtest
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.view.View
+import android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO
+import android.view.ViewGroup
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.auroproctoringsdk.ProctoringSDK
+import com.example.auroproctoringsdk.appLocker.AppLockManager
 import com.example.auroproctoringsdk.permission.ProctoringPermissionRequest
+import com.example.auroproctoringsdk.screenReader.TextReader
 import com.example.publicationtest.databinding.ActivityMainBinding
 
 // OnProctoringResultListener for detector result
@@ -23,21 +30,65 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
             binding.mainLayout.observeLifecycle(this.lifecycle)
 
+
         } else {
             proctoringPermissionRequest.requestPermissions()
         }
 
-        binding.textView.setOnClickListener {}
+        binding.textView.setOnClickListener {
+
+           // AppLockManager(this).lockCurrentApp()
+
+        }
+
+        binding.mainLayout.setOnClickListener{
+          //  AppLockManager(this).unlockCurrentApp()
+        }
 
     }
+
 
     override fun onResume() {
         super.onResume()
         if (proctoringPermissionRequest.checkPermissionGranted()) {
             binding.mainLayout.startProctoring(this)
+          //  TextReader().stopTextReading(this)
         }
 
     }
+
+  /*  fun stopTextReading(context: Context) {
+        val textViewIds = mutableListOf<Int>()
+        val rootView = findRootView(context)
+        val views = getAllChildren(rootView)
+        for (view in views) {
+            if (view is TextView) {
+                textViewIds.add(view.id)
+                view.text = " No Text Read Any App "
+                view.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
+            }
+        }
+
+    }*/
+    /*private fun findRootView(context: Context): View {
+        return (context as AppCompatActivity).findViewById<View>(android.R.id.content)
+    }
+    private fun getAllChildren(v: View): List<View> {
+        if (v !is ViewGroup) {
+            return listOf(v)
+        }
+
+        val result = mutableListOf<View>()
+        val group = v as ViewGroup
+        val count = group.childCount
+
+        for (i in 0 until count) {
+            val child = group.getChildAt(i)
+            result.addAll(getAllChildren(child))
+        }
+
+        return result
+    }*/
 
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<out String>, grantResults: IntArray,
