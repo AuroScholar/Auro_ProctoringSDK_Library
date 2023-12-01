@@ -19,7 +19,7 @@ class CustomAlertDialog(context: Context) {
     }
 
     fun show(title: String?, message: String?) {
-        if (!isAlertDialog) {
+        if (!isAlertDialog && !dialog.isShowing) {
             dialog.setTitle(title)
             dialog.setMessage(message)
             dialog.show()

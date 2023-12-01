@@ -33,7 +33,8 @@ import java.util.Timer
 import java.util.TimerTask
 import kotlin.concurrent.thread
 
-class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs), SurfaceHolder.Callback, Camera.PreviewCallback {
+class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs),
+    SurfaceHolder.Callback, Camera.PreviewCallback {
 
     private var camera: Camera? = null
     private var surfaceHolder: SurfaceHolder? = null
@@ -192,13 +193,13 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
             @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
             fun onResume() {
+                Log.e("RAMU", "onResume: ")
                 CheckDeveloperMode(context).turnOffDeveloperMode()
                 if (!CheckDeveloperMode(context).isDeveloperModeEnabled()) {
-                    alert("Developer Mode","off Developer Mode ")
+                    alert("Developer Mode", "off Developer Mode ")
                 }
                 StatusBarLocker.statusBarLock(context)
                 ClipboardManagerHelper(context).clearClipboard()
-                Log.e("RAMU", "onResume: ")
                 DNDManagerHelper(context).checkDNDModeON()
                 isViewAvailable = true
 
@@ -220,7 +221,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                 hideAlert()
                 Log.e("RAMU", "onStop: ")
                 alertDialog1.hideForcefully()
-
             }
 
             @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
