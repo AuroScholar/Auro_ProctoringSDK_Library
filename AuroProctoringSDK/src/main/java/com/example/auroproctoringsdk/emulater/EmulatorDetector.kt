@@ -4,6 +4,27 @@ import android.os.Build
 import java.io.File
 
 class EmulatorDetector {
+
+
+    //Working fine in BlueStack 5.14.0.1061 P64
+    fun isBlueStacks(): Boolean {
+        val BLUE_STACKS_FILES = arrayOf(
+            "/mnt/windows/BstSharedFolder"
+        )
+        return checkFilesExist(BLUE_STACKS_FILES)
+    }
+
+    fun checkFilesExist(files: Array<String>): Boolean {
+        files.forEach {
+            val file = File(it)
+            if (file.exists()) {
+                return true
+            }
+        }
+        return false
+    }
+
+
     fun isEmulatorRun(): Boolean {
         return (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic") || Build.FINGERPRINT.startsWith(
             "generic"
@@ -19,96 +40,6 @@ class EmulatorDetector {
             "simulator"
         ) || Build.PRODUCT.contains("Genymotion") || Build.PRODUCT.contains("Bluestacks") ||  Build.MANUFACTURER.equals("BlueStacks", ignoreCase = true))
     }
-
-    fun checkFilesExist(files: Array<String>): Boolean {
-        files.forEach {
-            val file = File(it)
-            if (file.exists()) {
-                return true
-            }
-        }
-        return false
-    }
-
-    //Working fine in BlueStack 5.14.0.1061 P64
-    fun isBlueStacks(): Boolean {
-        val BLUE_STACKS_FILES = arrayOf(
-            "/mnt/windows/BstSharedFolder"
-        )
-        return checkFilesExist(BLUE_STACKS_FILES)
-    }
-
-
-
-    // v1 emulator
-    val emulatorTTLs = mapOf(
-        "BlueStacks" to 109,
-        "GenyMotion" to 111,
-        "Andy" to 109,
-        "YouWave" to 111,
-        "ARC Welder" to 111
-    )
-
-    val realDeviceTTLs = mapOf(
-        "Galaxy S3" to 52,
-        "Galaxy Note 3" to 53,
-        "Galaxy Note 8.0" to 64,
-        "Vega Racer 3" to 53,
-        "LG G3" to 49
-    )
-
-    fun isEmulator(ttl: Int): Boolean {
-        return emulatorTTLs.containsValue(ttl)
-    }
-
-    fun isRealDevice(ttl: Int): Boolean {
-        return realDeviceTTLs.containsValue(ttl)
-    }
-
-    //v2 emulator not wokring
-/*
-    fun isEmulatorByHardware(): Boolean {
-        val hardwareFeatures = listOf(
-            "Hardware",
-            "Camera",
-            "Bluetooth",
-            "Microphone",
-            "GPS",
-            "AccelerationSensor",
-            "TemperatureSensor",
-            "Barometer",
-            "Compass",
-            "Gyroscope",
-            "NFC"
-        )
-
-        val emulatorFeatures = listOf(
-            listOf("BlueStacks", "GenyMotion", "Andy", "YouWave", "ARCWelder"),
-            listOf("YES", "YES", "YES", "YES", "YES"),
-            listOf("YES", "YES", "YES", "YES", "NO"),
-            listOf("YES", "YES", "YES", "YES", "YES"),
-            listOf("YES", "YES", "YES", "YES", "NO"),
-            listOf("YES", "YES", "YES", "YES", "NO"),
-            listOf("NO", "NO", "NO", "NO", "NO"),
-            listOf("YES", "NO", "YES", "YES", "NO"),
-            listOf("YES", "NO", "YES", "NO", "NO"),
-            listOf("NO", "NO", "NO", "NO", "NO"),
-            listOf("NO", "NO", "NO", "NO", "NO")
-        )
-
-        val deviceFeatures = mutableListOf<String>()
-
-        for (i in hardwareFeatures.indices) {
-            val feature = emulatorFeatures[i]
-            val deviceFeature = feature.getOrElse(emulatorFeatures[0].indexOf("YES")) { "NO" }
-            deviceFeatures.add(deviceFeature)
-        }
-
-        return deviceFeatures.any { it == "NO" }
-    }
-
-*/
-
 
     //v3 code
     fun isEmulator(): Boolean {

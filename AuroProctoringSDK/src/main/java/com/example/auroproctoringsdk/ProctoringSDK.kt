@@ -33,8 +33,7 @@ import java.util.Timer
 import java.util.TimerTask
 import kotlin.concurrent.thread
 
-class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs),
-    SurfaceHolder.Callback, Camera.PreviewCallback {
+class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs), SurfaceHolder.Callback, Camera.PreviewCallback {
 
     private var camera: Camera? = null
     private var surfaceHolder: SurfaceHolder? = null
@@ -65,7 +64,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         this.surfaceHolder?.addCallback(this)
         handler.post(changeWaitingStatus)
         Utils().getSaveImageInit(context)
-//        view.setImportantForAccessibility(IMPORTANT_FOR_ACCESSIBILITY_NO);
 
     }
 
