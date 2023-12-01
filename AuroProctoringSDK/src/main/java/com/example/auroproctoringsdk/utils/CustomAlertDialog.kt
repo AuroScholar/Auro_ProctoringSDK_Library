@@ -11,7 +11,7 @@ class CustomAlertDialog(context: Context) {
 
     init {
         val builder = AlertDialog.Builder(context).setCancelable(false)
-            .setPositiveButton("Exit", DialogInterface.OnClickListener { dialog, which ->
+            .setPositiveButton("Ok", DialogInterface.OnClickListener { dialog, which ->
                 isAlertDialog = true
             })
 
