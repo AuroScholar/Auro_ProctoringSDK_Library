@@ -21,7 +21,7 @@ class Controls{
         true,
         true,
         false,
-        30000,
+        false,30000,
         "high",
         true,
         false,
