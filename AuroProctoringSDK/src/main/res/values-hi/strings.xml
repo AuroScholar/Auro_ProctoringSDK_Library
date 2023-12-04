@@ -1,0 +1,8 @@
+<resources>
+
+    <string name="disabling_screencast_and_screen_record">ध्यान बनाए रखने के लिए, प्रश्नोत्तरी के दौरान सूचनाएं (नोटिफिकेशन) छिपी रहती हैं। एक बाधारहित अनुभव सुनिश्चित करें।</string>
+    <string name="cant_see_the_phone_notifications_while_taking_quiz">प्रश्नोत्तरी ईमानदारी के लिए स्क्रीनकास्ट और स्क्रीन रिकॉर्ड सुविधाएँ अक्षम हैं। परीक्षा वातावरण का सम्मान करें।</string>
+    <string name="Multiple_face_detection">अलर्ट: क्विज़ में एक से अधिक चेहरों के लिए फेस डिटेक्शन ; निष्पक्ष मूल्यांकन के लिए प्रति प्रयास एक चेहरा।</string>
+    <string name="Unable_to_use_mulator_on_the_system_while_taking_quizzes">वास्तविक परीक्षा वातावरण के लिए क्विज़ के दौरान एमुलेटर का उपयोग प्रतिबंधित है।</string>
+    <string name="moving_face_left_or_right_during_assesment">सटीक निगरानी के लिए आंकलन के दौरान अपना चेहरा बाएँ या दाएँ हिलाने से बचें।</string>
+</resources>

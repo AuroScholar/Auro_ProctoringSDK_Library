@@ -7,32 +7,35 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.WindowManager
 import com.example.auroproctoringsdk.copypastestop.ClipboardManagerHelper
+//import com.example.auroproctoringsdk.screenReader.ScreenShortDetector
 
 class Application : Application() {
 
+    private var controls = Controls()
 
     companion object {
-        var defaultAlert: Boolean = true
-//        var deadlyInMilliseconds: Long = 100000
-        var deadlyInMilliseconds: Long = 1000
-        var faceDirectionAccuracy : Int = 50 // 10 is Default
-        var faceMouthAccuracy : Float = 10.0f//5.0F //3.0 f defalut
-        var surfaceBoardErrorColor : Int = Color.RED
-        var surfaceBoardSuccessColor : Int = Color.GREEN
-        var surfaceBoardNoColor : Int = Color.TRANSPARENT
+        var faceDirectionAccuracy: Int = 50 // 10 is Default
+        var faceMouthAccuracy: Float = 10.0f//5.0F //3.0 f defalut
+        var surfaceBoardErrorColor: Int = Color.RED
+        var surfaceBoardSuccessColor: Int = Color.GREEN
+        var surfaceBoardNoColor: Int = Color.TRANSPARENT
 
     }
 
     override fun onCreate() {
         super.onCreate()
 
-        if (defaultAlert) {
+        if (controls.getControls().isAlert == true) {
 
-            // stop screen short and video recording
-          registerActivityLifecycle()
+            if (controls.getControls().isScreenshotEnable == true) {
+                // stop screen short and video recording
+                registerActivityLifecycle()
+            }
 
-            // Stop copy paste option
-            ClipboardManagerHelper(this).clearClipboard()
+            if (controls.getControls().isCopyPaste != true) {
+                // Stop copy paste option
+                ClipboardManagerHelper(this).clearClipboard()
+            }
         }
 
 
@@ -49,6 +52,7 @@ class Application : Application() {
             }
 
             override fun onActivityStarted(p0: Activity) {
+//                ScreenShortDetector(p0.applicationContext).startListening()
 
             }
 
@@ -69,7 +73,7 @@ class Application : Application() {
             }
 
             override fun onActivityDestroyed(p0: Activity) {
-
+//                ScreenShortDetector(p0.applicationContext).stopListening()
             }
 
         })

@@ -9,7 +9,7 @@ import android.widget.TextView
 import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
 
-class TextReader {
+class StopTextReading {
     fun stopTextReading(context: Context) {
         val textViewIds = mutableListOf<Int>()
         val rootView = findRootView(context)

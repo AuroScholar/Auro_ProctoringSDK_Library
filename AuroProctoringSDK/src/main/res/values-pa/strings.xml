@@ -1,0 +1,7 @@
+<resources>
+    <string name="disabling_screencast_and_screen_record">ਕੁਇਜ਼ ਦੀ ਇਕਸਾਰਤਾ ਦੇ ਲਈ, ਸਕ੍ਰੀਨਕਾਸਟ ਅਤੇ ਸਕ੍ਰੀਨ ਰਿਕਾਰਡ ਵਿਸ਼ੇਸ਼ਤਾਵਾਂ ਅਸਮਰਥਿਤ ਹਨ। ਟੈਸਟ ਵਾਤਾਵਰਨ ਦਾ ਆਦਰ ਕਰੋ।</string>
+    <string name="cant_see_the_phone_notifications_while_taking_quiz">ਫੋਕਸ ਬਣਾਈ ਰੱਖਣ ਦੇ ਲਈ, ਕਵਿਜ਼ ਦੌਰਾਨ ਸੂਚਨਾਵਾਂ ਨੂੰ ਲੁਕਾਇਆ ਜਾਂਦਾ ਹੈ। ਇੱਕ ਅਸ਼ਾਂਤ ਅਨੁਭਵ ਯਕੀਨੀ ਬਣਾਓ।</string>
+    <string name="Multiple_face_detection">ਸੁਚੇਤਨਾ: ਕਵਿਜ਼ਾਂ ਵਿੱਚ ਇੱਕ ਤੋਂ ਵੱਧ ਚਿਹਰਾ ਖੋਜ; ਨਿਰਪੱਖ ਮੁਲਾਂਕਣ ਲਈ ਪ੍ਰਤੀ ਕੋਸ਼ਿਸ਼ ਇੱਕ ਚਿਹਰਾ।</string>
+    <string name="Unable_to_use_mulator_on_the_system_while_taking_quizzes">ਇੱਕ ਅਸਲੀ ਟੈਸਟਿੰਗ ਵਾਤਾਵਰਨ ਲਈ ਕਵਿਜ਼ਾਂ ਦੌਰਾਨ ਇਮੂਲੇਟਰ ਦੀ ਵਰਤੋਂ ਪ੍ਰਤਿਬੰਧਿਤ ਹੈ।</string>
+    <string name="moving_face_left_or_right_during_assesment">ਸਹੀ ਨਿਗਰਾਨੀ ਲਈ ਮੁਲਾਂਕਣ ਦੌਰਾਨ ਆਪਣੇ ਚਿਹਰੇ ਨੂੰ ਖੱਬੇ ਜਾਂ ਸੱਜੇ ਹਿਲਾਉਣ ਤੋਂ ਬਚੋ</string>
+</resources>

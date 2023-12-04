@@ -6,9 +6,12 @@ data class ControlModel(
     var isProctoringStart: Boolean = true,
     var isBlockNotification: Boolean = true,
     var isScreenshotEnable: Boolean = true,
-    var isScreenRecording: Boolean = true,
+    var isScreenRecording: Boolean = false,
     var isCopyPaste: Boolean = false,
     var isSaveImageHideFolder: Boolean = true,
+    var isStatusBarLock: Boolean = true,
+    var isEmulatorDetector: Boolean = true,
+    var isCaptureImage: Boolean = true,
 
     // alerts dialogs
     var isAlert: Boolean = true,
@@ -20,15 +23,15 @@ data class ControlModel(
     var isAlertEyeDetection: Boolean = true,
     var isAlertUserWallDistanceDetector: Boolean = true,
     var isAlertFaceDirectionMovement: Boolean = true,
-    var isAlertCaptureImage: Boolean = true,
 
     // settings
     var isTalkBackOn: Boolean = false,
     var isWaitingDelayInMillis: Long = 30000,
     var accuracyType: String = "high",
-    var isDndStatusOn: Boolean = false,
+    var isDndStatusOn: Boolean = true,
     var isDeveloperModeOn: Boolean = false,
     var blockedEmulatorDevicesList: List<String>,
+    var isBlockedObjectList: List<String>,
 
     //core for MLkit
     var rightEyeOpenProbability: Float = 0.5f,
@@ -38,4 +41,5 @@ data class ControlModel(
     var upperLipBottomSize: Int = 3,
     var lowerLipTopSize: Int = 3,
     var faceDirectionAccuracy: Int = 50,
-)
+
+    )

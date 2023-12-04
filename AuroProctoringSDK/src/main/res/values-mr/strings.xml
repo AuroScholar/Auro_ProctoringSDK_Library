@@ -1,0 +1,8 @@
+<resources>
+
+    <string name="disabling_screencast_and_screen_record">क्विझच्या एकात्मतेसाठी, स्क्रीनकास्ट आणि स्क्रीन रेकॉर्ड वैशिष्ट्ये अक्षम आहेत. चाचणी वातावरणाचा आदर करा.</string>
+    <string name="cant_see_the_phone_notifications_while_taking_quiz">फोकस राखण्यासाठी, क्विझ दरम्यान सूचना लपविल्या जातात. एक निर्विघ्न अनुभव सुनिश्चित करा.</string>
+    <string name="Multiple_face_detection">चेतावणी: क्विझमध्ये एकाधिक चेहऱ्यांचा शोध; निष्पक्ष मूल्यांकनासाठी प्रत्येक प्रयत्नासाठी एक चेहरा.</string>
+    <string name="Unable_to_use_mulator_on_the_system_while_taking_quizzes">"असली चाचणी वातावरणात प्रश्नोत्तरादरम्यान एमुलेटरचा वापर प्रतिबंधित आहे. "</string>
+    <string name="moving_face_left_or_right_during_assesment">अचूक निरीक्षणासाठी मूल्यांकनादरम्यान तुमचा चेहरा डावीकडे किंवा उजवीकडे हलवणे टाळा</string>
+</resources>

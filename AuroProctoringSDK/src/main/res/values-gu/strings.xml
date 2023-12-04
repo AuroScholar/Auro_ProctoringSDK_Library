@@ -1,0 +1,8 @@
+<resources>
+
+    <string name="disabling_screencast_and_screen_record">ક્વિઝ અખંડિતતા માટે, સ્ક્રીનકાસ્ટ અને સ્ક્રીન રેકોર્ડ સુવિધાઓ અક્ષમ કરેલ છે. પરીક્ષણ વાતાવરણનો આદર કરો</string>
+    <string name="cant_see_the_phone_notifications_while_taking_quiz">ધ્યાન કેન્દ્રિત કરવા માટે, ક્વિઝ દરમિયાન સૂચનાઓ છુપાવવામાં આવે છે. એક અવિચલિત અનુભવની ખાતરી કરો.</string>
+    <string name="Multiple_face_detection">ચેતવણી: ક્વિઝમાં બહુવિધ ચહેરાઓ દેખાય છે; વાજબી મૂલ્યાંકન માટે પ્રયાસ દીઠ એક ચહેરો.</string>
+    <string name="Unable_to_use_mulator_on_the_system_while_taking_quizzes">સાચા પરીક્ષણ વાતાવરણ માટે ક્વિઝ દરમિયાન ઇમ્યુલેટરનો ઉપયોગ પ્રતિબંધિત છે.</string>
+    <string name="moving_face_left_or_right_during_assesment">સચોટ દેખરેખ માટે આકારણી દરમિયાન તમારા ચહેરાને ડાબે અથવા જમણે ખસેડવાનું ટાળો.</string>
+</resources>

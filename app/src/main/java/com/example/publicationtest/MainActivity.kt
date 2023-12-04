@@ -1,17 +1,12 @@
 package com.example.publicationtest
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.view.View
-import android.view.View.IMPORTANT_FOR_ACCESSIBILITY_NO
-import android.view.ViewGroup
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.auroproctoringsdk.ControlModel
 import com.example.auroproctoringsdk.ProctoringSDK
-import com.example.auroproctoringsdk.appLocker.AppLockManager
 import com.example.auroproctoringsdk.permission.ProctoringPermissionRequest
-import com.example.auroproctoringsdk.screenReader.TextReader
+import com.example.auroproctoringsdk.screenReader.StopTextReading
 import com.example.publicationtest.databinding.ActivityMainBinding
 
 // OnProctoringResultListener for detector result
@@ -20,6 +15,39 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
     //init permission
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
     private var proctoringPermissionRequest = ProctoringPermissionRequest(this)
+
+    private var controlModel = ControlModel(
+        true,
+        true,
+        true,
+        false,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        false,
+        true,
+        true,
+        false,
+        30000,
+        "high",
+        true,
+        false,
+        listOf(),
+        listOf("Mobile phone", "Computer", "Camera"),
+        0.0f,
+        0.5f,
+        0.2f,
+        0.2f,
+        3,3,50
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,20 +58,10 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
             binding.mainLayout.observeLifecycle(this.lifecycle)
 
-
         } else {
             proctoringPermissionRequest.requestPermissions()
         }
 
-        binding.textView.setOnClickListener {
-
-           // AppLockManager(this).lockCurrentApp()
-
-        }
-
-        binding.mainLayout.setOnClickListener{
-          //  AppLockManager(this).unlockCurrentApp()
-        }
 
     }
 
@@ -51,8 +69,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
     override fun onResume() {
         super.onResume()
         if (proctoringPermissionRequest.checkPermissionGranted()) {
-            binding.mainLayout.startProctoring(this)
-          //  TextReader().stopTextReading(this)
+            binding.mainLayout.startProctoring(this,controlModel)
         }
 
     }

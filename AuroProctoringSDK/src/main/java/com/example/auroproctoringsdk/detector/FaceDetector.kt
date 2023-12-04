@@ -12,6 +12,7 @@ import androidx.annotation.GuardedBy
 import androidx.lifecycle.MutableLiveData
 import com.example.auroproctoringsdk.Application.Companion.faceDirectionAccuracy
 import com.example.auroproctoringsdk.Application.Companion.faceMouthAccuracy
+import com.example.auroproctoringsdk.Controls
 import com.example.auroproctoringsdk.voiceDetector.NoiseDetector
 import com.google.android.gms.tasks.Tasks
 import com.google.mlkit.vision.common.InputImage
@@ -36,6 +37,7 @@ import kotlin.math.sqrt
 class FaceDetector() {
 
     private var faceLiveResult = MutableLiveData<FaceDetectorModel>()
+    private var controls = Controls()
 
     private val faceDetector = FaceDetection.getClient(
         FaceDetectorOptions.Builder().setContourMode(FaceDetectorOptions.CONTOUR_MODE_ALL)

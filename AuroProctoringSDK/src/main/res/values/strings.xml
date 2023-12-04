@@ -1,0 +1,11 @@
+<resources>
+
+    <string name="disabling_screencast_and_screen_record">Attention - For quiz integrity, screencast and screen record features are disabled. Respect the test environment</string>
+    <string name="cant_see_the_phone_notifications_while_taking_quiz">Important: To maintain focus, notifications are hidden during the quiz. Ensure an undisturbed experience.</string>
+    <string name="Lip_movement_eyeball_tracking">Note: Lip movement and eyeball tracking are in development for accuracy improvement.\"\" - Updated one - \"Note: Eyeball tracking is in use; avoid lip movement and refrain from speaking during the assessment</string>
+    <string name="Multiple_face_detection">Alert: Multiple face detection in quizzes; one face per attempt for fair evaluation.</string>
+    <string name="Unable_to_use_mulator_on_the_system_while_taking_quizzes">Notice: Emulator use is restricted during quizzes for a genuine testing environment.</string>
+    <string name="moving_face_left_or_right_during_assesment">Avoid moving your face left or right during the assessment for accurate monitoring</string>
+
+
+</resources>
