@@ -158,17 +158,24 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         listener: onProctorListener, controlModel1: ControlModel?,
     ) {
         proctorListener = listener
-        /*isAlert = true*/
+        isAlert = true
         if (controlModel1 != null) {
             controlModel = controlModel1
             controlModel1.let {
                 controls.updateControl(it)
             }
             if (controls.getControls().isAlert) {
+                Log.e("TAG", "startProctoring: run code ", )
                 syncResults()
                 faceDetector.noticeDetect(context)
                 Utils().getSaveImageInit(context)
             }
+        }
+        if (controls.getControls().isAlert) {
+            Log.e("TAG", "startProctoring: run code ", )
+            syncResults()
+            faceDetector.noticeDetect(context)
+            Utils().getSaveImageInit(context)
         }
 
 

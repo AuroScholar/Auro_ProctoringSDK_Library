@@ -39,7 +39,7 @@ class Controls{
     }
 
     fun getControls(): ControlModel {
-        return controlModel
+        return this.controlModel
     }
 
 }

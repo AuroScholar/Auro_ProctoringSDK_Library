@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
     //init permission
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
     private var proctoringPermissionRequest = ProctoringPermissionRequest(this)
-
+/*
     private var controlModel = ControlModel(
         true,
         true,
@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
         0.2f,
         0.2f,
         3,3,50
-    )
+    )*/
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
     override fun onResume() {
         super.onResume()
         if (proctoringPermissionRequest.checkPermissionGranted()) {
-            binding.mainLayout.startProctoring(this,controlModel)
+            binding.mainLayout.startProctoring(this,null)
         }
 
     }
