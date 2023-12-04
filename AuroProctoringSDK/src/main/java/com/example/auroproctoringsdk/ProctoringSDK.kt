@@ -2,7 +2,6 @@ package com.example.auroproctoringsdk
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.hardware.Camera
 import android.os.Handler
@@ -23,7 +22,6 @@ import com.example.auroproctoringsdk.detector.LensFacing
 import com.example.auroproctoringsdk.dnd.DNDManagerHelper
 import com.example.auroproctoringsdk.emulater.EmulatorDetector
 import com.example.auroproctoringsdk.languageSetup.CurrentLanguage
-import com.example.auroproctoringsdk.notification.ClearAllNotifications
 import com.example.auroproctoringsdk.screenBarLock.StatusBarLocker
 import com.example.auroproctoringsdk.screenBrightness.ScreenBrightness
 import com.example.auroproctoringsdk.screenReader.StopTextReading
@@ -179,7 +177,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
             context
         )
 
-        if (!controls.getControls().isScreenRecording){
+        if (!controls.getControls().isStopScreenRecording){
 
             StopTextReading().stopTextReading(context)
 
@@ -218,9 +216,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
             fun onStart() {
                 if (controls.getControls().isStatusBarLock == true) {
                     StatusBarLocker.statusBarLock(context)
-
-                    // Code to execute when the fragment or activity is started
-                    Log.e("RAMU", "onStart: ")
+                    Log.e("Status", "onStart: ")
                     isViewAvailable = true
                 }
 
@@ -440,7 +436,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                         proctorListener?.onEyeDetectionOnlyOneFace(face)
 
                     }
-                    if (controls.getControls().isAlert == true && controls.getControls().isAlertEyeDetection == true) {
+                    if (controls.getControls().isAlert && controls.getControls().isAlertEyeDetection) {
                         // eye movement stopped by sir facing quick eye open and close
                         if (!check(face) && !face.isNullOrBlank()) {
                             /*  alert("Eye", face)

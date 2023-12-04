@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
         true,
         true,
         true,
-        false,
+        true,
         false,
         true,
         true,
