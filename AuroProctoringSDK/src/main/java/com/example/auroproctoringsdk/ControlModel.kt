@@ -26,7 +26,7 @@ data class ControlModel(
     var isAlertFaceDirectionMovement: Boolean = true,
 
     // settings
-    var isTalkBackOn: Boolean = false,
+    var isScreenReadingOn: Boolean = false,
     var isWaitingDelayInMillis: Long = 30000,
     var accuracyType: String = "high",
     var isDndStatusOn: Boolean = true,

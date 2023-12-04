@@ -177,7 +177,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
             context
         )
 
-        if (!controls.getControls().isStopScreenRecording){
+        if (controls.getControls().isStopScreenRecording){
 
             StopTextReading().stopTextReading(context)
 

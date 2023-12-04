@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
         true,
         true,
         false,
+        false,
         30000,
         "high",
         true,
