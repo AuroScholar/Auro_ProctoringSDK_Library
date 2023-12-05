@@ -8,29 +8,24 @@ import android.widget.CheckBox
 import android.widget.TextView
 import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
 
-class StopTextReading {
+class StopTextReadingFragment {
 
-    fun stopTextReading(context: Context) {
+    fun stopTextReading(context: Context/*view: View*/) {
         val textViewIds = mutableListOf<Int>()
-        val rootView = findRootView(context)
-        val views = getAllChildren(rootView)
+        val view  = findRootView(context)
+        val views = getAllChildren(view)
         for (view in views) {
             if (view is TextView) {
                 textViewIds.add(view.id)
-              /*  view.text = " No Text Read Any App "*/
+                view.text = "No Read"
                 viewAccessNo(view)
-            }else if (view is Button){
-              /*  view.text = "No Text Read"
-                view.hint = "No Text Read"*/
+            } else if (view is Button) {
                 viewAccessNo(view)
-            }else if (view is CheckBox){
-                /*view.text = "No Text Read"
-                view.hint = "No Text Read"*/
+            } else if (view is CheckBox) {
                 viewAccessNo(view)
-            }else if (view is ToggleButton){
-                /*view.text = "No Text Read"
-                view.hint = "No Text Read"*/
+            } else if (view is ToggleButton) {
                 viewAccessNo(view)
             }
         }
@@ -41,9 +36,8 @@ class StopTextReading {
     }
 
     private fun findRootView(context: Context): View {
-        return (context as AppCompatActivity).findViewById<View>(android.R.id.content)
+        return (context as FragmentActivity).findViewById<View>(android.R.id.content)
     }
-
     private fun getAllChildren(v: View): List<View> {
         if (v !is ViewGroup) {
             return listOf(v)

@@ -9,6 +9,11 @@ import android.view.WindowManager
 import com.example.auroproctoringsdk.copypastestop.ClipboardManagerHelper
 //import com.example.auroproctoringsdk.screenReader.ScreenShortDetector
 
+/**
+ * Application
+ *
+ * @constructor Create empty Application
+ */
 class Application : Application() {
 
     private var controls = Controls()

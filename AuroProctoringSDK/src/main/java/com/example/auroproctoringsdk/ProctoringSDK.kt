@@ -26,6 +26,7 @@ import com.example.auroproctoringsdk.languageSetup.CurrentLanguage
 import com.example.auroproctoringsdk.screenBarLock.StatusBarLocker
 import com.example.auroproctoringsdk.screenBrightness.ScreenBrightness
 import com.example.auroproctoringsdk.screenReader.StopTextReading
+import com.example.auroproctoringsdk.screenReader.StopTextReadingFragment
 import com.example.auroproctoringsdk.utils.CustomAlertDialog
 import com.example.auroproctoringsdk.utils.Utils
 import java.io.IOException
@@ -33,6 +34,14 @@ import java.util.Timer
 import java.util.TimerTask
 import kotlin.concurrent.thread
 
+/**
+ * Proctoring SDK
+ *
+ * @constructor
+ *
+ * @param context
+ * @param attrs
+ */
 class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(context, attrs),
     SurfaceHolder.Callback, Camera.PreviewCallback {
     companion object {
@@ -42,7 +51,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     private var camera: Camera? = null
     private var surfaceHolder: SurfaceHolder? = null
     private val faceDetector = FaceDetector()
-    private var mControlModel: ControlModel? = null
     private var controls = Controls()
     private var timer: Timer? = null
     private var isWaitingDelayInMillis: Long = 30000
@@ -57,7 +65,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                 handler.postDelayed(
                     this, it/*isWaitingDelayInMillis*/
                 )
-            } // Change color every 30 seconds
+            }
         }
     }
     var alertDialog1 = CustomAlertDialog(context)
@@ -150,10 +158,20 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         }
     }
 
+    /**
+     * Take pic
+     *
+     */
     fun takePic() {
         camera?.setPreviewCallback(this@ProctoringSDK)
     }
 
+    /**
+     * Start proctoring
+     *
+     * @param listener
+     * @param controlModel
+     */
     fun startProctoring(
         listener: onProctorListener, controlModel: ControlModel?,
     ) {
@@ -163,12 +181,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
         // control update by model class
         if (controlModel != null) {
-            mControlModel?.isAlert = isAlert
-            controlModel.let {
-                controls.updateControl(it)
-            }
+            controls.updateControl(controlModel)
+
             if (controls.getControls().isAlert) {
-                Log.e("TAG", "startProctoring: run code ")
                 syncResults()
                 faceDetector.noticeDetect(context)
                 Utils().getSaveImageInit(context)
@@ -176,10 +191,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         } else {
 
             // Default controller setup
-            mControlModel?.isAlert = true
-            mControlModel?.let { controls.updateControl(it) }
+            controls.updateControl(ControlModel(isAlert = true))
+
             if (controls.getControls().isAlert) {
-                Log.e("TAG", "startProctoring: run code ")
                 syncResults()
                 faceDetector.noticeDetect(context)
                 Utils().getSaveImageInit(context)
@@ -187,35 +201,38 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
         }
 
-
-
-
-
         CurrentLanguage().setLocale(
             CurrentLanguage().getCurrentLocalizationLanguageCode(context), context
         )
 
         if (controls.getControls().isStopScreenRecording) {
-
             StopTextReading().stopTextReading(context)
-
+            StopTextReadingFragment().stopTextReading(context)
         }
 
     }
 
+    /**
+     * Stop proctoring
+     *
+     */
     fun stopProctoring() {
-        mControlModel?.isAlert = false
-        mControlModel?.let {
-            controls.updateControl(it)
-        }
+        controls.updateControl(ControlModel(isAlert = false))
     }
 
-    //For Activity
+    /**
+     * Observe lifecycle
+     *
+     * @param lifecycle
+     *///For Activity
     fun observeLifecycle(lifecycle: Lifecycle) {
         lifeProcess(lifecycle)
     }
 
-    // For Fragment
+    /**
+     * Observe lifecycle
+     *
+     */// For Fragment
     fun LifecycleOwner.observeLifecycle() {
         val lifecycle = this.lifecycle
         lifeProcess(lifecycle)
@@ -307,16 +324,24 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         })
     }
 
+    /**
+     * Change delay
+     *
+     * @param delayMillis
+     */
     fun changeDelay(delayMillis: Long) {
-        this.isWaitingDelayInMillis = delayMillis
-        mControlModel?.isWaitingDelayInMillis = delayMillis
-        mControlModel?.let { controls.updateControl(it) }
+        this.isWaitingDelayInMillis = delayMillis // for local
+        controls.updateControl(ControlModel(isWaitingDelayInMillis = delayMillis))
     }
 
+    /**
+     * Alert on off
+     *
+     * @return
+     */
     fun alertOnOff(): Boolean {
         isAlert = !isAlert
-        mControlModel?.isAlert = isAlert
-        mControlModel?.let { controls.updateControl(it) }
+        controls.updateControl(ControlModel(isAlert= isAlert))
         return isAlert
     }
 
@@ -623,6 +648,12 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     }
 
 
+    /**
+     * Alert
+     *
+     * @param title
+     * @param message
+     */
     @SuppressLint("SuspiciousIndentation")
     fun alert(title: String?, message: String?) {
         alertDialog1.show(title.toString(), message.toString())
@@ -632,10 +663,28 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         alertDialog1.hide()
     }
 
+    /**
+     * On proctor listener
+     *
+     * @constructor Create empty On proctor listener
+     */
     interface onProctorListener {
 
+        /**
+         * Is running detector
+         *
+         * @param boolean
+         */
         fun isRunningDetector(boolean: Boolean?)
 
+        /**
+         * On voice detected
+         *
+         * @param amplitude
+         * @param isNiceDetected
+         * @param isRunning
+         * @param typeOfVoiceDetected
+         */
         fun onVoiceDetected(
             amplitude: Double,
             isNiceDetected: Boolean,
@@ -643,14 +692,67 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
             typeOfVoiceDetected: String,
         )
 
+        /**
+         * On success
+         *
+         * @param faceBounds
+         */
         fun onSuccess(faceBounds: Int)
+
+        /**
+         * On failure
+         *
+         * @param exception
+         */
         fun onFailure(exception: Exception)
+
+        /**
+         * On face count
+         *
+         * @param face
+         */
         fun onFaceCount(face: Int)
+
+        /**
+         * On lip movement detection
+         *
+         * @param face
+         */
         fun onLipMovementDetection(face: Boolean)
+
+        /**
+         * On object detection
+         *
+         * @param face
+         */
         fun onObjectDetection(face: ArrayList<String>)
+
+        /**
+         * On eye detection only one face
+         *
+         * @param face
+         */
         fun onEyeDetectionOnlyOneFace(face: String)
+
+        /**
+         * On user wall distance detector
+         *
+         * @param distance
+         */
         fun onUserWallDistanceDetector(distance: Float)
+
+        /**
+         * On face direction movement
+         *
+         * @param faceDirection
+         */
         fun onFaceDirectionMovement(faceDirection: String?)
+
+        /**
+         * Capture image
+         *
+         * @param faceDirection
+         */
         fun captureImage(faceDirection: Bitmap?)
 
     }

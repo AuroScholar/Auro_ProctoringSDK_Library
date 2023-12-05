@@ -107,7 +107,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.azzadpandit1"
                 artifactId = "Auro-Proctoring-SDK"
-                version = "0.0.52"
+                version = "0.0.53"
             }
         }
     }

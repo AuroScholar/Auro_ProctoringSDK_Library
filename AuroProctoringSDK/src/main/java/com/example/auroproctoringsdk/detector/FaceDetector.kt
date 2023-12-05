@@ -169,7 +169,6 @@ class FaceDetector() {
                             onProctoringResultListener?.onObjectDetection(labelsList)
 
 
-
                         }
 
                     }
@@ -213,17 +212,35 @@ class FaceDetector() {
         val eulerZ = face.headEulerAngleZ // Roll
         val eulerX = face.headEulerAngleX // Pitch
 
-        if (eulerY > faceDirectionAccuracy) {
-            return "moving to left"
-        } else if (eulerY < -faceDirectionAccuracy) {
-            return "moving to right"
-        } else if (eulerX > faceDirectionAccuracy) {
-            return "moving up"
-        } else if (eulerX < -faceDirectionAccuracy) {
-            return "moving down"
+        if (controls.getControls().faceDirectionAccuracy > 0) {
+            //Custom Methods for dynamic accuracy
+            if (eulerY > controls.getControls().faceDirectionAccuracy) {
+                return "moving to left"
+            } else if (eulerY < -controls.getControls().faceDirectionAccuracy) {
+                return "moving to right"
+            } else if (eulerX > controls.getControls().faceDirectionAccuracy) {
+                return "moving up"
+            } else if (eulerX < -controls.getControls().faceDirectionAccuracy) {
+                return "moving down"
+            } else {
+                // Face is not moving
+                return null
+            }
+
         } else {
-            // Face is not moving
-            return null
+            // Default accuracy 50
+            if (eulerY > faceDirectionAccuracy) {
+                return "moving to left"
+            } else if (eulerY < -faceDirectionAccuracy) {
+                return "moving to right"
+            } else if (eulerX > faceDirectionAccuracy) {
+                return "moving up"
+            } else if (eulerX < -faceDirectionAccuracy) {
+                return "moving down"
+            } else {
+                // Face is not moving
+                return null
+            }
         }
 
     }
@@ -270,11 +287,20 @@ class FaceDetector() {
 
     private fun detectMouth(face: Face): Boolean {
 
+        //Default value
+        var initUpperLipBottom = 3
+        var initLowerLipTop = 3
+
         val upperLipBottom = face.getContour(FaceContour.UPPER_LIP_BOTTOM)?.points
         val lowerLipTop = face.getContour(FaceContour.LOWER_LIP_TOP)?.points
 
+        if (controls.getControls().upperLipBottomSize > 0) {
+            initLowerLipTop = controls.getControls().lowerLipTopSize
+            initUpperLipBottom = controls.getControls().upperLipBottomSize
+        }
+
         // Check if the facial contour points are not null and contain enough points
-        if (upperLipBottom != null && lowerLipTop != null && upperLipBottom.size >= 3 && lowerLipTop.size >= 3) {
+        if (upperLipBottom != null && lowerLipTop != null && upperLipBottom.size >= initUpperLipBottom && lowerLipTop.size >= initLowerLipTop) {
             // Calculate the average y-coordinate of the upper lip bottom points
             val upperLipBottomY = upperLipBottom.map { it.y }.average()
 
@@ -356,8 +382,6 @@ class FaceDetector() {
         private const val TAG = "FaceDetector"
     }
 }
-
-data class ObjectDetectionModel(val name: String, val confidence: String)
 data class FaceDetectorModel(
     var faceCount: Int = -1,
     var eyeOpenStatus: String = "",

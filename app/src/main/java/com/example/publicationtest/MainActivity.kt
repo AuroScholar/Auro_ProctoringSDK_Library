@@ -3,10 +3,8 @@ package com.example.publicationtest
 import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.auroproctoringsdk.ControlModel
 import com.example.auroproctoringsdk.ProctoringSDK
 import com.example.auroproctoringsdk.permission.ProctoringPermissionRequest
-import com.example.auroproctoringsdk.screenReader.StopTextReading
 import com.example.publicationtest.databinding.ActivityMainBinding
 
 // OnProctoringResultListener for detector result
@@ -63,6 +61,12 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
             proctoringPermissionRequest.requestPermissions()
         }
 
+
+        binding.btn.setOnClickListener{
+
+            // SDK alerts on off
+            binding.textView.text = binding.mainLayout.alertOnOff().toString()
+        }
 
     }
 
@@ -147,7 +151,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
     }
 
     override fun onObjectDetection(face: ArrayList<String>) {
-        binding.textView.text = face.toString()
+      //  binding.textView.text = face.toString()
 
     }
 

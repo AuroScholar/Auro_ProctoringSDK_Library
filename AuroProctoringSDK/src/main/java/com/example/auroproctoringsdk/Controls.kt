@@ -1,40 +1,13 @@
 package com.example.auroproctoringsdk
 
+/**
+ * Controls
+ *
+ * @constructor Create empty Controls
+ */
 class Controls{
-   /* private var controlModel = ControlModel(
-        true,
-        true,
-        true,
-        true,
-        false,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        false,
-        false,30000,
-        "high",
-        true,
-        false,
-        listOf(),
-        listOf("Mobile phone", "Computer", "Camera"),
-        0.0f,
-        0.5f,
-        0.2f,
-        0.2f,
-        3,3,50
-    )*/
 
-    private var controlModel = ControlModel(
+    private var initControlModel = ControlModel(
         true,
         true,
         true,
@@ -67,12 +40,23 @@ class Controls{
         0.2f,
         3,3,50
     )
+
+    /**
+     * Update control
+     *
+     * @param controlModel
+     */
     fun updateControl(controlModel: ControlModel) {
-        this.controlModel = controlModel
+        this.initControlModel = controlModel
     }
 
+    /**
+     * Get controls
+     *
+     * @return
+     */
     fun getControls(): ControlModel {
-        return this.controlModel
+        return this.initControlModel
     }
 
 }
