@@ -12,14 +12,13 @@ import androidx.fragment.app.FragmentActivity
 
 class StopTextReadingFragment {
 
-    fun stopTextReading(context: Context/*view: View*/) {
+    fun stopTextReading(context: Context) {
         val textViewIds = mutableListOf<Int>()
         val view  = findRootView(context)
         val views = getAllChildren(view)
         for (view in views) {
             if (view is TextView) {
                 textViewIds.add(view.id)
-                view.text = "No Read"
                 viewAccessNo(view)
             } else if (view is Button) {
                 viewAccessNo(view)

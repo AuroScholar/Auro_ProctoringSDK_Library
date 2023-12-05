@@ -30,7 +30,7 @@ data class ControlModel(
     var isWaitingDelayInMillis: Long = 30000,
     var accuracyType: String = "high",
     var isDndStatusOn: Boolean = true,
-    var isDeveloperModeOn: Boolean = true,
+    var isDeveloperModeOn: Boolean = false,
     var blockedEmulatorDevicesList: List<String> = listOf(),
     var isBlockedObjectList: List<String> = listOf("Mobile phone", "Computer", "Camera"),
 

@@ -1,5 +1,6 @@
 package com.example.auroproctoringsdk.screenReader
 
+import android.app.Activity
 import android.content.Context
 import android.view.View
 import android.view.ViewGroup
@@ -8,6 +9,9 @@ import android.widget.CheckBox
 import android.widget.TextView
 import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
+import kotlinx.coroutines.withContext
 
 class StopTextReading {
 
@@ -18,17 +22,18 @@ class StopTextReading {
         for (view in views) {
             if (view is TextView) {
                 textViewIds.add(view.id)
-              /*  view.text = " No Text Read Any App "*/
+                view.text = "no read "
+                /*  view.text = " No Text Read Any App "*/
                 viewAccessNo(view)
-            }else if (view is Button){
-              /*  view.text = "No Text Read"
-                view.hint = "No Text Read"*/
+            } else if (view is Button) {
+                /*  view.text = "No Text Read"
+                  view.hint = "No Text Read"*/
                 viewAccessNo(view)
-            }else if (view is CheckBox){
+            } else if (view is CheckBox) {
                 /*view.text = "No Text Read"
                 view.hint = "No Text Read"*/
                 viewAccessNo(view)
-            }else if (view is ToggleButton){
+            } else if (view is ToggleButton) {
                 /*view.text = "No Text Read"
                 view.hint = "No Text Read"*/
                 viewAccessNo(view)
@@ -41,7 +46,16 @@ class StopTextReading {
     }
 
     private fun findRootView(context: Context): View {
-        return (context as AppCompatActivity).findViewById<View>(android.R.id.content)
+        if (checkContext(context)) {
+            if (context is Activity) {
+                // Handle activity-specific logic
+                return (context as AppCompatActivity).window.decorView.findViewById(android.R.id.content)
+            } else if (context is Fragment) {
+                // Handle fragment-specific logic
+                return (context as FragmentActivity).window.decorView.findViewById(android.R.id.content)
+            }
+        }
+        return View(context) // Return a default view if the context is not valid
     }
 
     private fun getAllChildren(v: View): List<View> {
@@ -59,5 +73,10 @@ class StopTextReading {
         }
 
         return result
+    }
+
+
+    fun checkContext(context: Any): Boolean {
+        return context is Activity || context is Fragment
     }
 }
