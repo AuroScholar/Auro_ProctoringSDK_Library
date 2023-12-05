@@ -41,7 +41,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     private var camera: Camera? = null
     private var surfaceHolder: SurfaceHolder? = null
     private val faceDetector = FaceDetector()
-    private var controlModel: ControlModel? = null
+    private var mControlModel: ControlModel? = null
     private var controls = Controls()
     private var timer: Timer? = null
     private var isWaitingDelayInMillis: Long = 30000
@@ -54,8 +54,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
             isWaiting = !isWaiting
             controls.getControls().isWaitingDelayInMillis.let {
                 handler.postDelayed(
-                    this,
-                    it/*isWaitingDelayInMillis*/
+                    this, it/*isWaitingDelayInMillis*/
                 )
             } // Change color every 30 seconds
         }
@@ -160,19 +159,23 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         proctorListener = listener
         isAlert = true
         if (controlModel1 != null) {
-            controlModel = controlModel1
+            mControlModel = controlModel1
             controlModel1.let {
                 controls.updateControl(it)
             }
             if (controls.getControls().isAlert) {
-                Log.e("TAG", "startProctoring: run code ", )
+                Log.e("TAG", "startProctoring: run code ")
                 syncResults()
                 faceDetector.noticeDetect(context)
                 Utils().getSaveImageInit(context)
             }
         }
+
+        mControlModel?.isAlert = true
+        mControlModel?.let { controls.updateControl(it) }
+
         if (controls.getControls().isAlert) {
-            Log.e("TAG", "startProctoring: run code ", )
+            Log.e("TAG", "startProctoring: run code ")
             syncResults()
             faceDetector.noticeDetect(context)
             Utils().getSaveImageInit(context)
@@ -180,11 +183,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
 
         CurrentLanguage().setLocale(
-            CurrentLanguage().getCurrentLocalizationLanguageCode(context),
-            context
+            CurrentLanguage().getCurrentLocalizationLanguageCode(context), context
         )
 
-        if (controls.getControls().isStopScreenRecording){
+        if (controls.getControls().isStopScreenRecording) {
 
             StopTextReading().stopTextReading(context)
 
@@ -193,9 +195,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     }
 
     fun stopProctoring() {
-        isAlert = false
-        controlModel?.isAlert = isAlert
-        controlModel?.let {
+        mControlModel?.isAlert = false
+        mControlModel?.let {
             controls.updateControl(it)
         }
     }
@@ -221,7 +222,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             fun onStart() {
-                if (controls.getControls().isStatusBarLock == true) {
+                if (controls.getControls().isStatusBarLock) {
                     StatusBarLocker.statusBarLock(context)
                     Log.e("Status", "onStart: ")
                     isViewAvailable = true
@@ -231,8 +232,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
             @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
             fun onResume() {
-                Log.e("RAMU", "onResume: ")
-                /* CheckDeveloperMode(context).turnOffDeveloperMode()
+                Log.e("RAMU", "onResume: ")/* CheckDeveloperMode(context).turnOffDeveloperMode()
                  if (!CheckDeveloperMode(context).isDeveloperModeEnabled()) {
                      alert("Developer Mode", "off Developer Mode ")
                  }*/
@@ -292,14 +292,14 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
     fun changeDelay(delayMillis: Long) {
         this.isWaitingDelayInMillis = delayMillis
-        controlModel?.isWaitingDelayInMillis = delayMillis
-        controlModel?.let { controls.updateControl(it) }
+        mControlModel?.isWaitingDelayInMillis = delayMillis
+        mControlModel?.let { controls.updateControl(it) }
     }
 
     fun alertOnOff(): Boolean {
         isAlert = !isAlert
-        controlModel?.isAlert = isAlert
-        controlModel?.let { controls.updateControl(it) }
+        mControlModel?.isAlert = isAlert
+        mControlModel?.let { controls.updateControl(it) }
         return isAlert
     }
 
@@ -314,8 +314,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                     if (isWaiting) {
                         proctorListener?.isRunningDetector(boolean)
                     }
-                    if (controls.getControls().isAlert && controls.getControls().isEmulatorDetector && EmulatorDetector().isEmulatorRunning()) {
-                        alert("Emulator ", "don't use emulator ")
+                    if (controls.getControls().isAlert && controls.getControls().isAlertEmulatorDetector && EmulatorDetector().isEmulatorRunning()) {
+                        val emulator = context.getString(R.string.Unable_to_use_mulator_on_the_system_while_taking_quizzes).split("[:]".toRegex())
+                        alert(emulator[0], emulator[1])
+
                     }
                     if (controls.getControls().isAlert && controls.getControls().isDndStatusOn) {
 //                    Log.e("TAG", "isRunningDetector: onStateChanged: dnd request ")
@@ -341,7 +343,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                             amplitude, isNiceDetected, isRunning, typeOfVoiceDetected
                         )
 
-                        if (controls.getControls().isAlert) {
+                        if (controls.getControls().isAlert && controls.getControls().isAlertVoiceDetection) {
                             if (isNiceDetected) {
                                 (context as AppCompatActivity).runOnUiThread {
 //                                    alert("HIGH SOUND", typeOfVoiceDetected)
@@ -378,8 +380,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                         when (face) {
                             0 -> {
                                 if (controls.getControls().isAlertFaceNotFound) {
-                                    ScreenBrightness(context).heightBrightness(context)
-                                    /* val filter = controls.getControls().multipleFaceDetectionError.split(":").toTypedArray()*/
+
+                                    ScreenBrightness(context).heightBrightness(context)/* val filter = controls.getControls().multipleFaceDetectionError.split(":").toTypedArray()*/
                                     alert("Alert", "Face not found")
                                 }
 
@@ -392,11 +394,15 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
                             else -> {
                                 if (controls.getControls().isAlertMultipleFaceCount) {
-                                    ScreenBrightness(context).lowBrightness(context)
+
+                                    val filter = context.getString(R.string.Multiple_face_detection)
+                                        .split("[:]".toRegex())
+
                                     alert(
-                                        "Note",
-                                        context.getString(R.string.Multiple_face_detection)
+                                        filter[0], filter[1]
                                     )
+                                    ScreenBrightness(context).lowBrightness(context)
+
                                 }
                             }
                         }
@@ -430,8 +436,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
                     if (controls.getControls().isAlert && controls.getControls().isAlertObjectDetection && !data.isNullOrEmpty()) {
                         alert("Devices", data)
-                        /*                        val filter = controls.getControls().lipOrEyeTrackingError.split(":").toTypedArray()
-                                                alert(filter.first(),filter.last())*/
+
+                        /*
+                             val filter = controls.getControls().lipOrEyeTrackingError.split(":").toTypedArray()
+                                                    alert(filter.first(),filter.last())*/
                     }
                 }
 
@@ -445,8 +453,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                     }
                     if (controls.getControls().isAlert && controls.getControls().isAlertEyeDetection) {
                         // eye movement stopped by sir facing quick eye open and close
-                        if (!check(face) && !face.isNullOrBlank()) {
-                            /*  alert("Eye", face)
+                        if (!check(face) && !face.isNullOrBlank()) {/*  alert("Eye", face)
 
                               val filter = controls.getControls().lipOrEyeTrackingError.split(":").toTypedArray()
                               alert(filter.first(),filter.last())*/
@@ -490,19 +497,18 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
             override fun captureImage(faceDirection: Bitmap?) {
                 if (isViewAvailable) {
                     if (isWaiting) {
-                        if (faceDirection != null && controls.getControls().isCaptureImage == true) {
-                            Log.e(
+                        if (faceDirection != null && controls.getControls().isCaptureImage) {/*Log.e(
                                 "TAG",
                                 "captureImage:-->  " + Utils().saveBitmapIntoImageInternalDir(
                                     faceDirection,
                                     context
                                 )
-                            )
+                            )*/
 
                             proctorListener?.captureImage(faceDirection)
                         }
 
-                        if (controls.getControls().isSaveImageHideFolder == true) {  // hide image into local folder
+                        if (controls.getControls().isSaveImageHideFolder) {  // hide image into local folder
                             if (faceDirection != null) {
                                 Utils().saveBitmapIntoImageInternalDir(faceDirection, context)
                             }

@@ -10,7 +10,6 @@ data class ControlModel(
     var isCopyPaste: Boolean = false,
     var isSaveImageHideFolder: Boolean = true,
     var isStatusBarLock: Boolean = true,
-    var isEmulatorDetector: Boolean = true,
     var isCaptureImage: Boolean = true,
 
     // alerts dialogs
@@ -22,6 +21,7 @@ data class ControlModel(
     var isAlertObjectDetection: Boolean = true,
     var isAlertDeveloperModeOn: Boolean = true,
     var isAlertEyeDetection: Boolean = true,
+    var isAlertEmulatorDetector: Boolean = true,
     var isAlertUserWallDistanceDetector: Boolean = true,
     var isAlertFaceDirectionMovement: Boolean = true,
 

@@ -25,14 +25,14 @@ class Application : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        if (controls.getControls().isAlert == true) {
+        if (controls.getControls().isAlert) {
 
-            if (controls.getControls().isScreenshotEnable == true) {
+            if (controls.getControls().isScreenshotEnable) {
                 // stop screen short and video recording
                 registerActivityLifecycle()
             }
 
-            if (controls.getControls().isCopyPaste != true) {
+            if (!controls.getControls().isCopyPaste) {
                 // Stop copy paste option
                 ClipboardManagerHelper(this).clearClipboard()
             }
