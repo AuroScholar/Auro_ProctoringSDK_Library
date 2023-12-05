@@ -5,4 +5,6 @@
     <string name="Multiple_face_detection">अलर्ट: क्विज़ में एक से अधिक चेहरों के लिए फेस डिटेक्शन ; निष्पक्ष मूल्यांकन के लिए प्रति प्रयास एक चेहरा।</string>
     <string name="Unable_to_use_mulator_on_the_system_while_taking_quizzes">वास्तविक परीक्षा वातावरण के लिए क्विज़ के दौरान एमुलेटर का उपयोग प्रतिबंधित है।</string>
     <string name="moving_face_left_or_right_during_assesment">सटीक निगरानी के लिए आंकलन के दौरान अपना चेहरा बाएँ या दाएँ हिलाने से बचें।</string>
+    <string name="face_not_found">चेतावनी: चेहरा नहीं मिला</string>
+    <string name="object_not_allowed">चेतावनी: हमें आपकी पृष्ठभूमि में कुछ ऐसी वस्तुओं (कैमरा, फ़ोन, लैपटॉप आदि) का पता चलता है जिनकी अनुमति नहीं है</string>
 </resources>

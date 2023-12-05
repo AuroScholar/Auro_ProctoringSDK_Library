@@ -5,4 +5,6 @@
     <string name="Multiple_face_detection">ಎಚ್ಚರಿಕೆ: ರಸಪ್ರಶ್ನೆಗಳಲ್ಲಿ ಬಹು ಮುಖ ಪತ್ತೆ; ನ್ಯಾಯಯುತ ಮೌಲ್ಯಮಾಪನಕ್ಕಾಗಿ ಪ್ರತಿ ಪ್ರಯತ್ನಕ್ಕೆ ಒಂದು ಮುಖ.</string>
     <string name="Unable_to_use_mulator_on_the_system_while_taking_quizzes">ನಿಜವಾದ ಪರೀಕ್ಷಾ ಪರಿಸರಕ್ಕಾಗಿ ರಸಪ್ರಶ್ನೆಗಳ ಸಮಯದಲ್ಲಿ ಎಮ್ಯುಲೇಟರ್ ಬಳಕೆಯನ್ನು ನಿರ್ಬಂಧಿಸಲಾಗಿದೆ.</string>
     <string name="moving_face_left_or_right_during_assesment">ನಿಖರವಾದ ಮೇಲ್ವಿಚಾರಣೆಗಾಗಿ ಮೌಲ್ಯಮಾಪನದ ಸಮಯದಲ್ಲಿ ನಿಮ್ಮ ಮುಖವನ್ನು ಎಡಕ್ಕೆ ಅಥವಾ ಬಲಕ್ಕೆ ಚಲಿಸುವುದನ್ನು ತಪ್ಪಿಸಿ</string>
+    <string name="face_not_found">ಎಚ್ಚರಿಕೆ: ಮುಖ ಕಂಡುಬಂದಿಲ್ಲ</string>
+    <string name="object_not_allowed">ಎಚ್ಚರಿಕೆ: ನಿಮ್ಮ ಹಿನ್ನೆಲೆಯಲ್ಲಿ ಅನುಮತಿಸದ ಕೆಲವು ವಸ್ತುಗಳನ್ನು (ಕ್ಯಾಮೆರಾ, ಫೋನ್, ಲ್ಯಾಪ್‌ಟಾಪ್ ಇತ್ಯಾದಿ) ನಾವು ಪತ್ತೆ ಮಾಡುತ್ತೇವೆ</string>
 </resources>

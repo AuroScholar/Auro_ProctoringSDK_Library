@@ -5,4 +5,6 @@
     <string name="Multiple_face_detection">चेतावणी: क्विझमध्ये एकाधिक चेहऱ्यांचा शोध; निष्पक्ष मूल्यांकनासाठी प्रत्येक प्रयत्नासाठी एक चेहरा.</string>
     <string name="Unable_to_use_mulator_on_the_system_while_taking_quizzes">"असली चाचणी वातावरणात प्रश्नोत्तरादरम्यान एमुलेटरचा वापर प्रतिबंधित आहे. "</string>
     <string name="moving_face_left_or_right_during_assesment">अचूक निरीक्षणासाठी मूल्यांकनादरम्यान तुमचा चेहरा डावीकडे किंवा उजवीकडे हलवणे टाळा</string>
+    <string name="face_not_found">सूचना: चेहरा सापडला नाही</string>
+    <string name="object_not_allowed">सूचना: आम्हाला तुमच्या पार्श्वभूमीत काही वस्तू (कॅमेरा, फोन, लॅपटॉप इ.) अनुमत नाहीत</string>
 </resources>

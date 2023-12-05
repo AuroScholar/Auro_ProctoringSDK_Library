@@ -20,7 +20,7 @@ data class ControlModel(
     var isAlertLipMovement: Boolean = true,
     var isAlertObjectDetection: Boolean = true,
     var isAlertDeveloperModeOn: Boolean = true,
-    var isAlertEyeDetection: Boolean = true,
+    var isAlertEyeDetection: Boolean = false,
     var isAlertEmulatorDetector: Boolean = true,
     var isAlertUserWallDistanceDetector: Boolean = true,
     var isAlertFaceDirectionMovement: Boolean = true,
@@ -31,8 +31,8 @@ data class ControlModel(
     var accuracyType: String = "high",
     var isDndStatusOn: Boolean = true,
     var isDeveloperModeOn: Boolean = false,
-    var blockedEmulatorDevicesList: List<String>,
-    var isBlockedObjectList: List<String>,
+    var blockedEmulatorDevicesList: List<String> = listOf(),
+    var isBlockedObjectList: List<String> = listOf("Mobile phone", "Computer", "Camera"),
 
     //core for MLkit
     var rightEyeOpenProbability: Float = 0.5f,
