@@ -20,7 +20,7 @@ dependencyResolutionManagement {
 Step 2. Add the dependency
 ```kotlin
 dependencies {
-    implementation 'com.github.azzadpandit1:Auro-Proctoring-SDK:0.0.21'
+    implementation 'com.github.azzadpandit1:Auro-Proctoring-SDK:0.0.52'
 }
 ```
 
