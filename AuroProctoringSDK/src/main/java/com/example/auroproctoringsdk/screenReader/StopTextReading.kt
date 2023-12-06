@@ -11,7 +11,6 @@ import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import kotlinx.coroutines.withContext
 
 class StopTextReading {
 
@@ -24,24 +23,24 @@ class StopTextReading {
                 textViewIds.add(view.id)
                 view.text = "no read "
                 /*  view.text = " No Text Read Any App "*/
-                viewAccessNo(view)
+                stopTextReading(view)
             } else if (view is Button) {
                 /*  view.text = "No Text Read"
                   view.hint = "No Text Read"*/
-                viewAccessNo(view)
+                stopTextReading(view)
             } else if (view is CheckBox) {
                 /*view.text = "No Text Read"
                 view.hint = "No Text Read"*/
-                viewAccessNo(view)
+                stopTextReading(view)
             } else if (view is ToggleButton) {
                 /*view.text = "No Text Read"
                 view.hint = "No Text Read"*/
-                viewAccessNo(view)
+                stopTextReading(view)
             }
         }
     }
 
-    private fun viewAccessNo(view: View) {
+    private fun stopTextReading(view: View) {
         view.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO)
     }
 
@@ -50,6 +49,7 @@ class StopTextReading {
             if (context is Activity) {
                 // Handle activity-specific logic
                 return (context as AppCompatActivity).window.decorView.findViewById(android.R.id.content)
+
             } else if (context is Fragment) {
                 // Handle fragment-specific logic
                 return (context as FragmentActivity).window.decorView.findViewById(android.R.id.content)
