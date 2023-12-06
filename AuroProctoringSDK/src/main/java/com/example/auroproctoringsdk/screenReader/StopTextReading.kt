@@ -21,7 +21,7 @@ class StopTextReading {
         for (view in views) {
             if (view is TextView) {
                 textViewIds.add(view.id)
-                view.text = "no read "
+//                view.text = "no read "
                 /*  view.text = " No Text Read Any App "*/
                 stopTextReading(view)
             } else if (view is Button) {
