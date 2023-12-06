@@ -7,47 +7,13 @@ import com.example.auroproctoringsdk.ProctoringSDK
 import com.example.auroproctoringsdk.permission.ProctoringPermissionRequest
 import com.example.publicationtest.databinding.ActivityMainBinding
 
-// OnProctoringResultListener for detector result
+// ProctoringSDK.onProctorListener for detector result
 class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
-    //init permission
-    private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
-    private var proctoringPermissionRequest = ProctoringPermissionRequest(this)
-/*
-    private var controlModel = ControlModel(
-        true,
-        true,
-        true,
-        true,
-        false,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        false,
-        true,
-        true,
-        false,
-        false,
-        30000,
-        "high",
-        true,
-        false,
-        listOf(),
-        listOf("Mobile phone", "Computer", "Camera"),
-        0.0f,
-        0.5f,
-        0.2f,
-        0.2f,
-        3,3,50
-    )*/
 
+    private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+    //init permission
+    private var proctoringPermissionRequest = ProctoringPermissionRequest(this)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -58,14 +24,8 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
             binding.mainLayout.observeLifecycle(this.lifecycle)
 
         } else {
+            //request permission
             proctoringPermissionRequest.requestPermissions()
-        }
-
-
-        binding.btn.setOnClickListener{
-
-            // SDK alerts on off
-            binding.textView.text = binding.mainLayout.alertOnOff().toString()
         }
 
     }
@@ -74,6 +34,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
     override fun onResume() {
         super.onResume()
         if (proctoringPermissionRequest.checkPermissionGranted()) {
+            //if permission done then start proctoring // also you can control using ControlModel just add model startProctoring(this,ControlModel)
             binding.mainLayout.startProctoring(this,null)
         }
 
