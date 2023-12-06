@@ -17,7 +17,8 @@ dependencyResolutionManagement {
     }
 }
 ```
-Step 2. Add the dependency
+Step 2. Add the dependency [![Latest Release](https://img.shields.io/github/v/release/azzadpandit1/Auro-Proctoring-SDK?include_prereleases&sort=semver)](https://github.com/azzadpandit1/Auro-Proctoring-SDK/releases/latest)
+
 ```kotlin
 dependencies {
     implementation 'com.github.azzadpandit1:Auro-Proctoring-SDK:0.0.52'
