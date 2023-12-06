@@ -24,7 +24,8 @@ dependencies {
 }
 ```
 
-## Setup ProctoringSDK
+## Setup ProctoringSDK [![Latest Release](https://img.shields.io/github/v/release/azzadpandit1/Auro-Proctoring-SDK?include_prereleases&sort=semver)](https://github.com/azzadpandit1/Auro-Proctoring-SDK/releases/latest)
+
 
 ```kotlin
 // for activity 
@@ -169,10 +170,4 @@ stopProctoring()
 stopCamera()
 
 ```
-## TensoFLow Models  Download Models into assets folder 
-```
 
-Url = https://www.tensorflow.org/lite/examples/object_detection/overview
-
-```
-[![Latest Release](https://img.shields.io/github/v/release/azzadpandit1/Auro-Proctoring-SDK?include_prereleases&sort=semver)](https://github.com/azzadpandit1/Auro-Proctoring-SDK/releases/latest)
