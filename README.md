@@ -29,53 +29,51 @@ dependencies {
 
 
 ```kotlin
-// for activity 
-// OnProctoringResultListener for detector result
-class MainActivity : AppCompatActivity(), OnProctoringResultListener {
 
-    //init permission
-    private var proctoringPermissionRequest = ProctroringPermissionRequest(this)
-
+// ProctoringSDK.onProctorListener for detector result
+class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+    //init permission
+    private var proctoringPermissionRequest = ProctoringPermissionRequest(this)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
         // Permissions already granted
-        // Permissions already granted
         if (proctoringPermissionRequest.checkPermissionGranted()) {
-
 
             binding.mainLayout.observeLifecycle(this.lifecycle)
 
         } else {
+            //request permission
             proctoringPermissionRequest.requestPermissions()
         }
 
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        proctoringPermissionRequest.onReuestPermissionResult(requestCode,permissions,grantResults)
+        proctoringPermissionRequest.onRequestPermissionsResult(
+            requestCode, permissions, grantResults
+        )
 
     }
 
 
 }
 
-override fun onResume() {
-    super.onResume()
-    if (proctoringPermissionRequest.checkPermissionGranted()) {
-        binding.mainLayout.startProctoring(this)
-    }
+ override fun onResume() {
+        super.onResume()
+        if (proctoringPermissionRequest.checkPermissionGranted()) {
+            //if permission done then start proctoring // also you can control using ControlModel just add model startProctoring(this,ControlModel)
+            binding.mainLayout.startProctoring(this,null)
+        }
 
-}
+    }
 
 
 //Fragment
@@ -96,61 +94,53 @@ class QuizTestNativeFragment : Fragment , ProctoringSDK.onProctorListener {
 
 ```kotlin
 
-override fun onVoiceDetected(
-    amplitude: Double, isNiceDetected: Boolean, isRunning: Boolean, typeOfVoiceDetected: String
-) {
-    // detect voice and type of voice
+    override fun onVoiceDetected(
+        amplitude: Double, isNiceDetected: Boolean, isRunning: Boolean, typeOfVoiceDetected: String,
+    ) {
 
-}
+    }
 
-override fun onFaceCount(faceCount: Int) {
-    // getting face count
-    binding.textView.text = faceCount.toString()
+    override fun onFaceCount(faceCount: Int) {
+        // getting face count
+        // binding.textView.text = faceCount.toString()
+    }
 
-}
+    override fun isRunningDetector(boolean: Boolean?) {
+        // detect running status
+    }
 
-override fun isRunningDetector(boolean: Boolean?) {
-    // detect running status
-}
+    override fun onSuccess(faceBounds: Int) {
+        // getting face count
+    }
 
-override fun onSuccess(faceBounds: Int) {
-    // getting face count
-}
+    override fun onFailure(exception: Exception) {
+        // error on SDK level
+    }
 
-override fun onFailure(exception: Exception) {
-    // error on SDK level
-}
+    override fun onLipMovementDetection(face: Boolean) {
+        // Lips Movement is mouth is open and close
 
-override fun onLipMovementDetection(face: Boolean) {
-    // Lips Movement is mouth is open and close
+    }
 
-}
+    override fun onObjectDetection(face: ArrayList<String>) {
+      //  binding.textView.text = face.toString()
 
-override fun onObjectDetection(faceError: String) {
-    // object detection on camera
-}
+    }
 
-override fun onEyeDetectionOnlyOneFace(faceError: String) {
-    // eye open and close status
+    override fun onEyeDetectionOnlyOneFace(face: String) {
 
-}
+    }
 
-override fun onUserWallDistanceDetector(distance: Float) {
-    // user pose detection
-}
+    override fun onUserWallDistanceDetector(distance: Float) {
+    }
 
-override fun onFaceDirectionMovement(faceDirection: String?) {
-    // user Face Direction movement left and right movement
+    override fun onFaceDirectionMovement(faceDirection: String?) {
 
-}
+    }
 
-override fun onFaceNotReal(faceDirection: String) {
-    //Spoof Face
-}
+    override fun captureImage(faceDirection: Bitmap?) {
 
-override fun onMultipleFaceCaptureImage(faceDirection: Bitmap?) {
-    // multiple face found image 
-}
+    }
 
 
 
@@ -158,17 +148,39 @@ override fun onMultipleFaceCaptureImage(faceDirection: Bitmap?) {
 ## Custom Control
 
 ```kotlin
-//speed controller for image clicking
-proctoringWithDealy(dealInMilliseconds :Long)
-
-//stop and start detection 
-startStopDetection()
-
-//stop Proctoring
-stopProctoring()
-
-//stopCamera
-stopCamera()
+ private var initControlModel = ControlModel(
+         isProctoringStart = true,
+         isBlockNotification = true,
+         isScreenshotEnable = true,
+         isStopScreenRecording = true,
+         isCopyPaste = false,
+         isSaveImageHideFolder = true,
+         isStatusBarLock = true,
+         isCaptureImage = true,
+         isAlert = true,
+         isAlertMultipleFaceCount = true,
+         isAlertFaceNotFound = true,
+         isAlertVoiceDetection = true,
+         isAlertLipMovement = true,
+         isAlertObjectDetection = true,
+         isAlertDeveloperModeOn = true,
+         isAlertEyeDetection = false,
+         isAlertEmulatorDetector = true,
+         isAlertUserWallDistanceDetector = true,
+         isAlertFaceDirectionMovement = true,
+         isScreenReadingOn = false,
+         isWaitingDelayInMillis = 30000,
+         accuracyType = "high",
+         isDndStatusOn = true,
+         isDeveloperModeOn = false,
+         blockedEmulatorDevicesList = listOf(),
+         isBlockedObjectList = listOf("Mobile phone", "Computer", "Camera"),
+         rightEyeOpenProbability = 0.5f,
+         leftEyeOpenProbability = 0.5f,
+         leftEyeCloseProbability = 0.2f,
+         rightEyeCloseProbability = 0.2f,
+         upperLipBottomSize = 3, lowerLipTopSize = 3, faceDirectionAccuracy = 50
+    )
 
 ```
 
