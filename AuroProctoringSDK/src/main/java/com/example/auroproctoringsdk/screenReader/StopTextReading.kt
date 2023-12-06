@@ -40,6 +40,11 @@ class StopTextReading {
         }
     }
 
+
+
+
+
+
     private fun stopTextReading(view: View) {
         view.setImportantForAccessibility(View.IMPORTANT_FOR_ACCESSIBILITY_NO)
     }
