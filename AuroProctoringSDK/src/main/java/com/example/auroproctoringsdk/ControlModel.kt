@@ -17,7 +17,7 @@ data class ControlModel(
     var isAlertMultipleFaceCount: Boolean = true,
     var isAlertFaceNotFound: Boolean = true,
     var isAlertVoiceDetection: Boolean = true,
-    var isAlertLipMovement: Boolean = true,
+    var isAlertLipMovement: Boolean = false,
     var isAlertObjectDetection: Boolean = true,
     var isAlertDeveloperModeOn: Boolean = true,
     var isAlertEyeDetection: Boolean = false,
@@ -31,7 +31,7 @@ data class ControlModel(
     var accuracyType: String = "high",
     var isDndStatusOn: Boolean = true,
     var isDeveloperModeOn: Boolean = false,
-    var blockedEmulatorDevicesList: List<String> = listOf(),
+    var blockedEmulatorDevicesList: List<String> = emptyList(),
     var isBlockedObjectList: List<String> = listOf("Mobile phone", "Computer", "Camera"),
 
     //core for MLkit

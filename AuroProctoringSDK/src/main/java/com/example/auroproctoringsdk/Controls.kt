@@ -1,45 +1,51 @@
 package com.example.auroproctoringsdk
 
+import android.util.Log
+
 /**
  * Controls
  *
  * @constructor Create empty Controls
  */
-class Controls{
+class Controls {
 
-     private var initControlModel = ControlModel(
-         isProctoringStart = true,
-         isBlockNotification = true,
-         isScreenshotEnable = true,
-         isStopScreenRecording = true,
-         isCopyPaste = false,
-         isSaveImageHideFolder = true,
-         isStatusBarLock = true,
-         isCaptureImage = true,
-         isAlert = true,
-         isAlertMultipleFaceCount = true,
-         isAlertFaceNotFound = true,
-         isAlertVoiceDetection = true,
-         isAlertLipMovement = true,
-         isAlertObjectDetection = true,
-         isAlertDeveloperModeOn = true,
-         isAlertEyeDetection = false,
-         isAlertEmulatorDetector = true,
-         isAlertUserWallDistanceDetector = true,
-         isAlertFaceDirectionMovement = true,
-         isScreenReadingOn = false,
-         isWaitingDelayInMillis = 30000,
-         accuracyType = "high",
-         isDndStatusOn = true,
-         isDeveloperModeOn = false,
-         blockedEmulatorDevicesList = listOf(),
-         isBlockedObjectList = listOf("Mobile phone", "Computer", "Camera"),
-         rightEyeOpenProbability = 0.5f,
-         leftEyeOpenProbability = 0.5f,
-         leftEyeCloseProbability = 0.2f,
-         rightEyeCloseProbability = 0.2f,
-         upperLipBottomSize = 3, lowerLipTopSize = 3, faceDirectionAccuracy = 50
-    )
+    private var initControlModel = ControlModel()
+    init {
+        initControlModel.isAlert = true
+        initControlModel.isProctoringStart = true
+        initControlModel.isBlockNotification = true
+        initControlModel.isScreenshotEnable = true
+        initControlModel.isStopScreenRecording = true
+        initControlModel.isCopyPaste = false
+        initControlModel.isSaveImageHideFolder = true
+        initControlModel.isStatusBarLock = true
+        initControlModel.isCaptureImage = true
+        initControlModel.isAlert = true
+        initControlModel.isAlertMultipleFaceCount = true
+        initControlModel.isAlertFaceNotFound = true
+        initControlModel.isAlertVoiceDetection = true
+        initControlModel.isAlertLipMovement = false
+        initControlModel.isAlertObjectDetection = true
+        initControlModel.isAlertDeveloperModeOn = true
+        initControlModel.isAlertEyeDetection = false
+        initControlModel.isAlertEmulatorDetector = true
+        initControlModel.isAlertUserWallDistanceDetector = true
+        initControlModel.isAlertFaceDirectionMovement = true
+        initControlModel.isScreenReadingOn = false
+        initControlModel.isWaitingDelayInMillis = 30000
+        initControlModel.accuracyType = "high"
+        initControlModel.isDndStatusOn = true
+        initControlModel.isDeveloperModeOn = false
+        initControlModel.blockedEmulatorDevicesList = listOf("running in last code ")
+        initControlModel.isBlockedObjectList = listOf("Mobile phone", "Computer", "Camera")
+        initControlModel.rightEyeOpenProbability = 0.5f
+        initControlModel.leftEyeOpenProbability = 0.5f
+        initControlModel.leftEyeCloseProbability = 0.2f
+        initControlModel.rightEyeCloseProbability = 0.2f
+        initControlModel.upperLipBottomSize = 3
+        initControlModel.lowerLipTopSize = 3
+        initControlModel.faceDirectionAccuracy = 50
+    }
 
     /**
      * Update control
@@ -56,7 +62,9 @@ class Controls{
      * @return
      */
     fun getControls(): ControlModel {
-        return this.initControlModel
+        Log.e("TAG", "getControls: get eulator " + initControlModel.blockedEmulatorDevicesList)
+        return initControlModel
     }
+
 
 }

@@ -179,6 +179,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
         isAlert = true
 
+
         // control update by model class
         if (controlModel != null) {
             controls.updateControl(controlModel)
@@ -191,8 +192,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         } else {
 
             // Default controller setup
-            controls.updateControl(ControlModel(isAlert = true))
-
+            controls.updateControl(ControlModel(isAlert=true, isProctoringStart = true))
             if (controls.getControls().isAlert) {
                 syncResults()
                 faceDetector.noticeDetect(context)
@@ -207,7 +207,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
         if (controls.getControls().isStopScreenRecording) {
             StopTextReading().stopTextReading(context)
-           // StopTextReadingFragment().stopTextReading(context)
+            // StopTextReadingFragment().stopTextReading(context)
         }
 
     }
@@ -217,7 +217,21 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
      *
      */
     fun stopProctoring() {
-        controls.updateControl(ControlModel(isAlert = false))
+        Log.e("TAG", "stopProctoring: " + controls.getControls().blockedEmulatorDevicesList)
+        controls.updateControl(ControlModel(isAlert = false, isProctoringStart = false))
+    }
+
+    fun getControl(): ControlModel = controls.getControls()
+
+    /**
+     * Alert on off
+     *
+     * @return
+     */
+    fun alertOnOff(): Boolean {
+        isAlert = !isAlert
+        controls.updateControl(ControlModel(isAlert = isAlert, isProctoringStart = isAlert))
+        return isAlert
     }
 
     /**
@@ -334,16 +348,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         controls.updateControl(ControlModel(isWaitingDelayInMillis = delayMillis))
     }
 
-    /**
-     * Alert on off
-     *
-     * @return
-     */
-    fun alertOnOff(): Boolean {
-        isAlert = !isAlert
-        controls.updateControl(ControlModel(isAlert= isAlert))
-        return isAlert
-    }
+
 
     private fun syncResults() {
 
@@ -470,7 +475,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                     }
                     if (controls.getControls().isAlert && controls.getControls().isAlertLipMovement) {
                         if (islipmovment) {
-                            // alert("Lip ","")
+                            val lipFilter = context.getString(R.string.Lip_movement_eyeball_tracking).split("[:]".toRegex())
+                             alert(lipFilter[0],lipFilter[1])
                         }
                     }
                 }
@@ -508,9 +514,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                         // eye movement stopped by sir facing quick eye open and close
                         if (!check(face) && !face.isNullOrBlank()) {
 
-                            /*  alert("Eye", face)
-                                  val filter = controls.getControls().lipOrEyeTrackingError.split(":").toTypedArray()
-                                  alert(filter.first(),filter.last())*/
+                              alert("Eye", face)
+                                  val filter = context.getString(R.string.Lip_movement_eyeball_tracking).split(":").toTypedArray()
+                                  alert(filter.first(),filter.last())
 
                         }
                     }
