@@ -3,6 +3,7 @@ package com.example.auroproctoringsdk.developerMode
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.os.Build
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
@@ -22,8 +23,6 @@ class CheckDeveloperMode(val context: Context) {
         if (isDeveloperModeEnabled()) {
             (context as AppCompatActivity).startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
         }
-
-
     }
 
     fun showDialog() {
@@ -37,7 +36,6 @@ class CheckDeveloperMode(val context: Context) {
             setCancelable(false)
 
         }.create()
-
         dialog?.show()
     }
 

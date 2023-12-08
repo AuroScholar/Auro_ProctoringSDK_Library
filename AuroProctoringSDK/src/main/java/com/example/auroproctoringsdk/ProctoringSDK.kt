@@ -284,7 +284,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                 Log.e("RAMU", "onResume: ")
                 if (controls.getControls().isDeveloperModeOn) {
                     CheckDeveloperMode(context).turnOffDeveloperMode()
-                    if (!CheckDeveloperMode(context).isDeveloperModeEnabled()) {
+                    if (CheckDeveloperMode(context).isDeveloperModeEnabled()) {
                         alert("Developer Mode", "Developer Mode off ")
                     }
                 }
