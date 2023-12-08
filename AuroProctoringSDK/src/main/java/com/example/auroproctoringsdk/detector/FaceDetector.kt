@@ -114,6 +114,8 @@ class FaceDetector() {
                     var objectSectionNames: String = ""
                     var faceCount: Int = faceResults.size
                     var faceDirection: String? = null
+                    var labelsList: ArrayList<String> = arrayListOf()
+
 
                     onProctoringResultListener?.onFaceCount(faceResults.size)
 
@@ -151,7 +153,6 @@ class FaceDetector() {
                             onProctoringResultListener?.onFaceDirectionMovement(faceDirection)
 
 
-                            var labelsList: ArrayList<String> = arrayListOf()
 
 
                             //Object Tracking
@@ -166,9 +167,15 @@ class FaceDetector() {
                                                                 E  Label:---->     Computer, Confidence: 0.503058
                                 */
                             }
-                            onProctoringResultListener?.onObjectDetection(labelsList)
+                            onProctoringResultListener?.onObjectDetection(labelsList,null)
 
+                        }else{
 
+                            if (faceCount !in listOf(0, 1, null)) {
+
+                                onProctoringResultListener?.onObjectDetection(labelsList,faceCount)
+
+                            }
                         }
 
                     }
@@ -370,7 +377,7 @@ class FaceDetector() {
         fun onFailure(exception: Exception)
         fun onFaceCount(face: Int)
         fun onLipMovementDetection(face: Boolean)
-        fun onObjectDetection(face: ArrayList<String>)
+        fun onObjectDetection(face: ArrayList<String>, size: Int?)
         fun onEyeDetectionOnlyOneFace(face: String)
         fun onUserWallDistanceDetector(distance: Float)
         fun onFaceDirectionMovement(faceDirection: String?)

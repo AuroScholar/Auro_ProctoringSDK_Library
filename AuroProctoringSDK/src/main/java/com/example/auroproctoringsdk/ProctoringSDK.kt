@@ -26,7 +26,6 @@ import com.example.auroproctoringsdk.languageSetup.CurrentLanguage
 import com.example.auroproctoringsdk.screenBarLock.StatusBarLocker
 import com.example.auroproctoringsdk.screenBrightness.ScreenBrightness
 import com.example.auroproctoringsdk.screenReader.StopTextReading
-import com.example.auroproctoringsdk.screenReader.StopTextReadingFragment
 import com.example.auroproctoringsdk.utils.CustomAlertDialog
 import com.example.auroproctoringsdk.utils.Utils
 import java.io.IOException
@@ -57,6 +56,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     private val handler = Handler()
     var isWaiting = false
     var isAlert = false
+    var faceCountWorring2Times = -1
     private var proctorListener: onProctorListener? = null
     private val changeWaitingStatus = object : Runnable {
         override fun run() {
@@ -372,7 +372,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
                     if (controls.getControls().isDeveloperModeOn) {
                         CheckDeveloperMode(context).turnOffDeveloperMode()
-                        if (!CheckDeveloperMode(context).isDeveloperModeEnabled()) {
+                        if (CheckDeveloperMode(context).isDeveloperModeEnabled()) {
                             alert("Developer Mode", "Developer Mode off ")
                         }
                     }
@@ -445,8 +445,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                     if (controls.getControls().isAlert) {
                         when (face) {
                             0 -> {
-                                if (controls.getControls().isAlertFaceNotFound) {
-
+                                faceCountWorring2Times ++
+                                if (controls.getControls().isAlertFaceNotFound && faceCountWorring2Times >= 2) {
+                                    faceCountWorring2Times = -1
                                     val faceNotFoundException =
                                         context.getString(R.string.face_not_found)
                                             .split("[:]".toRegex())
@@ -468,13 +469,13 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                             else -> {
                                 if (controls.getControls().isAlertMultipleFaceCount) {
 
+                                    ScreenBrightness(context).lowBrightness(context)
+
                                     val filter = context.getString(R.string.Multiple_face_detection)
                                         .split("[:]".toRegex())
                                     alert(
                                         filter[0], filter[1]
                                     )
-                                    ScreenBrightness(context).lowBrightness(context)
-
                                 }
                             }
                         }
@@ -501,7 +502,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
             }
 
-            override fun onObjectDetection(objectList: ArrayList<String>) {
+            override fun onObjectDetection(objectList: ArrayList<String>, size: Int?) {
                 if (isViewAvailable) {
                     if (isWaiting) {
                         proctorListener?.onObjectDetection(objectList)
@@ -518,6 +519,17 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                              val filter = controls.getControls().lipOrEyeTrackingError.split(":").toTypedArray()
                                                     alert(filter.first(),filter.last())*/
                     }
+
+                    if (size !in listOf(0, 1, null)){
+                        if (controls.getControls().isAlertMultipleFaceCount){
+                            val filter = context.getString(R.string.Multiple_face_detection)
+                                .split("[:]".toRegex())
+                            alert(
+                                filter[0], filter[1]
+                            )
+                        }
+                    }
+
                 }
 
             }
