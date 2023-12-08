@@ -192,7 +192,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         } else {
 
             // Default controller setup
-            controls.updateControl(ControlModel(isAlert=true, isProctoringStart = true))
+            controls.updateControl(ControlModel(isAlert = true, isProctoringStart = true))
             if (controls.getControls().isAlert) {
                 syncResults()
                 faceDetector.noticeDetect(context)
@@ -219,6 +219,15 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     fun stopProctoring() {
         Log.e("TAG", "stopProctoring: " + controls.getControls().blockedEmulatorDevicesList)
         controls.updateControl(ControlModel(isAlert = false, isProctoringStart = false))
+    }
+
+    fun updateControl(controlModel: ControlModel?): ControlModel {
+        return if (controlModel != null) {
+            controls.updateControl(controlModel)
+            controls.getControls()
+        } else {
+            controls.getControls()
+        }
     }
 
     fun getControl(): ControlModel = controls.getControls()
@@ -349,7 +358,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     }
 
 
-
     private fun syncResults() {
 
         faceDetector.setonFaceDetectionFailureListener(object :
@@ -475,8 +483,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                     }
                     if (controls.getControls().isAlert && controls.getControls().isAlertLipMovement) {
                         if (islipmovment) {
-                            val lipFilter = context.getString(R.string.Lip_movement_eyeball_tracking).split("[:]".toRegex())
-                             alert(lipFilter[0],lipFilter[1])
+                            val lipFilter =
+                                context.getString(R.string.Lip_movement_eyeball_tracking)
+                                    .split("[:]".toRegex())
+                            alert(lipFilter[0], lipFilter[1])
                         }
                     }
                 }
@@ -514,9 +524,11 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                         // eye movement stopped by sir facing quick eye open and close
                         if (!check(face) && !face.isNullOrBlank()) {
 
-                              alert("Eye", face)
-                                  val filter = context.getString(R.string.Lip_movement_eyeball_tracking).split(":").toTypedArray()
-                                  alert(filter.first(),filter.last())
+                            alert("Eye", face)
+                            val filter =
+                                context.getString(R.string.Lip_movement_eyeball_tracking).split(":")
+                                    .toTypedArray()
+                            alert(filter.first(), filter.last())
 
                         }
                     }

@@ -22,7 +22,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
         // Permissions already granted
         if (proctoringPermissionRequest.checkPermissionGranted()) {
 
-            binding.mainLayout.observeLifecycle(this.lifecycle)
+            binding.mainLayout.observeLifecycle(this.lifecycle) // very import for all
 
         } else {
             //request permission
