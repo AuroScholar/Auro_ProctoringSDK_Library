@@ -11,7 +11,6 @@ import com.example.publicationtest.databinding.ActivityMainBinding
 // ProctoringSDK.onProctorListener for detector result
 class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
-
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
     //init permission
     private var proctoringPermissionRequest = ProctoringPermissionRequest(this)
@@ -28,7 +27,6 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
             //request permission
             proctoringPermissionRequest.requestPermissions()
         }
-
 
         binding.btn.setOnClickListener {
             binding.mainLayout.alertOnOff()
@@ -84,7 +82,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
     }
 
     override fun onObjectDetection(face: ArrayList<String>) {
-      //  binding.textView.text = face.toString()
+        binding.textView.text = face.toString()
 
     }
 
