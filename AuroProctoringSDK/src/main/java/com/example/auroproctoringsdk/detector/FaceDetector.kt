@@ -128,7 +128,7 @@ class FaceDetector() {
                     for (face in faceResults) {
 
                         faceCount = faceResults.size
-
+                        Log.e(TAG, "detectFaces: face Reult "+faceCount )
                         onProctoringResultListener?.onFaceCount(faceResults.size)
 
                         if (faceResults.size == 1) {
