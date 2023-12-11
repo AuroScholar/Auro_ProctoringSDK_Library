@@ -18,10 +18,15 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
+
+
+
         // Permissions already granted
         if (proctoringPermissionRequest.checkPermissionGranted()) {
 
             binding.mainLayout.observeLifecycle(this.lifecycle) // very import for all
+
+            binding.mainLayout.startProctoring(this,null)
 
         } else {
             //request permission
@@ -36,10 +41,10 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
     override fun onResume() {
         super.onResume()
-        if (proctoringPermissionRequest.checkPermissionGranted()) {
+       /* if (proctoringPermissionRequest.checkPermissionGranted()) {
             //if permission done then start proctoring // also you can control using ControlModel just add model startProctoring(this,ControlModel)
-            binding.mainLayout.startProctoring(this,null)
-        }
+
+        }*/
 
     }
 
@@ -47,9 +52,9 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
         requestCode: Int, permissions: Array<out String>, grantResults: IntArray,
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        proctoringPermissionRequest.onRequestPermissionsResult(
+       /* proctoringPermissionRequest.onRequestPermissionsResult(
             requestCode, permissions, grantResults
-        )
+        )*/
 
     }
 

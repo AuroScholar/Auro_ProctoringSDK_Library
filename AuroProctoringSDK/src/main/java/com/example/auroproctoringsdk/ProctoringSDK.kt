@@ -80,6 +80,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     }
 
     override fun surfaceCreated(p0: SurfaceHolder) {
+        if (camera != null) {
+            releaseCamera();
+        }
         try {
             camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT)
             camera?.setDisplayOrientation(90)
@@ -169,10 +172,26 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
      *
      */
     fun takePic() {
-        if (!isCameraReleased) {
-            camera?.setPreviewCallback(this@ProctoringSDK)
-            camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
-                // Process the preview data
+        camera?.setPreviewCallback(this@ProctoringSDK)
+        camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
+            // Process the preview data
+            Log.e("TAG", "takePic: process start ", )
+            faceDetector.process(
+                Frame(
+                    data,
+                    270,
+                    Size(camera.parameters.previewSize.width, camera.parameters.previewSize.height),
+                    camera.parameters.previewFormat,
+                    LensFacing.FRONT
+                )
+            )
+            /*camera?.let {
+                // Convert the data to a bitmap
+                val parameters = camera.parameters
+                val width = parameters.previewSize.width
+                val height = parameters.previewSize.height
+//            Log.e("TAG", "onPreviewFrame: ")
+                Log.e("TAG", "takePic: image process  ")
                 faceDetector.process(
                     Frame(
                         data,
@@ -182,7 +201,25 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                         LensFacing.FRONT
                     )
                 )
-                /*camera?.let {
+
+            }*/
+        })
+
+/*        if (!isCameraReleased) {
+            camera?.setPreviewCallback(this@ProctoringSDK)
+            camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
+                // Process the preview data
+                Log.e("TAG", "takePic: process start ", )
+                faceDetector.process(
+                    Frame(
+                        data,
+                        270,
+                        Size(camera.parameters.previewSize.width, camera.parameters.previewSize.height),
+                        camera.parameters.previewFormat,
+                        LensFacing.FRONT
+                    )
+                )
+                *//*camera?.let {
                     // Convert the data to a bitmap
                     val parameters = camera.parameters
                     val width = parameters.previewSize.width
@@ -199,9 +236,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                         )
                     )
 
-                }*/
+                }*//*
             })
-        }
+        }*/
     }
 
     /**
@@ -304,25 +341,21 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
             @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
             fun onCreate() {
                 isViewAvailable = true
-                isCameraReleased = false
                 // Code to execute when the fragment or activity is created
             }
 
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             fun onStart() {
-                isViewAvailable = true
-                isCameraReleased= false
                 if (controls.getControls().isStatusBarLock) {
                     StatusBarLocker.statusBarLock(context)
                     Log.e("Status", "onStart: ")
                 }
+                isViewAvailable = true
 
             }
 
             @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
             fun onResume() {
-                isViewAvailable = true
-                isCameraReleased = false
                 Log.e("RAMU", "onResume: ")
                 if (controls.getControls().isDeveloperModeOn) {
                     CheckDeveloperMode(context).turnOffDeveloperMode()
@@ -346,31 +379,36 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                 if (controls.getControls().isDndStatusOn) { // DND on
                     DNDManagerHelper(context).checkDNDModeON()
                 }
+                isViewAvailable = true
 
             }
 
             @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
             fun onPause() {
                 alertDialog1.hideForcefully()
-                isViewAvailable = false
                 if (controls.getControls().isDndStatusOn) { // DND off
                     DNDManagerHelper(context).DndModeOff(context)
 //                    hideAlert()
                 }
                 // Code to execute when the fragment or activity is paused
                 Log.e("RAMU", "onPause: ")
+                isViewAvailable = false
+                releaseCamera()
+
+
             }
 
             @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
             fun onStop() {
                 alertDialog1.hideForcefully()
-                isViewAvailable = false
                 if (controls.getControls().isDndStatusOn) {
 
                     DNDManagerHelper(context).DndModeOff(context)
                     hideAlert()
                     Log.e("RAMU", "onStop: ")
                 }
+                isViewAvailable = false
+
 
             }
 
@@ -380,10 +418,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                 Log.e("RAMU", "onDestroy: ")
 
 //                Log.e("TAG", "onDestroy: -- result "+Utils(context).removeDir() )
-                isViewAvailable = false
                 if (controls.getControls().isDndStatusOn) { // DND off
                     DNDManagerHelper(context as AppCompatActivity).DndModeOff(context)
                 }
+                isViewAvailable = false
 
             }
         })
@@ -730,13 +768,15 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
          }
          camera = null
  */
-
+        timer?.cancel()
         if (!isCameraReleased) {
-            camera?.setPreviewCallback(null)
-            camera?.stopPreview()
-            camera?.release()
-            camera = null
-            isCameraReleased = true
+            if (camera!= null) {
+                camera?.setPreviewCallback(null)
+                camera?.stopPreview()
+                camera?.release()
+                camera = null
+                isCameraReleased = true
+            }
         }
 
     }

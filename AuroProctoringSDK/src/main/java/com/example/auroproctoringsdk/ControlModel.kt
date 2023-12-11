@@ -19,7 +19,7 @@ data class ControlModel(
     var isAlertVoiceDetection: Boolean = true,
     var isAlertLipMovement: Boolean = false,
     var isAlertObjectDetection: Boolean = true,
-    var isAlertDeveloperModeOn: Boolean = true,
+    var isAlertDeveloperModeOn: Boolean = false,
     var isAlertEyeDetection: Boolean = false,
     var isAlertEmulatorDetector: Boolean = true,
     var isAlertUserWallDistanceDetector: Boolean = true,
