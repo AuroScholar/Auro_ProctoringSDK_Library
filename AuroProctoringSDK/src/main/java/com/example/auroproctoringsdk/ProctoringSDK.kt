@@ -377,7 +377,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                         }
                     }
 
-                    if (controls.getControls().isDndStatusOn) { // DND on
+                    if (controls.getControls().isDndStatusOn && !CheckDeveloperMode(context).isDeveloperModeEnabled()) { // DND on
                         DNDManagerHelper(context).checkDNDModeON()
                     }
 
