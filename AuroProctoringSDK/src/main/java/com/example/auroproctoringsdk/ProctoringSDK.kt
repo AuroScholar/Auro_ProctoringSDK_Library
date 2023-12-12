@@ -80,10 +80,12 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
     }
 
     override fun surfaceCreated(p0: SurfaceHolder) {
+/*
         if (camera != null) {
             releaseCamera();
         }
         try {
+            camera?.release()
             camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT)
             camera?.setDisplayOrientation(90)
 //            setCameraDisplayOrientation(Camera.CameraInfo.CAMERA_FACING_FRONT, camera)
@@ -92,7 +94,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         } catch (e: IOException) {
             e.printStackTrace()
         }
+*/
 
+        openCamera()
+        startPreview()
         //real time image create
         run {
             timer = Timer()
@@ -110,7 +115,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
         if (surfaceHolder?.surface == null) {
             return
         }
-        try {
+       /* try {
             camera?.setPreviewDisplay(surfaceHolder)
 //            camera?.startPreview()
             thread {
@@ -118,16 +123,19 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
             }.start()
         } catch (e: Exception) {
             e.printStackTrace()
-        }
+        }*/
+        startPreview()
 
     }
 
     override fun surfaceDestroyed(p0: SurfaceHolder) {
-        try {
+       /* try {
             releaseCamera()
         } catch (e: Exception) {
             e.printStackTrace()
         }
+*/
+        stopPreview()
     }
 
     override fun onPreviewFrame(data: ByteArray, camera: Camera?) {
@@ -802,14 +810,78 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
     }
 
+    // Release the camera properly before attempting to use it again
     private fun releaseCamera() {
-        /* camera?.apply {
+        timer?.cancel()
+        camera?.apply {
+            stopPreview()
+            setPreviewCallback(null)
+            release()
+        }
+        camera = null
+    }
+
+    // Example usage
+    private fun openCamera() {
+        try {
+            // Open the camera
+            camera = Camera.open()
+            camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT)
+            camera?.setDisplayOrientation(90)
+//            setCameraDisplayOrientation(Camera.CameraInfo.CAMERA_FACING_FRONT, camera)
+            camera?.setPreviewDisplay(holder)
+            camera?.startPreview()
+
+            // Do something with the camera, such as setting up the preview
+            // ...
+
+        } catch (e: Exception) {
+            // Handle any exceptions that occur while opening the camera
+            e.printStackTrace()
+        }
+    }
+
+    // Example usage
+    private fun startPreview() {
+        try {
+            // Check if the camera is already opened
+            if (camera == null) {
+                // Open the camera if it's not already opened
+                openCamera()
+            }
+
+            // Start the camera preview
+            camera?.startPreview()
+
+        } catch (e: Exception) {
+            // Handle any exceptions that occur while starting the preview
+            e.printStackTrace()
+        }
+    }
+
+    // Example usage
+    private fun stopPreview() {
+        try {
+            // Stop the camera preview
+            camera?.stopPreview()
+
+            // Release the camera
+            releaseCamera()
+
+        } catch (e: Exception) {
+            // Handle any exceptions that occur while stopping the preview
+            e.printStackTrace()
+        }
+    }
+
+   /* private fun releaseCamera() {
+        *//* camera?.apply {
              stopPreview()
              setPreviewCallback(null)
              release()
          }
          camera = null
- */
+ *//*
         timer?.cancel()
         if (!isCameraReleased) {
             if (camera!= null) {
@@ -821,7 +893,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
             }
         }
 
-    }
+    }*/
 
 
     /**

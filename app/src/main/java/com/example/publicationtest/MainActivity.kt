@@ -19,14 +19,13 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
         setContentView(binding.root)
 
 
+        binding.mainLayout.observeLifecycle(this.lifecycle) // very import for all
+
 
 
         // Permissions already granted
         if (proctoringPermissionRequest.checkPermissionGranted()) {
 
-            binding.mainLayout.observeLifecycle(this.lifecycle) // very import for all
-
-            binding.mainLayout.startProctoring(this,null)
 
         } else {
             //request permission
@@ -45,6 +44,8 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
             //if permission done then start proctoring // also you can control using ControlModel just add model startProctoring(this,ControlModel)
 
         }*/
+        binding.mainLayout.startProctoring(this,null)
+
 
     }
 
