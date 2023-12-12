@@ -508,9 +508,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
 
                         if (controls.getControls().isAlert && controls.getControls().isAlertVoiceDetection) {
                             if (isNiceDetected) {
-                                (context as AppCompatActivity).runOnUiThread {
+                                /*(context as AppCompatActivity).runOnUiThread {
                                     alert("HIGH SOUND", typeOfVoiceDetected)
-                                }
+                                }*/
                             }
                         }
                     }
