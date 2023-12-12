@@ -632,7 +632,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                                                     alert(filter.first(),filter.last())*/
                     }
 
-                    if (size !in listOf(0, 1, null)) {
+                 /*   if (size !in listOf(0, 1, null)) {
                         if (controls.getControls().isAlertMultipleFaceCount) {
                             val filter = context.getString(R.string.Multiple_face_detection)
                                 .split("[:]".toRegex())
@@ -644,7 +644,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                             }
 
                         }
-                    }
+                    }*/
 
                 }
 
@@ -697,11 +697,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                             val headDirection =
                                 context.getString(R.string.moving_face_left_or_right_during_assesment)
                                     .split("[:]".toRegex())
-/*
-                            alert(
-                                headDirection[0], headDirection[1]
-                            )
-*/
+
                             if (headDirection.size == 2) {
                                 alert(headDirection[0], headDirection[1])
                             }
