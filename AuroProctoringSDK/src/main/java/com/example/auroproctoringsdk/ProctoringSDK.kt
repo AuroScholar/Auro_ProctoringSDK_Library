@@ -475,7 +475,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                             context.getString(R.string.Unable_to_use_mulator_on_the_system_while_taking_quizzes)
                                 .split("[:]".toRegex())
 
-                        if (emulator.size >= 2){
+                        if (emulator.size == 2){
 
                             alert(emulator[0], emulator[1])
 
@@ -549,7 +549,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                                         context.getString(R.string.face_not_found)
                                             .split("[:]".toRegex())
 
-                                    if (faceNotFoundException.size >= 2){
+                                    if (faceNotFoundException.size == 2){
 
                                         alert(faceNotFoundException[0], faceNotFoundException[1])
 
@@ -574,7 +574,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                                     val filter = context.getString(R.string.Multiple_face_detection)
                                         .split("[:]".toRegex())
 
-                                    if (filter.size >= 2){
+                                    if (filter.size == 2){
                                         alert(
                                             filter[0], filter[1]
                                         )
@@ -601,10 +601,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                                 context.getString(R.string.Lip_movement_eyeball_tracking)
                                     .split("[:]".toRegex())
 
-                            if (lipFilter.size >= 2){
+                            if (lipFilter.size == 2){
                                 alert(lipFilter[0], lipFilter[1])
-                            }else{
-
                             }
 
                         }
@@ -625,12 +623,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                         val objectAlert =
                             context.getString(R.string.object_not_allowed).split("[:]".toRegex())
 
-                        if (objectAlert.size >= 2){
-
+                        if (objectAlert.size == 2){
                             alert(objectAlert[0], objectAlert[1])
-
-                        }else{
-
                         }
 
                         /*
@@ -643,12 +637,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                             val filter = context.getString(R.string.Multiple_face_detection)
                                 .split("[:]".toRegex())
 
-                            if (filter.size >= 2){
+                            if (filter.size == 2){
                                 alert(
                                     filter[0], filter[1]
                                 )
-                            }else{
-
                             }
 
                         }
@@ -672,10 +664,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                             val filter =
                                 context.getString(R.string.Lip_movement_eyeball_tracking).split("[:]".toRegex())
 
-                            if (filter.size >= 2) {
+                            if (filter.size == 2) {
                                 alert(filter[0], filter[1])
-                            }else{
-
                             }
                         }
                     }
@@ -707,14 +697,13 @@ class ProctoringSDK(context: Context, attrs: AttributeSet?) : SurfaceView(contex
                             val headDirection =
                                 context.getString(R.string.moving_face_left_or_right_during_assesment)
                                     .split("[:]".toRegex())
+/*
                             alert(
                                 headDirection[0], headDirection[1]
                             )
-
-                            if (headDirection.size >= 2) {
+*/
+                            if (headDirection.size == 2) {
                                 alert(headDirection[0], headDirection[1])
-                            } else {
-
                             }
 
                         }
