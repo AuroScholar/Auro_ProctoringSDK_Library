@@ -105,9 +105,9 @@ afterEvaluate {
         publications {
             create<MavenPublication>("release") {
                 from(components["release"])
-                groupId = "com.github.azzadpandit1"
-                artifactId = "Auro-Proctoring-SDK"
-                version = "0.0.70"
+                groupId = "com.github.AuroScholar"
+                artifactId = "Auro_Proctoring_Library"
+                version = "0.0.1"
             }
         }
     }
