@@ -7,6 +7,7 @@ import android.graphics.Matrix
 import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.YuvImage
+import android.provider.MediaStore
 import android.util.Log
 import androidx.annotation.GuardedBy
 import androidx.lifecycle.MutableLiveData
@@ -47,15 +48,28 @@ class FaceDetector() {
             .setMinFaceSize(0.20f).build()
     )
 
-
     private val poseDetector = PoseDetection.getClient(
         PoseDetectorOptions.Builder().setDetectorMode(PoseDetectorOptionsBase.SINGLE_IMAGE_MODE)
             .build()
     )
 
+    private val bitmapFaceDetector = FaceDetection.getClient(
+        FaceDetectorOptions.Builder()
+            .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+            .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_NONE)
+            .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_NONE)
+            .build()
+    )
+
+
+   private val compareFaces = FaceDetection.getClient(FaceDetectorOptions.Builder()
+        .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
+        .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_NONE)
+        .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_NONE)
+        .build())
+
 
     private val objectDetector = ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS)
-
 
     /** Listener that gets notified when a face detection result is ready. */
     private var onProctoringResultListener: OnProctoringResultListener? = null
@@ -69,6 +83,8 @@ class FaceDetector() {
     @GuardedBy("lock")
     private var isProcessing = false
 
+    private var oldBitmap: Bitmap? = null
+
     fun setonFaceDetectionFailureListener(listener: OnProctoringResultListener) {
         onProctoringResultListener = listener
     }
@@ -77,7 +93,8 @@ class FaceDetector() {
         return faceLiveResult
     }
 
-    fun process(frame: Frame) {
+    fun process(frame: Frame/*, bitmap: Bitmap?*/) {
+//        oldBitmap = bitmap
         synchronized(lock) {
             if (!isProcessing) {
                 isProcessing = true
@@ -93,14 +110,58 @@ class FaceDetector() {
 
         val inputImage = InputImage.fromByteArray(data, size.width, size.height, rotation, format)
 
+    /*    oldBitmap?.let {
+            val oldImage = InputImage.fromBitmap(it, 0)
+            val newbitmap = InputImage.fromBitmap(convectionBitmap(this), rotation)
+
+
+            val face1Tasks = bitmapFaceDetector.process(oldImage)
+            val face2Tasks = bitmapFaceDetector.process(newbitmap)
+
+            Tasks.whenAll(face1Tasks,face2Tasks).addOnSuccessListener {
+
+                val faceResult1 = face1Tasks.result?.size?: 0
+                val faceResult2 = face2Tasks.result?.size?: 0
+
+
+                val similarity = (faceResult1.toDouble() / faceResult2.toDouble()) * 100
+
+
+                Log.e(TAG, "face maching process : $similarity")
+
+
+
+            }.addOnFailureListener {
+
+            }
+
+
+        }*/
+
+
+
+       /* oldBitmap?.let {
+
+            compareFaces(convectionBitmap(this),it)
+
+
+            //faceCompareProcess()
+        }*/
+
+
         val faceDetectionTask = faceDetector.process(inputImage)
         val poseDetectionTask = poseDetector.process(inputImage)
         val objectDetectionTask = objectDetector.process(inputImage)
 
 
+        /*val faces1 = result1.result?.size() ?: 0
+        val faces2 = result2.result?.size() ?: 0*/
+
+
         Tasks.whenAll(faceDetectionTask, poseDetectionTask, objectDetectionTask)
             .addOnSuccessListener {
                 synchronized(lock) {
+
                     isProcessing = false
                     onProctoringResultListener?.isRunningDetector(isProcessing)
 
@@ -128,7 +189,7 @@ class FaceDetector() {
                     for (face in faceResults) {
 
                         faceCount = faceResults.size
-                        Log.e(TAG, "detectFaces: face Reult "+faceCount )
+                        Log.e(TAG, "detectFaces: face Reult " + faceCount)
                         onProctoringResultListener?.onFaceCount(faceResults.size)
 
                         if (faceResults.size == 1) {
@@ -136,6 +197,8 @@ class FaceDetector() {
                             eyeOpenStatus = eyeTracking(face)
                             // Eye Tracking
                             onProctoringResultListener?.onEyeDetectionOnlyOneFace(eyeOpenStatus)
+
+//                            onProctoringResultListener?.isRunningDetector(isReal(face))
 
                             //Lip Tracking
                             mouthOpen = detectMouth(face)
@@ -153,8 +216,6 @@ class FaceDetector() {
                             onProctoringResultListener?.onFaceDirectionMovement(faceDirection)
 
 
-
-
                             //Object Tracking
                             for (label in objectResults) {
                                 val text = label.text
@@ -167,13 +228,13 @@ class FaceDetector() {
                                                                 E  Label:---->     Computer, Confidence: 0.503058
                                 */
                             }
-                            onProctoringResultListener?.onObjectDetection(labelsList,null)
+                            onProctoringResultListener?.onObjectDetection(labelsList, null)
 
-                        }else{
+                        } else {
 
                             if (faceCount !in listOf(0, 1, null)) {
 
-                                onProctoringResultListener?.onObjectDetection(labelsList,faceCount)
+                                onProctoringResultListener?.onObjectDetection(labelsList, faceCount)
 
                             }
                         }
@@ -275,6 +336,38 @@ class FaceDetector() {
         return sqrt(dx.pow(2) + dy.pow(2))
     }
 
+
+    private fun compareFaces(bitmap1: Bitmap, bitmap2: Bitmap){
+
+        val image1 = InputImage.fromBitmap(bitmap1, 0)
+        val image2 = InputImage.fromBitmap(bitmap2, 0)
+
+        val result1 = compareFaces.process(image1)
+        val result2 = compareFaces.process(image2)
+
+        Tasks.whenAll(result1, result2).addOnCompleteListener {
+            val faces1 = result1.result?.size ?: 0
+            val faces2 = result2.result?.size ?: 0
+
+            val similarity = (faces1.toDouble() / faces2.toDouble()) * 100
+
+            Log.e(TAG, "compareFaces: process matching$similarity")
+
+            // Determine the face matching status based on the similarity percentage
+            val status = when {
+                similarity >= 100 -> "100% Match"
+                similarity >= 80 -> "80% Match"
+                similarity >= 50 -> "50% Match"
+                else -> "No Match"
+            }
+
+            // Show the face matching status
+            Log.e(TAG, "Face Matching Status: $status")
+
+        }.addOnFailureListener {
+
+        }
+    }
     fun isReal(face: Face): Boolean {
         if (face.smilingProbability != null && face.rightEyeOpenProbability != null && face.leftEyeOpenProbability != null) {
             val smileProb = face.smilingProbability
@@ -389,6 +482,7 @@ class FaceDetector() {
         private const val TAG = "FaceDetector"
     }
 }
+
 data class FaceDetectorModel(
     var faceCount: Int = -1,
     var eyeOpenStatus: String = "",
