@@ -310,8 +310,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             fun onResume() {
                 Log.e("RAMU", "onResume: ")
                 if (controls.getControls().isDeveloperModeOn) {
-                    Log.e("TAG", "onResume: developmer ccode "+CheckDeveloperMode(context).isDeveloperModeEnabled() )
-                    CheckDeveloperMode(context).turnOffDeveloperMode()
                     if (CheckDeveloperMode(context).isDeveloperModeEnabled()) {
                         alert("Developer Mode", "Developer Mode off ")
                     }
@@ -478,14 +476,13 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                         proctorListener?.isRunningDetector(boolean)
                     }
 
-                    if (controls.getControls().isDeveloperModeOn) {
-                        CheckDeveloperMode(context).turnOffDeveloperMode()
+                    if (controls.getControls().isAlert && controls.getControls().isDeveloperModeOn) {
                         if (CheckDeveloperMode(context).isDeveloperModeEnabled()) {
                             alert("Developer Mode", "Developer Mode off ")
                         }
                     }
 
-                    if (controls.getControls().isDeveloperModeOn && controls.getControls().isDndStatusOn && !CheckDeveloperMode(context).isDeveloperModeEnabled()) { // DND on
+                    if (controls.getControls().isAlert && controls.getControls().isDndStatusOn) { // DND on
                         DNDManagerHelper(context).checkDNDModeON()
                     }
 
@@ -500,10 +497,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
                         }
 
-                    }
-                    if (controls.getControls().isAlert && controls.getControls().isDndStatusOn) {
-//                    Log.e("TAG", "isRunningDetector: onStateChanged: dnd request ")
-                        DNDManagerHelper(context as AppCompatActivity).checkDNDModeON()
                     }
                     if (controls.getControls().isAlert && controls.getControls().isStatusBarLock) {
                         StatusBarLocker.statusBarLock(context)
@@ -744,7 +737,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
                 if (isViewAvailable) {
                     if (isWaiting) {
-                        if (faceDirection != null && controls.getControls().isCaptureImage) {/*Log.e(
+                        if (faceDirection != null && controls.getControls().isCaptureImage) {
+                            /*Log.e(
                                 "TAG",
                                 "captureImage:-->  " + Utils().saveBitmapIntoImageInternalDir(
                                     faceDirection,
