@@ -18,10 +18,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-
         binding.mainLayout.observeLifecycle(this.lifecycle) // very import for all
-
-
 
         // Permissions already granted
         if (proctoringPermissionRequest.checkPermissionGranted()) {

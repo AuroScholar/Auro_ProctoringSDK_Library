@@ -7,7 +7,6 @@ import android.graphics.Matrix
 import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.YuvImage
-import android.provider.MediaStore
 import android.util.Log
 import androidx.annotation.GuardedBy
 import androidx.lifecycle.MutableLiveData
@@ -98,7 +97,7 @@ class FaceDetector() {
         synchronized(lock) {
             if (!isProcessing) {
                 isProcessing = true
-                onProctoringResultListener?.isRunningDetector(isProcessing)
+//                onProctoringResultListener?.isRunningDetector(isProcessing)
                 faceDetectionExecutor.execute { frame.detectFaces() }
             }
         }
@@ -110,43 +109,8 @@ class FaceDetector() {
 
         val inputImage = InputImage.fromByteArray(data, size.width, size.height, rotation, format)
 
-    /*    oldBitmap?.let {
-            val oldImage = InputImage.fromBitmap(it, 0)
-            val newbitmap = InputImage.fromBitmap(convectionBitmap(this), rotation)
 
-
-            val face1Tasks = bitmapFaceDetector.process(oldImage)
-            val face2Tasks = bitmapFaceDetector.process(newbitmap)
-
-            Tasks.whenAll(face1Tasks,face2Tasks).addOnSuccessListener {
-
-                val faceResult1 = face1Tasks.result?.size?: 0
-                val faceResult2 = face2Tasks.result?.size?: 0
-
-
-                val similarity = (faceResult1.toDouble() / faceResult2.toDouble()) * 100
-
-
-                Log.e(TAG, "face maching process : $similarity")
-
-
-
-            }.addOnFailureListener {
-
-            }
-
-
-        }*/
-
-
-
-       /* oldBitmap?.let {
-
-            compareFaces(convectionBitmap(this),it)
-
-
-            //faceCompareProcess()
-        }*/
+        Log.e(TAG, "detectFaces: live processing "+LivenessDetection().checkLikeness(data, size.width, size.height, rotation, format))
 
 
         val faceDetectionTask = faceDetector.process(inputImage)
@@ -163,7 +127,7 @@ class FaceDetector() {
                 synchronized(lock) {
 
                     isProcessing = false
-                    onProctoringResultListener?.isRunningDetector(isProcessing)
+//                    onProctoringResultListener?.isRunningDetector(isProcessing)
 
                     val faceResults = faceDetectionTask.result
                     val poseResults = poseDetectionTask.result
@@ -198,7 +162,7 @@ class FaceDetector() {
                             // Eye Tracking
                             onProctoringResultListener?.onEyeDetectionOnlyOneFace(eyeOpenStatus)
 
-//                            onProctoringResultListener?.isRunningDetector(isReal(face))
+                            onProctoringResultListener?.isRunningDetector(isReal(face))
 
                             //Lip Tracking
                             mouthOpen = detectMouth(face)

@@ -7,11 +7,13 @@ import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.hardware.Camera
+import android.os.Handler
 import android.util.AttributeSet
 import android.util.Log
 import android.util.Size
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import android.webkit.PermissionRequest
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
@@ -34,10 +36,9 @@ import java.util.Timer
 import java.util.TimerTask
 import kotlin.concurrent.timerTask
 
-
 class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context, attrs), SurfaceHolder.Callback ,
     Camera.PreviewCallback{
-    companion object{
+    companion object {
         private var isViewAvailable = false
         var isWaiting = false
         var isAlert = false
@@ -52,6 +53,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
     var faceCountWorring2Times = -1
     //control setup
+
+    private val handler = Handler()
 
     private var controls = Controls()
     private val changeWaitingStatus = object : Runnable {
@@ -69,6 +72,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
     init {
         holder.addCallback(this)
+        handler.post(changeWaitingStatus)
     }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
@@ -163,10 +167,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                     LensFacing.FRONT
                 )/*,bitmap*/
             )
-
-
-
-
         })
 
     }
@@ -472,7 +472,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
             override fun isRunningDetector(boolean: Boolean?) {
                 Log.e("TAG", "isRunningDetector: running "+boolean)
-                if (ProctoringSDK.isViewAvailable) { // view is ready
+                if (isViewAvailable) { // view is ready
 
                     if (isWaiting) {
                         proctorListener?.isRunningDetector(boolean)
@@ -485,7 +485,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                         }
                     }
 
-                    if (controls.getControls().isDndStatusOn && !CheckDeveloperMode(context).isDeveloperModeEnabled()) { // DND on
+                    if (controls.getControls().isDeveloperModeOn && controls.getControls().isDndStatusOn && !CheckDeveloperMode(context).isDeveloperModeEnabled()) { // DND on
                         DNDManagerHelper(context).checkDNDModeON()
                     }
 
