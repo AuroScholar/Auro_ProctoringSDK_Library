@@ -338,7 +338,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
 */
 
-                if (controls.getControls().isDndStatusOn ) { // check DND not on
+                //update code
+               /* if (controls.getControls().isDndStatusOn ) { // check DND not on
                     if (!DNDManagerHelper(context).checkDndPermission()){
                         DNDManagerHelper(context).checkDNDModeON()
                         Log.e("DND on", "onResume: ", )
@@ -346,7 +347,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                         Log.e("DND off", "onResume: ", )
                         DNDManagerHelper(context).dndAlertDialogue()
                     }
-                }
+                }*/
 
 
                 isViewAvailable = true
@@ -481,6 +482,16 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             // StopTextReadingFragment().stopTextReading(context)
         }
 
+        if (controls.getControls().isDndStatusOn ) { // check DND not on
+            if (!DNDManagerHelper(context).checkDndPermission()){
+                DNDManagerHelper(context).checkDNDModeON()
+                Log.e("DND on", "onResume: ", )
+            }else{
+                Log.e("DND off", "onResume: ", )
+                DNDManagerHelper(context).dndAlertDialogue()
+            }
+        }
+
     }
     private fun syncResults() {
         Log.e("TAG", "startProctoring: syncresult call huaaa  syncResults() ")
@@ -498,6 +509,13 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                     if (controls.getControls().isAlert && controls.getControls().isDeveloperModeOn) {
                         if (CheckDeveloperMode(context).isDeveloperModeEnabled()) {
                             alert("Developer Mode", "Developer Mode off ")
+                        }
+                    }
+
+                    if (controls.getControls().isDndStatusOn ) { // check DND not on
+                        if (!DNDManagerHelper(context).checkDndPermission()){
+                            DNDManagerHelper(context).checkDNDModeON()
+                            Log.e("DND on", "onResume: ", )
                         }
                     }
 
