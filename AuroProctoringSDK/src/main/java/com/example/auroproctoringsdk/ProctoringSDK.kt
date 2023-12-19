@@ -358,15 +358,14 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
             fun onPause() {
                 alertDialog1.hideForcefully()
-                if (controls.getControls().isDndStatusOn) { // DND off
-                    DNDManagerHelper(context).DndModeOff(context)
+             //   if (controls.getControls().isDndStatusOn) { // DND off
+               //     DNDManagerHelper(context).DndModeOff(context)
 //                    hideAlert()
-                }
+              //  }
                 // Code to execute when the fragment or activity is paused
                 Log.e("RAMU", "onPause: ")
                 isViewAvailable = false
                 releaseCamera()
-
 
             }
 
@@ -380,7 +379,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                     Log.e("RAMU", "onStop: ")
                 }
                 isViewAvailable = false
-
 
             }
 
