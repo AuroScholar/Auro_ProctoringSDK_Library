@@ -110,7 +110,7 @@ class FaceDetector() {
         val inputImage = InputImage.fromByteArray(data, size.width, size.height, rotation, format)
 
 
-        Log.e(TAG, "detectFaces: live processing "+LivenessDetection().checkLikeness(data, size.width, size.height, rotation, format))
+       // Log.e(TAG, "detectFaces: live processing "+LivenessDetection().checkLikeness(data, size.width, size.height, rotation, format))
 
 
         val faceDetectionTask = faceDetector.process(inputImage)
