@@ -97,7 +97,7 @@ class FaceDetector() {
         synchronized(lock) {
             if (!isProcessing) {
                 isProcessing = true
-//                onProctoringResultListener?.isRunningDetector(isProcessing)
+                onProctoringResultListener?.isRunningDetector(isProcessing)
                 faceDetectionExecutor.execute { frame.detectFaces() }
             }
         }
@@ -127,7 +127,7 @@ class FaceDetector() {
                 synchronized(lock) {
 
                     isProcessing = false
-//                    onProctoringResultListener?.isRunningDetector(isProcessing)
+                    onProctoringResultListener?.isRunningDetector(isProcessing)
 
                     val faceResults = faceDetectionTask.result
                     val poseResults = poseDetectionTask.result

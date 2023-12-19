@@ -310,6 +310,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
             @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
             fun onResume() {
+                isViewAvailable = true
+
                 Log.e("RAMU", "onResume: ")
                 if (controls.getControls().isDeveloperModeOn) {
                     if (CheckDeveloperMode(context).isDeveloperModeEnabled()) {
@@ -350,7 +352,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                 }*/
 
 
-                isViewAvailable = true
 
             }
 
@@ -492,9 +493,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             }
         }
 
+
     }
     private fun syncResults() {
-        Log.e("TAG", "startProctoring: syncresult call huaaa  syncResults() ")
         faceDetector.setonFaceDetectionFailureListener(object :
             FaceDetector.OnProctoringResultListener {
 
