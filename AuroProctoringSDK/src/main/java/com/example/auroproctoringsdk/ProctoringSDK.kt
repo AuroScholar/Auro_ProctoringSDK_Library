@@ -374,7 +374,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                 alertDialog1.hideForcefully()
                 if (controls.getControls().isDndStatusOn) {
 
-                    DNDManagerHelper(context).DndModeOff(context)
+                 //   DNDManagerHelper(context).DndModeOff(context)
                     hideAlert()
                     Log.e("RAMU", "onStop: ")
                 }
