@@ -505,6 +505,14 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                         DNDManagerHelper(context).checkDNDModeON()
                     }
 
+                   /* if (controls.getControls().isDndStatusOn ) { // check DND not on
+                        if (!DNDManagerHelper(context).checkDndPermission()){
+                            DNDManagerHelper(context).checkDNDModeON()
+                            Log.e("DND on", "onResume: ", )
+                        }
+                    }*/
+
+
                     if (controls.getControls().isAlert && controls.getControls().isAlertEmulatorDetector && EmulatorDetector().isEmulatorRunning()) {
                         val emulator =
                             context.getString(R.string.Unable_to_use_mulator_on_the_system_while_taking_quizzes)

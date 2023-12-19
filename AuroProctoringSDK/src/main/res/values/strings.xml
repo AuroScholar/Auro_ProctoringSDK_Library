@@ -8,6 +8,9 @@
     <string name="moving_face_left_or_right_during_assesment">Alert : Avoid moving your face left or right during the assessment for accurate monitoring</string>
     <string name="face_not_found">Alert : Face not found</string>
     <string name="object_not_allowed">Alert :We detect some objects ( Camera , Phone , Laptop etc. ) not allowed in your background</string>
+    <string name="permission_required">Permission Required</string>
+    <string name="to_enable_do_not_disturb_mode_you_need_to_grant_permission">To enable Do Not Disturb mode, you need to grant permission.</string>
+    <string name="goto_permission">Goto Permission</string>
 
 
 </resources>

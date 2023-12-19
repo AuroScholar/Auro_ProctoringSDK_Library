@@ -6,4 +6,7 @@
     <string name="moving_face_left_or_right_during_assesment">எச்சரிக்கை : துல்லியமான கண்காணிப்பிற்காக வினாடி வினாவின் போது உங்கள் முகத்தை இடது அல்லது வலது பக்கம் நகர்த்துவதைத் தவிர்க்கவும்</string>
     <string name="face_not_found">எச்சரிக்கை : முகம் கிடைக்கவில்லை</string>
     <string name="object_not_allowed">எச்சரிக்கை : உங்கள் பின்னணியில் அனுமதிக்கப்படாத சில பொருட்களை (கேமரா, தொலைபேசி, லேப்டாப் போன்றவை) நாங்கள் கண்டறிந்துள்ளோம்</string>
+    <string name="permission_required">அனுமதி தேவை</string>
+    <string name="to_enable_do_not_disturb_mode_you_need_to_grant_permission">தொந்தரவு செய்ய வேண்டாம் பயன்முறையை இயக்க, நீங்கள் அனுமதி வழங்க வேண்டும்.</string>
+    <string name="goto_permission">அனுமதி பெறவும்</string>
 </resources>

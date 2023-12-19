@@ -6,13 +6,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
-import android.util.Log
-import com.example.auroproctoringsdk.detector.AlertDialogHelper
+import com.example.auroproctoringsdk.detector.DndPermissionHelper
 
 class DNDManagerHelper(private val context: Context) {
 
     //    ACCESS_NOTIFICATION_POLICY
-    val alertDialogHelper = AlertDialogHelper(context)
+    val dndPermissionHelper = DndPermissionHelper(context)
 
     fun checkDNDModeON() {
         enableDoNotDisturb(context)
@@ -54,10 +53,9 @@ class DNDManagerHelper(private val context: Context) {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!notificationManager.isNotificationPolicyAccessGranted) {
-//                gotoPermissionWithAlert(context)
-                alertDialogHelper.showAlertDialog()
+                dndPermissionHelper.showAlertDialog()
             } else {
-                alertDialogHelper.hideAlertDialog()
+                dndPermissionHelper.hideAlertDialog()
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALARMS)
@@ -71,22 +69,8 @@ class DNDManagerHelper(private val context: Context) {
     }
 
     fun dndAlertDialogue(){
-        alertDialogHelper.hideAlertDialog()
+        dndPermissionHelper.hideAlertDialog()
     }
-
-    private fun gotoPermissionWithAlert(context: Context) {
-        val alertDialog = AlertDialog.Builder(context)
-            .setTitle("Permission Required")
-            .setMessage("To enable Do Not Disturb mode, you need to grant permission.")
-            .setPositiveButton("Grant Permission") { _, _ ->
-                val intent = Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
-                context.startActivity(intent)
-            }
-            .setNegativeButton("Cancel", null)
-            .create()
-        alertDialog.show()
-    }
-
 
     /*fun enableDoNotDisturb(context: Context) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
