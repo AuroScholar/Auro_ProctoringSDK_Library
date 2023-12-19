@@ -12,7 +12,7 @@ import com.example.auroproctoringsdk.detector.AlertDialogHelper
 class DNDManagerHelper(private val context: Context) {
 
     //    ACCESS_NOTIFICATION_POLICY
-    var alertDialogHelper = AlertDialogHelper(context)
+    val alertDialogHelper = AlertDialogHelper(context)
 
     fun checkDNDModeON() {
         enableDoNotDisturb(context)

@@ -341,7 +341,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                 if (controls.getControls().isDndStatusOn ) { // check DND not on
                     if (!DNDManagerHelper(context).checkDndPermission()){
                         DNDManagerHelper(context).checkDNDModeON()
-                        DNDManagerHelper(context).dndAlertDialogue()
                         Log.e("DND on", "onResume: ", )
                     }else{
                         Log.e("DND off", "onResume: ", )
