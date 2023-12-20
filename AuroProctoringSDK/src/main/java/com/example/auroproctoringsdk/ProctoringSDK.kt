@@ -359,8 +359,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             fun onPause() {
                 alertDialog1.hideForcefully()
                 if (controls.getControls().isDndStatusOn) { // DND off
-             //       DNDManagerHelper(context).DndModeOff(context)
-//                    hideAlert()
+               DNDManagerHelper(context).DndModeOff(context)
+                    hideAlert()
                 }
                 // Code to execute when the fragment or activity is paused
                 Log.e("RAMU", "onPause: ")
@@ -375,7 +375,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                 alertDialog1.hideForcefully()
                 if (controls.getControls().isDndStatusOn) {
 
-               //   DNDManagerHelper(context).DndModeOff(context)
+                DNDManagerHelper(context).DndModeOff(context)
                     hideAlert()
                     Log.e("RAMU", "onStop: ")
                 }
@@ -391,7 +391,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
 //                Log.e("TAG", "onDestroy: -- result "+Utils(context).removeDir() )
                 if (controls.getControls().isDndStatusOn) { // DND off
-              //      DNDManagerHelper(context as AppCompatActivity).DndModeOff(context)
+                  DNDManagerHelper(context as AppCompatActivity).DndModeOff(context)
                 }
                 isViewAvailable = false
 
