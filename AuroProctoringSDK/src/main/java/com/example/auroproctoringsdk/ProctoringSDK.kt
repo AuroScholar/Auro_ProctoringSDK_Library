@@ -359,7 +359,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             fun onPause() {
                 alertDialog1.hideForcefully()
                 if (controls.getControls().isDndStatusOn) { // DND off
-               DNDManagerHelper(context).DndModeOff(context)
+            //   DNDManagerHelper(context).DndModeOff(context)
                     hideAlert()
                 }
                 // Code to execute when the fragment or activity is paused
@@ -375,7 +375,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                 alertDialog1.hideForcefully()
                 if (controls.getControls().isDndStatusOn) {
 
-                DNDManagerHelper(context).DndModeOff(context)
+            //    DNDManagerHelper(context).DndModeOff(context)
                     hideAlert()
                     Log.e("RAMU", "onStop: ")
                 }
@@ -391,7 +391,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
 //                Log.e("TAG", "onDestroy: -- result "+Utils(context).removeDir() )
                 if (controls.getControls().isDndStatusOn) { // DND off
-                  DNDManagerHelper(context as AppCompatActivity).DndModeOff(context)
+                 // DNDManagerHelper(context as AppCompatActivity).DndModeOff(context)
                 }
                 isViewAvailable = false
 
@@ -484,13 +484,13 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         }
 
         if (controls.getControls().isDndStatusOn ) { // check DND not on
-            if (!DNDManagerHelper(context).checkDndPermission()){
-                DNDManagerHelper(context).checkDNDModeON()
-                Log.e("DND on", "onResume: ", )
-            }else{
-                Log.e("DND off", "onResume: ", )
-                DNDManagerHelper(context).dndAlertDialogue()
-            }
+//            if (!DNDManagerHelper(context).checkDndPermission()){
+//                DNDManagerHelper(context).checkDNDModeON()
+//                Log.e("DND on", "onResume: ", )
+//            }else{
+//                Log.e("DND off", "onResume: ", )
+//                DNDManagerHelper(context).dndAlertDialogue()
+//            }
         }
 
 
@@ -513,16 +513,16 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                         }
                     }
 
-                    if (controls.getControls().isDndStatusOn ) { // check DND not on
-                        if (!DNDManagerHelper(context).checkDndPermission()){
-                            DNDManagerHelper(context).checkDNDModeON()
-                            Log.e("DND on", "onResume: ", )
-                        }
-                    }
+//                    if (controls.getControls().isDndStatusOn ) { // check DND not on
+//                        if (!DNDManagerHelper(context).checkDndPermission()){
+//                            DNDManagerHelper(context).checkDNDModeON()
+//                            Log.e("DND on", "onResume: ", )
+//                        }
+//                    }
 
-                    if (controls.getControls().isAlert && controls.getControls().isDndStatusOn) { // DND on
-                        DNDManagerHelper(context).checkDNDModeON()
-                    }
+//                    if (controls.getControls().isAlert && controls.getControls().isDndStatusOn) { // DND on
+//                        DNDManagerHelper(context).checkDNDModeON()
+//                    }
 
                    /* if (controls.getControls().isDndStatusOn ) { // check DND not on
                         if (!DNDManagerHelper(context).checkDndPermission()){
