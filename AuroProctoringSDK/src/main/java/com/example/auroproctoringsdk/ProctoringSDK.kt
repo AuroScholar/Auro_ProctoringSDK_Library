@@ -58,6 +58,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
     private var controls = Controls()
     private val changeWaitingStatus = object : Runnable {
+
         override fun run() {
             isWaiting = !isWaiting
             controls.getControls().isWaitingDelayInMillis.let {
@@ -99,8 +100,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                 camera = null*/
 
         stopPreview()
-
-
         var retry = true
         thread?.setRunning(false)
         while (retry) {
@@ -141,7 +140,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                     captureImage()
                 }
             }, 0, 500) // 1 sec
-
         }
 
     }
@@ -302,10 +300,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                     StatusBarLocker.statusBarLock(context)
                     Log.e("Status", "onStart: ")
                 }
-
-
                 isViewAvailable = true
-
+               // DNDManagerHelper(context).DndModeOff(context)
             }
 
             @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
@@ -358,14 +354,15 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
             fun onPause() {
                 alertDialog1.hideForcefully()
-             //   if (controls.getControls().isDndStatusOn) { // DND off
-               //     DNDManagerHelper(context).DndModeOff(context)
+                if (controls.getControls().isDndStatusOn) { // DND off
+                //    DNDManagerHelper(context).DndModeOff(context)
 //                    hideAlert()
-              //  }
+                }
                 // Code to execute when the fragment or activity is paused
                 Log.e("RAMU", "onPause: ")
                 isViewAvailable = false
                 releaseCamera()
+
 
             }
 
@@ -374,11 +371,12 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                 alertDialog1.hideForcefully()
                 if (controls.getControls().isDndStatusOn) {
 
-                 //   DNDManagerHelper(context).DndModeOff(context)
+                //    DNDManagerHelper(context).DndModeOff(context)
                     hideAlert()
                     Log.e("RAMU", "onStop: ")
                 }
                 isViewAvailable = false
+
 
             }
 
@@ -389,7 +387,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
 //                Log.e("TAG", "onDestroy: -- result "+Utils(context).removeDir() )
                 if (controls.getControls().isDndStatusOn) { // DND off
-                    DNDManagerHelper(context as AppCompatActivity).DndModeOff(context)
+              //      DNDManagerHelper(context as AppCompatActivity).DndModeOff(context)
                 }
                 isViewAvailable = false
 
