@@ -68,7 +68,7 @@ class DNDManagerHelper(private val context: Context) {
         }
     }
 
-    fun dndAlertDialogue(){
+    fun dndAlertDialogHide(){
         dndPermissionHelper.hideAlertDialog()
     }
 
