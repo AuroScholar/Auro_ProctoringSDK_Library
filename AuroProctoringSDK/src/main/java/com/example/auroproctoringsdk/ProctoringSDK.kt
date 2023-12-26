@@ -36,17 +36,20 @@ import java.util.Timer
 import java.util.TimerTask
 import kotlin.concurrent.timerTask
 
-class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context, attrs), SurfaceHolder.Callback ,
-    Camera.PreviewCallback{
+class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context, attrs),
+    SurfaceHolder.Callback,
+    Camera.PreviewCallback {
     companion object {
         private var isViewAvailable = false
         var isWaiting = false
         var isAlert = false
     }
+
     private val faceDetector = FaceDetector()
     private var camera: Camera? = null
     private var thread: CustomSurfaceThread? = null
     private var timer: Timer? = null
+
     // callback
     private var proctorListener: onProctorListener? = null
     //face count
@@ -94,12 +97,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder) {
-        /*        camera?.stopPreview()
-                camera?.release()
-                camera = null*/
-
         stopPreview()
-
 
         var retry = true
         thread?.setRunning(false)
@@ -128,11 +126,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
     }
 
     private fun startImageCaptureTimer() {
-     /*   timer = Timer()
-        timer?.schedule(timerTask {
-            captureImage()
-        }, 0, 500) // Capture image every 30 seconds*/
-
         //real time image create
         run {
             timer = Timer()
@@ -157,7 +150,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         camera?.setPreviewCallback(this@ProctoringSDK)
         camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
             // Process the preview data
-           // val bitmap  = context.getDrawable(R.drawable.testbitmap)?.toBitmap()
+            // val bitmap  = context.getDrawable(R.drawable.testbitmap)?.toBitmap()
             faceDetector.process(
                 Frame(
                     data,
@@ -170,6 +163,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         })
 
     }
+
     fun Drawable.toBitmap(): Bitmap {
         if (this is BitmapDrawable) {
             return bitmap
@@ -178,12 +172,14 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         val width = if (bounds.isEmpty) intrinsicWidth else bounds.width()
         val height = if (bounds.isEmpty) intrinsicHeight else bounds.height()
 
-        return Bitmap.createBitmap(width.nonZero(), height.nonZero(), Bitmap.Config.ARGB_8888).also {
-            val canvas = Canvas(it)
-            setBounds(0, 0, canvas.width, canvas.height)
-            draw(canvas)
-        }
+        return Bitmap.createBitmap(width.nonZero(), height.nonZero(), Bitmap.Config.ARGB_8888)
+            .also {
+                val canvas = Canvas(it)
+                setBounds(0, 0, canvas.width, canvas.height)
+                draw(canvas)
+            }
     }
+
     private fun Int.nonZero() = if (this <= 0) 1 else this
 
 
@@ -209,18 +205,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             camera?.setDisplayOrientation(90)
             camera?.setPreviewDisplay(holder)
             camera?.startPreview()
-
-            /*    // Open the camera // backup code
-                camera = Camera.open()
-                camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT)
-                camera?.setDisplayOrientation(90)
-    //            setCameraDisplayOrientation(Camera.CameraInfo.CAMERA_FACING_FRONT, camera)
-                camera?.setPreviewDisplay(holder)
-                camera?.startPreview()*/
-
-
-            // Do something with the camera, such as setting up the preview
-            // ...
 
         } catch (e: Exception) {
             // Handle any exceptions that occur while opening the camera
@@ -292,7 +276,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         lifecycle.addObserver(object : LifecycleObserver {
             @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
             fun onCreate() {
-               isViewAvailable = true
+                isViewAvailable = true
                 // Code to execute when the fragment or activity is created
             }
 
@@ -305,7 +289,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
 
                 isViewAvailable = true
-     //DNDManagerHelper(context).DndModeOff(context)
             }
 
             @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
@@ -331,26 +314,34 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
                 }
 
-/*
-                if (controls.getControls().isDndStatusOn && !DNDManagerHelper(context).checkDndPermission()) { // check DND not on
-                    DNDManagerHelper(context).checkDNDModeON()
-                }else{
-                    DNDManagerHelper(context).alertDialogHelper.hideAlertDialog()
-                }
+                /*
+                                if (controls.getControls().isDndStatusOn && !DNDManagerHelper(context).checkDndPermission()) { // check DND not on
+                                    DNDManagerHelper(context).checkDNDModeON()
+                                }else{
+                                    DNDManagerHelper(context).alertDialogHelper.hideAlertDialog()
+                                }
 
+                */
+
+             /*   //update code
+                if (controls.getControls().isDndStatusOn) { // check DND not on
+                    if (DNDManagerHelper(context).checkDndPermission()) {
+                        DNDManagerHelper(context).checkDNDModeON()
+                    } else {
+                        Log.e("DND off", "onResume: ")
+                        DNDManagerHelper(context).enableDoNotDisturb(context)
+                    }
+                }
 */
 
                 //update code
-               /* if (controls.getControls().isDndStatusOn ) { // check DND not on
-                    if (!DNDManagerHelper(context).checkDndPermission()){
+                if (controls.getControls().isDndStatusOn) { // check DND not on
+                    if (DNDManagerHelper(context).checkDndPermission()) {
                         DNDManagerHelper(context).checkDNDModeON()
-                        Log.e("DND on", "onResume: ", )
-                    }else{
-                        Log.e("DND off", "onResume: ", )
-                        DNDManagerHelper(context).dndAlertDialogue()
+                    } else {
+                        DNDManagerHelper(context).enableDoNotDisturb(context)
                     }
-                }*/
-
+                }
 
 
             }
@@ -359,7 +350,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             fun onPause() {
                 alertDialog1.hideForcefully()
                 if (controls.getControls().isDndStatusOn) { // DND off
-            //   DNDManagerHelper(context).DndModeOff(context)
+                    DNDManagerHelper(context).DndModeOff(context)
                     hideAlert()
                 }
                 // Code to execute when the fragment or activity is paused
@@ -375,7 +366,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                 alertDialog1.hideForcefully()
                 if (controls.getControls().isDndStatusOn) {
 
-            //    DNDManagerHelper(context).DndModeOff(context)
+                    DNDManagerHelper(context).DndModeOff(context)
                     hideAlert()
                     Log.e("RAMU", "onStop: ")
                 }
@@ -391,7 +382,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
 //                Log.e("TAG", "onDestroy: -- result "+Utils(context).removeDir() )
                 if (controls.getControls().isDndStatusOn) { // DND off
-                 // DNDManagerHelper(context as AppCompatActivity).DndModeOff(context)
+                     DNDManagerHelper(context).DndModeOff(context)
                 }
                 isViewAvailable = false
 
@@ -459,7 +450,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
             if (controls.getControls().isAlert) {
                 syncResults()
-              faceDetector.noticeDetect(context)
+                faceDetector.noticeDetect(context)
                 Utils().getSaveImageInit(context)
             }
         } else {
@@ -480,27 +471,27 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
         if (controls.getControls().isStopScreenRecording) {
             StopTextReading().stopTextReading(context)
-            // StopTextReadingFragment().stopTextReading(context)
         }
 
-        if (controls.getControls().isDndStatusOn ) { // check DND not on
-//            if (!DNDManagerHelper(context).checkDndPermission()){
-//                DNDManagerHelper(context).checkDNDModeON()
-//                Log.e("DND on", "onResume: ", )
-//            }else{
-//                Log.e("DND off", "onResume: ", )
-//                DNDManagerHelper(context).dndAlertDialogue()
-//            }
-        }
+
+        /*//update code
+        if (controls.getControls().isDndStatusOn) { // check DND not on
+            if (DNDManagerHelper(context).checkDndPermission()) {
+                DNDManagerHelper(context).checkDNDModeON()
+            } else {
+                DNDManagerHelper(context).enableDoNotDisturb(context)
+            }
+        }*/
 
 
     }
+
     private fun syncResults() {
         faceDetector.setonFaceDetectionFailureListener(object :
             FaceDetector.OnProctoringResultListener {
 
             override fun isRunningDetector(boolean: Boolean?) {
-                Log.e("TAG", "isRunningDetector: running "+boolean)
+                Log.e("TAG", "isRunningDetector: running " + boolean)
                 if (isViewAvailable) { // view is ready
 
                     if (isWaiting) {
@@ -524,12 +515,12 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 //                        DNDManagerHelper(context).checkDNDModeON()
 //                    }
 
-                   /* if (controls.getControls().isDndStatusOn ) { // check DND not on
-                        if (!DNDManagerHelper(context).checkDndPermission()){
-                            DNDManagerHelper(context).checkDNDModeON()
-                            Log.e("DND on", "onResume: ", )
-                        }
-                    }*/
+                    /* if (controls.getControls().isDndStatusOn ) { // check DND not on
+                         if (!DNDManagerHelper(context).checkDndPermission()){
+                             DNDManagerHelper(context).checkDNDModeON()
+                             Log.e("DND on", "onResume: ", )
+                         }
+                     }*/
 
 
                     if (controls.getControls().isAlert && controls.getControls().isAlertEmulatorDetector && EmulatorDetector().isEmulatorRunning()) {
@@ -537,7 +528,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                             context.getString(R.string.Unable_to_use_mulator_on_the_system_while_taking_quizzes)
                                 .split("[:]".toRegex())
 
-                        if (emulator.size == 2){
+                        if (emulator.size == 2) {
 
                             alert(emulator[0], emulator[1])
 
@@ -607,7 +598,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                                         context.getString(R.string.face_not_found)
                                             .split("[:]".toRegex())
 
-                                    if (faceNotFoundException.size == 2){
+                                    if (faceNotFoundException.size == 2) {
 
                                         alert(faceNotFoundException[0], faceNotFoundException[1])
 
@@ -632,7 +623,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                                     val filter = context.getString(R.string.Multiple_face_detection)
                                         .split("[:]".toRegex())
 
-                                    if (filter.size == 2){
+                                    if (filter.size == 2) {
                                         alert(
                                             filter[0], filter[1]
                                         )
@@ -659,7 +650,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                                 context.getString(R.string.Lip_movement_eyeball_tracking)
                                     .split("[:]".toRegex())
 
-                            if (lipFilter.size == 2){
+                            if (lipFilter.size == 2) {
                                 alert(lipFilter[0], lipFilter[1])
                             }
 
@@ -681,7 +672,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                         val objectAlert =
                             context.getString(R.string.object_not_allowed).split("[:]".toRegex())
 
-                        if (objectAlert.size == 2){
+                        if (objectAlert.size == 2) {
                             alert(objectAlert[0], objectAlert[1])
                         }
 
@@ -720,7 +711,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
                             alert("Eye", face)
                             val filter =
-                                context.getString(R.string.Lip_movement_eyeball_tracking).split("[:]".toRegex())
+                                context.getString(R.string.Lip_movement_eyeball_tracking)
+                                    .split("[:]".toRegex())
 
                             if (filter.size == 2) {
                                 alert(filter[0], filter[1])
@@ -750,7 +742,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                     }
 
                     if (controls.getControls().isAlert && controls.getControls().isAlertFaceDirectionMovement) {
-                        if (!checkFaceDirection(faceDirection) && faceDirection!=null) {
+                        if (!checkFaceDirection(faceDirection) && faceDirection != null) {
 //                            alert("alerts", faceDirection)
                             val headDirection =
                                 context.getString(R.string.moving_face_left_or_right_during_assesment)
@@ -775,8 +767,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                     runBlocking(){
                         faceCompareProcess(imageList)
                     }*/
-
-
 
 
                 }
@@ -809,6 +799,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         })
 
     }
+
     private fun checkObject(face: ArrayList<String>, blockedDeviceList: List<String>?): String? {
         return blockedDeviceList?.firstOrNull { face.contains(it) }
     }
@@ -970,7 +961,7 @@ class CustomSurfaceThread(private val surfaceHolder: SurfaceHolder) : Thread() {
         while (running) {
             // Implement drawing logic here
 
-            Log.e("TAG", "run: is camera running or not "+running )
+            Log.e("TAG", "run: is camera running or not " + running)
 
         }
     }

@@ -43,7 +43,7 @@ class DNDManagerHelper(private val context: Context) {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             notificationManager.isNotificationPolicyAccessGranted
         } else {
-            true
+            notificationManager.isNotificationPolicyAccessGranted
         }
     }
 

@@ -7,6 +7,11 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.auroproctoringsdk.ProctoringSDK
 import com.example.auroproctoringsdk.permission.ProctoringPermissionRequest
 import com.example.publicationtest.databinding.ActivityMainBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 // ProctoringSDK.onProctorListener for detector result
 class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
@@ -41,9 +46,20 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
             //if permission done then start proctoring // also you can control using ControlModel just add model startProctoring(this,ControlModel)
 
         }*/
-        binding.mainLayout.startProctoring(this,null)
 
+        val job = runOnMainAfter(10000) {
 
+            binding.mainLayout.startProctoring(this,null)
+
+        }
+
+    }
+
+    fun runOnMainAfter(interval: Long, runnable: () -> Unit): Job {
+        return CoroutineScope(Dispatchers.Main).launch {
+            delay(interval)
+            runnable()
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -63,6 +79,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
     }
 
     override fun onFaceCount(faceCount: Int) {
+        binding.textView.text = faceCount.toString()
         // getting face count
         // binding.textView.text = faceCount.toString()
     }
@@ -85,7 +102,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
     }
 
     override fun onObjectDetection(face: ArrayList<String>) {
-        binding.textView.text = face.toString()
+
 
     }
 

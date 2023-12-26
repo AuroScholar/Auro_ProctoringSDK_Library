@@ -8,6 +8,7 @@ import com.example.auroproctoringsdk.R
 import com.example.auroproctoringsdk.dnd.DNDManagerHelper
 
 class DndPermissionHelper(private val context: Context) {
+
      val alertDialog: AlertDialog = AlertDialog.Builder(context)
         .setTitle(context.getString(R.string.permission_required))
         .setMessage(R.string.to_enable_do_not_disturb_mode_you_need_to_grant_permission)
@@ -25,11 +26,15 @@ class DndPermissionHelper(private val context: Context) {
         .create()
 
     fun showAlertDialog() {
-        alertDialog.show()
+        if (!DNDManagerHelper(context).checkDndPermission()){
+            alertDialog.show()
+        }
     }
 
     fun hideAlertDialog() {
-        alertDialog.hide()
-        alertDialog.dismiss()
+        if (alertDialog.isShowing){
+            alertDialog.hide()
+            alertDialog.dismiss()
+        }
     }
 }
