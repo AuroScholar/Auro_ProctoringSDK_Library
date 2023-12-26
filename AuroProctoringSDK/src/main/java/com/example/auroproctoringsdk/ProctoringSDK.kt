@@ -32,6 +32,7 @@ import com.example.auroproctoringsdk.screenBrightness.ScreenBrightness
 import com.example.auroproctoringsdk.screenReader.StopTextReading
 import com.example.auroproctoringsdk.utils.CustomAlertDialog
 import com.example.auroproctoringsdk.utils.Utils
+import kotlinx.coroutines.runBlocking
 import java.util.Timer
 import java.util.TimerTask
 import kotlin.concurrent.timerTask
