@@ -13,8 +13,6 @@ import android.util.Log
 import android.util.Size
 import android.view.SurfaceHolder
 import android.view.SurfaceView
-import android.webkit.PermissionRequest
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
@@ -24,7 +22,7 @@ import com.example.auroproctoringsdk.detector.FaceDetector
 import com.example.auroproctoringsdk.detector.Frame
 import com.example.auroproctoringsdk.detector.LensFacing
 import com.example.auroproctoringsdk.developerMode.CheckDeveloperMode
-import com.example.auroproctoringsdk.dnd.DNDManagerHelper
+import com.example.auroproctoringsdk.dnd.DNDManager
 import com.example.auroproctoringsdk.emulater.EmulatorDetector
 import com.example.auroproctoringsdk.languageSetup.CurrentLanguage
 import com.example.auroproctoringsdk.screenBarLock.StatusBarLocker
@@ -32,16 +30,15 @@ import com.example.auroproctoringsdk.screenBrightness.ScreenBrightness
 import com.example.auroproctoringsdk.screenReader.StopTextReading
 import com.example.auroproctoringsdk.utils.CustomAlertDialog
 import com.example.auroproctoringsdk.utils.Utils
-import kotlinx.coroutines.runBlocking
 import java.util.Timer
 import java.util.TimerTask
-import kotlin.concurrent.timerTask
 
 class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context, attrs),
     SurfaceHolder.Callback,
     Camera.PreviewCallback {
     companion object {
         private var isViewAvailable = false
+        private var isDNDManagerRequest = false
         var isWaiting = false
         var isAlert = false
     }
@@ -278,16 +275,28 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
             fun onCreate() {
                 isViewAvailable = true
+                Log.e("RAMU", "onCreate: ", )
                 // Code to execute when the fragment or activity is created
+
+
             }
 
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             fun onStart() {
                 if (controls.getControls().isStatusBarLock) {
                     StatusBarLocker.statusBarLock(context)
-                    Log.e("Status", "onStart: ")
+                    Log.e("RAMU", "onStart: ")
                 }
 
+                //update code
+                if (controls.getControls().isDndStatusOn) { // check DND not on
+                    if (DNDManager(context).checkDndPermission()) {
+                        DNDManager(context).checkDNDModeON()
+                    } else {
+                        isDNDManagerRequest= true
+                        DNDManager(context).enableDoNotDisturb(context)
+                    }
+                }
 
                 isViewAvailable = true
             }
@@ -315,14 +324,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
                 }
 
-                //update code
-                if (controls.getControls().isDndStatusOn) { // check DND not on
-                    if (DNDManagerHelper(context).checkDndPermission()) {
-                        DNDManagerHelper(context).checkDNDModeON()
-                    } else {
-                        DNDManagerHelper(context).enableDoNotDisturb(context)
-                    }
-                }
+                DNDManager(context).checkAndHideAlertDialog(context)  // if permission is allowed then hide alert
 
 
             }
@@ -331,8 +333,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             fun onPause() {
                 alertDialog1.hideForcefully()
                 if (controls.getControls().isDndStatusOn) { // DND off
-                    DNDManagerHelper(context).dndAlertDialogHide()
-                    DNDManagerHelper(context).DndModeOff(context)
+                    DNDManager(context).dndAlertDialogHide()
+                    DNDManager(context).DndModeOff(context)
                     hideAlert()
                 }
                 // Code to execute when the fragment or activity is paused
@@ -347,8 +349,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             fun onStop() {
                 alertDialog1.hideForcefully()
                 if (controls.getControls().isDndStatusOn) {
-                    DNDManagerHelper(context).dndAlertDialogHide()
-                    DNDManagerHelper(context).DndModeOff(context)
+                    DNDManager(context).dndAlertDialogHide()
+                    DNDManager(context).DndModeOff(context)
                     hideAlert()
                     Log.e("RAMU", "onStop: ")
                 }
@@ -364,8 +366,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
 //                Log.e("TAG", "onDestroy: -- result "+Utils(context).removeDir() )
                 if (controls.getControls().isDndStatusOn) { // DND off
-                    DNDManagerHelper(context).dndAlertDialogHide()
-                     DNDManagerHelper(context).DndModeOff(context)
+                    DNDManager(context).dndAlertDialogHide()
+                     DNDManager(context).DndModeOff(context)
                 }
                 isViewAvailable = false
 
@@ -467,6 +469,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         }*/
 
 
+
+
+
     }
 
     private fun syncResults() {
@@ -487,23 +492,11 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                         }
                     }
 
-//                    if (controls.getControls().isDndStatusOn ) { // check DND not on
-//                        if (!DNDManagerHelper(context).checkDndPermission()){
-//                            DNDManagerHelper(context).checkDNDModeON()
-//                            Log.e("DND on", "onResume: ", )
-//                        }
-//                    }
-
-//                    if (controls.getControls().isAlert && controls.getControls().isDndStatusOn) { // DND on
-//                        DNDManagerHelper(context).checkDNDModeON()
-//                    }
-
-                    /* if (controls.getControls().isDndStatusOn ) { // check DND not on
-                         if (!DNDManagerHelper(context).checkDndPermission()){
-                             DNDManagerHelper(context).checkDNDModeON()
-                             Log.e("DND on", "onResume: ", )
-                         }
-                     }*/
+                    if (controls.getControls().isDndStatusOn) { // check DND not on
+                        if (DNDManager(context).checkDndPermission()) {
+                            DNDManager(context).checkDNDModeON()
+                        }
+                    }
 
 
                     if (controls.getControls().isAlert && controls.getControls().isAlertEmulatorDetector && EmulatorDetector().isEmulatorRunning()) {
@@ -511,7 +504,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                             context.getString(R.string.Unable_to_use_mulator_on_the_system_while_taking_quizzes)
                                 .split("[:]".toRegex())
 
-                        if (emulator.size == 2 && DNDManagerHelper(context).checkDndPermission()) {
+                        if (emulator.size == 2 && DNDManager(context).checkDndPermission()) {
 
                             alert(emulator[0], emulator[1])
 
@@ -581,7 +574,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                                         context.getString(R.string.face_not_found)
                                             .split("[:]".toRegex())
 
-                                    if (faceNotFoundException.size == 2 && DNDManagerHelper(context).checkDndPermission()) {
+                                    if (faceNotFoundException.size == 2 && DNDManager(context).checkDndPermission()) {
 
                                         alert(faceNotFoundException[0], faceNotFoundException[1])
 
@@ -606,7 +599,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                                     val filter = context.getString(R.string.Multiple_face_detection)
                                         .split("[:]".toRegex())
 
-                                    if (filter.size == 2 && DNDManagerHelper(context).checkDndPermission()) {
+                                    if (filter.size == 2 && DNDManager(context).checkDndPermission()) {
                                         alert(
                                             filter[0], filter[1]
                                         )
@@ -633,7 +626,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                                 context.getString(R.string.Lip_movement_eyeball_tracking)
                                     .split("[:]".toRegex())
 
-                            if (lipFilter.size == 2 && DNDManagerHelper(context).checkDndPermission()) {
+                            if (lipFilter.size == 2 && DNDManager(context).checkDndPermission()) {
                                 alert(lipFilter[0], lipFilter[1])
                             }
 
@@ -655,7 +648,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                         val objectAlert =
                             context.getString(R.string.object_not_allowed).split("[:]".toRegex())
 
-                        if (objectAlert.size == 2 && DNDManagerHelper(context).checkDndPermission()) {
+                        if (objectAlert.size == 2 && DNDManager(context).checkDndPermission()) {
                             alert(objectAlert[0], objectAlert[1])
                         }
 
@@ -697,7 +690,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                                 context.getString(R.string.Lip_movement_eyeball_tracking)
                                     .split("[:]".toRegex())
 
-                            if (filter.size == 2 && DNDManagerHelper(context).checkDndPermission()) {
+                            if (filter.size == 2 && DNDManager(context).checkDndPermission()) {
                                 alert(filter[0], filter[1])
                             }
                         }
@@ -731,7 +724,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                                 context.getString(R.string.moving_face_left_or_right_during_assesment)
                                     .split("[:]".toRegex())
 
-                            if (headDirection.size == 2 && DNDManagerHelper(context).checkDndPermission()) {
+                            if (headDirection.size == 2 && DNDManager(context).checkDndPermission()) {
                                 alert(headDirection[0], headDirection[1])
                             }
 
