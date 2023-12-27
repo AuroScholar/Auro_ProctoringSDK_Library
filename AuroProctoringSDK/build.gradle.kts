@@ -71,34 +71,6 @@ dependencies {
     implementation ("com.google.mlkit:image-labeling-custom:17.0.1")
 
 
-    // CameraX core library using the camera2 implementation
-   /* val camerax_version = "1.0.0-alpha06"*//*"1.4.0-alpha01"*//*
-    val camerax_version2 = "1.4.0-alpha01"
-    // The following line is optional, as the core library is included indirectly by camera-camera2
-    implementation("androidx.camera:camera-core:${camerax_version2}")
-    implementation("androidx.camera:camera-camera2:${camerax_version2}")
-    // If you want to additionally use the CameraX Lifecycle library
-    implementation("androidx.camera:camera-lifecycle:${camerax_version2}")
-    // If you want to additionally use the CameraX VideoCapture library
-    implementation("androidx.camera:camera-video:${camerax_version2}")
-    // If you want to additionally use the CameraX View class
-    implementation("androidx.camera:camera-view:${camerax_version2}")
-    // If you want to additionally add CameraX ML Kit Vision Integration
-    implementation("androidx.camera:camera-mlkit-vision:${camerax_version2}")
-    // If you want to additionally use the CameraX Extensions library
-    implementation("androidx.camera:camera-extensions:${camerax_version2}")*/
-
-
-//    implementation("com.google.android.gms:play-services-vision-common:19.1.3")
-//    implementation("com.google.android.gms:play-services-vision:20.1.3")
-//    implementation("com.google.android.gms:play-services-mlkit-face-detection:17.1.0")
-
-
-/*    implementation ("org.tensorflow:tensorflow-lite-task-vision:0.4.0")
-    // Import the GPU delegate plugin Library for GPU inference
-    implementation ("org.tensorflow:tensorflow-lite-gpu-delegate-plugin:0.4.0")
-    implementation ("org.tensorflow:tensorflow-lite-gpu:2.9.0")*/
-
 }
 
 afterEvaluate {

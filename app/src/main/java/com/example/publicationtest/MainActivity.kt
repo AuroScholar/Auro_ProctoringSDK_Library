@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
         }*/
 
-        val job = runOnMainAfter(10000) {
+        val job = runOnMainAfter(1000) {
 
             binding.mainLayout.startProctoring(this,null)
 
