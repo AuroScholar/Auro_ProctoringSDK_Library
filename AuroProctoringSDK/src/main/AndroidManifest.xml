@@ -46,6 +46,8 @@
     <application
         android:name="com.example.auroproctoringsdk.Application"
         android:importantForAccessibility="no"
+        android:largeHeap="true"
+        android:hardwareAccelerated="true"
         android:usesCleartextTraffic="true">
         <meta-data
             android:name="android.hardware.camera"

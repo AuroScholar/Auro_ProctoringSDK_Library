@@ -458,20 +458,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             StopTextReading().stopTextReading(context)
         }
 
-
-        /*//update code
-        if (controls.getControls().isDndStatusOn) { // check DND not on
-            if (DNDManagerHelper(context).checkDndPermission()) {
-                DNDManagerHelper(context).checkDNDModeON()
-            } else {
-                DNDManagerHelper(context).enableDoNotDisturb(context)
-            }
-        }*/
-
-
-
-
-
     }
 
     private fun syncResults() {
@@ -652,24 +638,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                             alert(objectAlert[0], objectAlert[1])
                         }
 
-                        /*
-                             val filter = controls.getControls().lipOrEyeTrackingError.split(":").toTypedArray()
-                                                    alert(filter.first(),filter.last())*/
                     }
-
-                    /*   if (size !in listOf(0, 1, null)) {
-                           if (controls.getControls().isAlertMultipleFaceCount) {
-                               val filter = context.getString(R.string.Multiple_face_detection)
-                                   .split("[:]".toRegex())
-
-                               if (filter.size == 2){
-                                   alert(
-                                       filter[0], filter[1]
-                                   )
-                               }
-
-                           }
-                       }*/
 
                 }
 
