@@ -64,8 +64,8 @@ class FaceCompareAwsApi {
             similarityThreshold = similarityThresholdVal
         }
 
-        val accessKeyId = "AKIAIWIFCITZNBA5CZ5Q"
-        val secretAccessKey = "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"
+        val accessKeyId = "KEY"
+        val secretAccessKey = "KEY"
 
         val awsCredentialsProvider = StaticCredentialsProvider(
             Credentials(accessKeyId, secretAccessKey)
