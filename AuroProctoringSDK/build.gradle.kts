@@ -70,6 +70,21 @@ dependencies {
     implementation ("com.google.mlkit:image-labeling:17.0.7")
     implementation ("com.google.mlkit:image-labeling-custom:17.0.1")
 
+    implementation ("com.google.mlkit:face-mesh-detection:16.0.0-beta1")
+
+
+/*
+    implementation ("com.google.mlkit:mediapipe-face-landmark:0.9.3")
+    implementation ("org.tensorflow:tensorflow-lite:2.8.0")
+*/
+
+
+    implementation("aws.sdk.kotlin:rekognition:1.0.0")
+    implementation("aws.sdk.kotlin:secretsmanager:1.0.0")
+    implementation("aws.smithy.kotlin:http-client-engine-okhttp:0.30.0")
+    implementation("aws.smithy.kotlin:http-client-engine-crt:0.30.0")
+    implementation("com.google.code.gson:gson:2.10")
+
 
 }
 
