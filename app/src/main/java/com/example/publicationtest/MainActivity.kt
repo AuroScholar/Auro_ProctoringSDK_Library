@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+
     //init permission
     private var proctoringPermissionRequest = ProctoringPermissionRequest(this)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,15 +42,14 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
 
     override fun onResume() {
-        super.onResume()
-       /* if (proctoringPermissionRequest.checkPermissionGranted()) {
-            //if permission done then start proctoring // also you can control using ControlModel just add model startProctoring(this,ControlModel)
+        super.onResume()/* if (proctoringPermissionRequest.checkPermissionGranted()) {
+             //if permission done then start proctoring // also you can control using ControlModel just add model startProctoring(this,ControlModel)
 
-        }*/
+         }*/
 
         val job = runOnMainAfter(1000) {
 
-            binding.mainLayout.startProctoring(this,null)
+            binding.mainLayout.startProctoring(this, null)
 
         }
 
@@ -65,10 +65,9 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<out String>, grantResults: IntArray,
     ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-       /* proctoringPermissionRequest.onRequestPermissionsResult(
-            requestCode, permissions, grantResults
-        )*/
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)/* proctoringPermissionRequest.onRequestPermissionsResult(
+             requestCode, permissions, grantResults
+         )*/
 
     }
 

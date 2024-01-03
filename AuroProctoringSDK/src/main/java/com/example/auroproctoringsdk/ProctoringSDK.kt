@@ -142,13 +142,11 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         timer = null
     }
 
-    private fun captureImage() {
+    fun captureImage() {
         // Implement image capture logic here
 
         camera?.setPreviewCallback(this@ProctoringSDK)
         camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
-            // Process the preview data
-            // val bitmap  = context.getDrawable(R.drawable.testbitmap)?.toBitmap()
             faceDetector.process(
                 Frame(
                     data,
@@ -156,7 +154,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                     Size(camera.parameters.previewSize.width, camera.parameters.previewSize.height),
                     camera.parameters.previewFormat,
                     LensFacing.FRONT
-                )/*,bitmap*/
+                )
             )
         })
 
@@ -580,21 +578,22 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
                                     }
 
-                                    ScreenBrightness(context).heightBrightness(context)/* val filter = controls.getControls().multipleFaceDetectionError.split(":").toTypedArray()*/
+                                //    ScreenBrightness(context).heightBrightness(context) // user facing high brightness problem
+                                /* val filter = controls.getControls().multipleFaceDetectionError.split(":").toTypedArray()*/
 
                                 }
 
                             }
 
                             1 -> {
-                                ScreenBrightness(context).heightBrightness(context)
+                               // ScreenBrightness(context).heightBrightness(context)  // user auto brightness control
                                 hideAlert()
                             }
 
                             else -> {
                                 if (controls.getControls().isAlertMultipleFaceCount) {
 
-                                    ScreenBrightness(context).lowBrightness(context)
+                                  //  ScreenBrightness(context).lowBrightness(context) // user facing high brightness problem
 
                                     val filter = context.getString(R.string.Multiple_face_detection)
                                         .split("[:]".toRegex())
