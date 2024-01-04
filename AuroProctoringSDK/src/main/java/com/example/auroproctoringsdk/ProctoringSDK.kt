@@ -287,11 +287,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                 }
 
                 //update code
-                if (controls.getControls().isDndStatusOn) { // check DND not on
+                if (controls.getControls().isDndStatusOn && isDNDManagerRequest) { // check DND not on
                     if (DNDManager(context).checkDndPermission()) {
                         DNDManager(context).checkDNDModeON()
                     } else {
-                        isDNDManagerRequest= true
                         DNDManager(context).enableDoNotDisturb(context)
                     }
                 }
@@ -425,6 +424,17 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         proctorListener = listener
 
         isAlert = true
+
+        Log.e("RAMU", "startProctoring: ", )
+        //update code
+        if (controls.getControls().isDndStatusOn && !isDNDManagerRequest) { // check DND not on
+            isDNDManagerRequest = true
+            if (DNDManager(context).checkDndPermission()) {
+                DNDManager(context).checkDNDModeON()
+            } else {
+                DNDManager(context).enableDoNotDisturb(context)
+            }
+        }
 
 
         // control update by model class

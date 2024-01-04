@@ -82,6 +82,9 @@ class DNDManager(private val context: Context) {
             .create()
     }
 
+    fun resetAlertDialog(){
+        positiveButtonClicked = false
+    }
 
     fun checkAndHideAlertDialog(context: Context) {
         if (DNDManager(context).checkDndPermission()) {
