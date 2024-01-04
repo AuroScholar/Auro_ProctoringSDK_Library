@@ -5,21 +5,22 @@ import android.content.Context
 import android.content.DialogInterface
 
 class CustomAlertDialog(context: Context) {
-
     private val dialog: AlertDialog
-    private var isAlertDialog = false
+    private var isOkClicked = false
 
     init {
         val builder = AlertDialog.Builder(context).setCancelable(false)
             .setPositiveButton("Ok", DialogInterface.OnClickListener { dialog, which ->
-                isAlertDialog = true
+                isOkClicked = true
+                reset()
+                dialog.dismiss()
             })
 
         dialog = builder.create()
     }
 
     fun show(title: String?, message: String?) {
-        if (!isAlertDialog && !dialog.isShowing) {
+        if (!isOkClicked && !dialog.isShowing) {
             dialog.setTitle(title)
             dialog.setMessage(message)
             dialog.show()
@@ -27,19 +28,21 @@ class CustomAlertDialog(context: Context) {
     }
 
     fun hide() {
-        if (isAlertDialog) {
+        if (isOkClicked) {
             dialog.dismiss()
-            dialog.hide()
-            isAlertDialog = false
+            isOkClicked = false
         }
     }
 
     fun hideForcefully() {
         if (dialog.isShowing) {
             dialog.dismiss()
-            dialog.hide()
-            isAlertDialog = false
+            isOkClicked = false
         }
+    }
+
+    fun reset() {
+        isOkClicked = false
     }
 }
 

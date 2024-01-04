@@ -6,4 +6,8 @@
     <string name="moving_face_left_or_right_during_assesment">ਚੇਤਾਵਨੀ : ਸਹੀ ਨਿਗਰਾਨੀ ਲਈ ਮੁਲਾਂਕਣ ਦੌਰਾਨ ਆਪਣੇ ਚਿਹਰੇ ਨੂੰ ਖੱਬੇ ਜਾਂ ਸੱਜੇ ਹਿਲਾਉਣ ਤੋਂ ਬਚੋ</string>
     <string name="face_not_found">ਚੇਤਾਵਨੀ : ਚਿਹਰਾ ਨਹੀਂ ਮਿਲਿਆ</string>
     <string name="object_not_allowed">ਚੇਤਾਵਨੀ : ਅਸੀਂ ਕੁਝ ਵਸਤੂਆਂ ਦਾ ਪਤਾ ਲਗਾਉਂਦੇ ਹਾਂ (ਕੈਮਰਾ, ਫ਼ੋਨ, ਲੈਪਟਾਪ ਆਦਿ) ਤੁਹਾਡੀ ਬੈਕਗ੍ਰਾਊਂਡ ਵਿੱਚ ਇਜਾਜ਼ਤ ਨਹੀਂ ਹੈ</string>
+    <string name="permission_required">ਇਜਾਜ਼ਤ ਦੀ ਲੋੜ ਹੈ</string>
+    <string name="to_enable_do_not_disturb_mode_you_need_to_grant_permission">ਪਰੇਸ਼ਾਨ ਨਾ ਕਰੋ ਮੋਡ ਨੂੰ ਸਮਰੱਥ ਕਰਨ ਲਈ, ਤੁਹਾਨੂੰ ਇਜਾਜ਼ਤ ਦੇਣ ਦੀ ਲੋੜ ਹੈ।</string>
+    <string name="goto_permission">ਇਜਾਜ਼ਤ \'ਤੇ ਜਾਓ</string>
+
 </resources>

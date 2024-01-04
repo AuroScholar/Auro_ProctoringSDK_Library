@@ -36,7 +36,7 @@ class Controls {
         initControlModel.accuracyType = "high"
         initControlModel.isDndStatusOn = true
         initControlModel.isDeveloperModeOn = false
-        initControlModel.blockedEmulatorDevicesList = listOf("running in last code ")
+        initControlModel.blockedEmulatorDevicesList = listOf("Pc,Emulator")
         initControlModel.isBlockedObjectList = listOf("Mobile phone", "Computer", "Camera")
         initControlModel.rightEyeOpenProbability = 0.5f
         initControlModel.leftEyeOpenProbability = 0.5f
@@ -62,7 +62,6 @@ class Controls {
      * @return
      */
     fun getControls(): ControlModel {
-        Log.e("TAG", "getControls: get eulator " + initControlModel.blockedEmulatorDevicesList)
         return initControlModel
     }
 

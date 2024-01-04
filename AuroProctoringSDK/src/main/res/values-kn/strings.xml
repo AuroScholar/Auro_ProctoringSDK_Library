@@ -7,4 +7,8 @@
     <string name="moving_face_left_or_right_during_assesment">ಎಚ್ಚರಿಕೆ : ನಿಖರವಾದ ಮೇಲ್ವಿಚಾರಣೆಗಾಗಿ ಮೌಲ್ಯಮಾಪನದ ಸಮಯದಲ್ಲಿ ನಿಮ್ಮ ಮುಖವನ್ನು ಎಡಕ್ಕೆ ಅಥವಾ ಬಲಕ್ಕೆ ಚಲಿಸುವುದನ್ನು ತಪ್ಪಿಸಿ</string>
     <string name="face_not_found">ಎಚ್ಚರಿಕೆ : ಮುಖ ಕಂಡುಬಂದಿಲ್ಲ</string>
     <string name="object_not_allowed">ಎಚ್ಚರಿಕೆ : ನಿಮ್ಮ ಹಿನ್ನೆಲೆಯಲ್ಲಿ ಅನುಮತಿಸದ ಕೆಲವು ವಸ್ತುಗಳನ್ನು (ಕ್ಯಾಮೆರಾ, ಫೋನ್, ಲ್ಯಾಪ್‌ಟಾಪ್ ಇತ್ಯಾದಿ) ನಾವು ಪತ್ತೆ ಮಾಡುತ್ತೇವೆ</string>
+    <string name="permission_required">ಅನುಮತಿ ಅಗತ್ಯವಿದೆ</string>
+    <string name="to_enable_do_not_disturb_mode_you_need_to_grant_permission">ಅಡಚಣೆ ಮಾಡಬೇಡಿ ಮೋಡ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲು, ನೀವು ಅನುಮತಿಯನ್ನು ನೀಡಬೇಕಾಗುತ್ತದೆ.</string>
+    <string name="goto_permission">ಅನುಮತಿ ಪಡೆಯಿರಿ</string>
+
 </resources>

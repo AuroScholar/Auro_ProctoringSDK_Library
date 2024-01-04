@@ -7,21 +7,24 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.auroproctoringsdk.ProctoringSDK
 import com.example.auroproctoringsdk.permission.ProctoringPermissionRequest
 import com.example.publicationtest.databinding.ActivityMainBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 // ProctoringSDK.onProctorListener for detector result
 class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+
     //init permission
     private var proctoringPermissionRequest = ProctoringPermissionRequest(this)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-
         binding.mainLayout.observeLifecycle(this.lifecycle) // very import for all
-
-
 
         // Permissions already granted
         if (proctoringPermissionRequest.checkPermissionGranted()) {
@@ -39,23 +42,32 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
 
     override fun onResume() {
-        super.onResume()
-       /* if (proctoringPermissionRequest.checkPermissionGranted()) {
-            //if permission done then start proctoring // also you can control using ControlModel just add model startProctoring(this,ControlModel)
+        super.onResume()/* if (proctoringPermissionRequest.checkPermissionGranted()) {
+             //if permission done then start proctoring // also you can control using ControlModel just add model startProctoring(this,ControlModel)
 
-        }*/
-        binding.mainLayout.startProctoring(this,null)
+         }*/
 
+        val job = runOnMainAfter(1000) {
 
+            binding.mainLayout.startProctoring(this, null)
+
+        }
+
+    }
+
+    fun runOnMainAfter(interval: Long, runnable: () -> Unit): Job {
+        return CoroutineScope(Dispatchers.Main).launch {
+            delay(interval)
+            runnable()
+        }
     }
 
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<out String>, grantResults: IntArray,
     ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-       /* proctoringPermissionRequest.onRequestPermissionsResult(
-            requestCode, permissions, grantResults
-        )*/
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)/* proctoringPermissionRequest.onRequestPermissionsResult(
+             requestCode, permissions, grantResults
+         )*/
 
     }
 
@@ -66,6 +78,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
     }
 
     override fun onFaceCount(faceCount: Int) {
+        binding.textView.text = faceCount.toString()
         // getting face count
         // binding.textView.text = faceCount.toString()
     }
@@ -88,7 +101,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
     }
 
     override fun onObjectDetection(face: ArrayList<String>) {
-        binding.textView.text = face.toString()
+
 
     }
 

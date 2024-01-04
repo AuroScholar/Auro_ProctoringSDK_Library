@@ -21,7 +21,7 @@ Step 2. Add the dependency [![Latest Release](https://img.shields.io/github/v/re
 
 ```kotlin
 dependencies {
-    implementation 'com.github.azzadpandit1:Auro-Proctoring-SDK:0.0.52'
+    implementation 'com.github.AuroScholar:Auro_ProctoringSDK_Library:0.1.5'
 }
 ```
 
@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
 
 //Fragment
-class QuizTestNativeFragment : Fragment , ProctoringSDK.onProctorListener {
+class QuizFragment : Fragment , ProctoringSDK.onProctorListener {
 
     //onCreate 
     befor all permission are done
