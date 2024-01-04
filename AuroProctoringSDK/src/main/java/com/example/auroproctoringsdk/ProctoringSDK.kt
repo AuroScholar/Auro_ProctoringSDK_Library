@@ -456,20 +456,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             StopTextReading().stopTextReading(context)
         }
 
-
-        /*//update code
-        if (controls.getControls().isDndStatusOn) { // check DND not on
-            if (DNDManagerHelper(context).checkDndPermission()) {
-                DNDManagerHelper(context).checkDNDModeON()
-            } else {
-                DNDManagerHelper(context).enableDoNotDisturb(context)
-            }
-        }*/
-
-
-
-
-
     }
 
     private fun syncResults() {
@@ -566,34 +552,37 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                         when (face) {
                             0 -> {
                                 faceCountWorring2Times++
+
+                                Log.e("TAG", "onFaceCount: count print"+faceCountWorring2Times )
                                 if (controls.getControls().isAlertFaceNotFound && faceCountWorring2Times >= 2) {
-                                    faceCountWorring2Times = -1
+
+
                                     val faceNotFoundException =
                                         context.getString(R.string.face_not_found)
                                             .split("[:]".toRegex())
 
                                     if (faceNotFoundException.size == 2 && DNDManager(context).checkDndPermission()) {
 
+                                        Log.e("TAG", "onFaceCount: count print alert onReady"+faceCountWorring2Times )
+
                                         alert(faceNotFoundException[0], faceNotFoundException[1])
 
-                                    }
+                                        faceCountWorring2Times = -1
+                                        Log.e("TAG", "onFaceCount: count print alert running "+faceCountWorring2Times )
 
-                                //    ScreenBrightness(context).heightBrightness(context) // user facing high brightness problem
-                                /* val filter = controls.getControls().multipleFaceDetectionError.split(":").toTypedArray()*/
+                                    }
 
                                 }
 
                             }
 
                             1 -> {
-                               // ScreenBrightness(context).heightBrightness(context)  // user auto brightness control
                                 hideAlert()
                             }
 
                             else -> {
                                 if (controls.getControls().isAlertMultipleFaceCount) {
 
-                                  //  ScreenBrightness(context).lowBrightness(context) // user facing high brightness problem
 
                                     val filter = context.getString(R.string.Multiple_face_detection)
                                         .split("[:]".toRegex())
@@ -651,24 +640,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                             alert(objectAlert[0], objectAlert[1])
                         }
 
-                        /*
-                             val filter = controls.getControls().lipOrEyeTrackingError.split(":").toTypedArray()
-                                                    alert(filter.first(),filter.last())*/
+
                     }
-
-                    /*   if (size !in listOf(0, 1, null)) {
-                           if (controls.getControls().isAlertMultipleFaceCount) {
-                               val filter = context.getString(R.string.Multiple_face_detection)
-                                   .split("[:]".toRegex())
-
-                               if (filter.size == 2){
-                                   alert(
-                                       filter[0], filter[1]
-                                   )
-                               }
-
-                           }
-                       }*/
 
                 }
 

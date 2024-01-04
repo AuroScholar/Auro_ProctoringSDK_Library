@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
-import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.example.auroproctoringsdk.detector.FaceDetector
 import kotlinx.coroutines.CoroutineScope
