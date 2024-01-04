@@ -18,7 +18,7 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.OnLifecycleEvent
 import com.example.auroproctoringsdk.copypastestop.ClipboardManagerHelper
-import com.example.auroproctoringsdk.detector.FaceDetector
+import com.example.auroproctoringsdk.detector.FaceDetector1
 import com.example.auroproctoringsdk.detector.Frame
 import com.example.auroproctoringsdk.detector.LensFacing
 import com.example.auroproctoringsdk.developerMode.CheckDeveloperMode
@@ -43,7 +43,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         var isAlert = false
     }
 
-    private val faceDetector = FaceDetector()
+    private val faceDetector1 = FaceDetector1()
     private var camera: Camera? = null
     private var thread: CustomSurfaceThread? = null
     private var timer: Timer? = null
@@ -149,7 +149,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
             // Process the preview data
             // val bitmap  = context.getDrawable(R.drawable.testbitmap)?.toBitmap()
-            faceDetector.process(
+            faceDetector1.process(
                 Frame(
                     data,
                     270,
@@ -435,7 +435,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
             if (controls.getControls().isAlert) {
                 syncResults()
-                faceDetector.noticeDetect(context)
+                faceDetector1.noticeDetect(context)
                 Utils().getSaveImageInit(context)
             }
         } else {
@@ -444,7 +444,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             controls.updateControl(ControlModel(isAlert = true, isProctoringStart = true))
             if (controls.getControls().isAlert) {
                 syncResults()
-                faceDetector.noticeDetect(context)
+                faceDetector1.noticeDetect(context)
                 Utils().getSaveImageInit(context)
             }
 
@@ -475,8 +475,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
     }
 
     private fun syncResults() {
-        faceDetector.setonFaceDetectionFailureListener(object :
-            FaceDetector.OnProctoringResultListener {
+        faceDetector1.setonFaceDetectionFailureListener(object :
+            FaceDetector1.OnProctoringResultListener {
 
             override fun isRunningDetector(boolean: Boolean?) {
                 Log.e("TAG", "isRunningDetector: running " + boolean)

@@ -6,9 +6,8 @@ import android.content.pm.PackageManager
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
-import android.util.Log
 import androidx.core.app.ActivityCompat
-import com.example.auroproctoringsdk.detector.FaceDetector
+import com.example.auroproctoringsdk.detector.FaceDetector1
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,7 +20,7 @@ class NoiseDetector {
     private val BUFFER_SIZE = AudioRecord.getMinBufferSize(SAMPLE_RATE, CHANNEL_CONFIG, AUDIO_FORMAT)
 
     private var isRunning = false
-    fun startNoiseDetector(context: Context, listener: FaceDetector.OnProctoringResultListener) {
+    fun startNoiseDetector(context: Context, listener: FaceDetector1.OnProctoringResultListener) {
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.RECORD_AUDIO

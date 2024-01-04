@@ -55,6 +55,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.12.0") // 1.6.0
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.10.0")
+    implementation("androidx.security:security-crypto-ktx:1.0.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
@@ -84,6 +85,12 @@ dependencies {
     implementation("aws.smithy.kotlin:http-client-engine-okhttp:0.30.0")
     implementation("aws.smithy.kotlin:http-client-engine-crt:0.30.0")
     implementation("com.google.code.gson:gson:2.10")
+
+
+    //TensorFlow Lite libraries (To recognize faces)
+    implementation ("org.tensorflow:tensorflow-lite-task-vision:0.3.0")
+    implementation ("org.tensorflow:tensorflow-lite-support:0.3.0")
+    implementation ("org.tensorflow:tensorflow-lite:0.0.0-nightly-SNAPSHOT")
 
 
 }
