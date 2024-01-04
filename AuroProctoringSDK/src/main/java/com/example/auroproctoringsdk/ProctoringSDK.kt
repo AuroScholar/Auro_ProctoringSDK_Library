@@ -428,11 +428,12 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         Log.e("RAMU", "startProctoring: ", )
         //update code
         if (controls.getControls().isDndStatusOn && !isDNDManagerRequest) { // check DND not on
-            isDNDManagerRequest = true
             if (DNDManager(context).checkDndPermission()) {
                 DNDManager(context).checkDNDModeON()
             } else {
                 DNDManager(context).enableDoNotDisturb(context)
+                isDNDManagerRequest = true
+
             }
         }
 
