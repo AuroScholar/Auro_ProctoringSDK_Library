@@ -16,9 +16,13 @@ import android.graphics.YuvImage
 import android.text.InputType
 import android.util.Log
 import android.util.Pair
+import android.view.LayoutInflater
+import android.view.View
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.annotation.GuardedBy
+import com.example.auroproctoringsdk.R
 import com.example.auroproctoringsdk.detector.Frame
 import com.google.android.gms.tasks.Tasks
 import com.google.gson.Gson
@@ -55,7 +59,7 @@ class FaceCompareTensorFlowLite(val context: Context) {
         faceCompareListener = listener
     }
 
-    var detector: FaceDetector = FaceDetection.getClient(
+    private val detector: FaceDetector = FaceDetection.getClient(
         FaceDetectorOptions.Builder()
             .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE).build()
     )
@@ -64,8 +68,8 @@ class FaceCompareTensorFlowLite(val context: Context) {
     var tfLite: Interpreter? = null
 
     var start = true
-    var flipX = false
-    private val registered: HashMap<String, SimilarityClassifier.Recognition> = HashMap<String, SimilarityClassifier.Recognition>() //saved Faces
+    private val registered: HashMap<String, SimilarityClassifier.Recognition> =
+        HashMap<String, SimilarityClassifier.Recognition>() //saved Faces
     var OUTPUT_SIZE = 192 //Output size of model
     var intValues = intArrayOf()
     var inputSize = 112 //Input size for model
@@ -80,7 +84,7 @@ class FaceCompareTensorFlowLite(val context: Context) {
 
     init {
 
-        val (fileChannel, startOffset, declaredLength) = InitTensoFlowModel()
+        val (fileChannel, startOffset, declaredLength) = LoadTensoFlowModel()
 
         try {
             tfLite = Interpreter(
@@ -93,7 +97,7 @@ class FaceCompareTensorFlowLite(val context: Context) {
         }
     }
 
-    private fun InitTensoFlowModel(): Triple<FileChannel, Long, Long> {
+    private fun LoadTensoFlowModel(): Triple<FileChannel, Long, Long> {
         val assetManager = context.assets
         val modelPath = "mobile_face_net.tflite" // Replace with the actual model file name
         val fileDescriptor = assetManager.openFd(modelPath)
@@ -149,30 +153,70 @@ class FaceCompareTensorFlowLite(val context: Context) {
         return retrievedMap
     }
 
+    fun showPassportSizeImageDialog(context: Context, bitmap: Bitmap) {
+        start = false
+        val dialogBuilder = AlertDialog.Builder(context)
+        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val dialogView: View = inflater.inflate(R.layout.dialog_passport_size_image, null)
+
+        val imageView: ImageView = dialogView.findViewById(R.id.imageView)
+        // Set the passport size image to the ImageView
+        imageView.setImageBitmap(bitmap)
+
+        val nameEditText: EditText = dialogView.findViewById(R.id.nameEditText)
+
+        dialogBuilder.setView(dialogView)
+            .setTitle("Passport Size Image")
+            .setPositiveButton("OK") { dialog, which ->
+                val name = nameEditText.text.toString()
+                // Do something with the entered name
+                val result = SimilarityClassifier.Recognition("0", "", -1f)
+                result.extra = embeedings
+                registered[name] = result
+                start = true
+                dialog.dismiss()
+
+            }
+            .setNegativeButton("Cancel") { dialog, which ->
+                start = true
+                dialog.cancel()
+            }
+
+        val dialog = dialogBuilder.create()
+        dialog.show()
+    }
+
     fun addFace(bitmap: Bitmap) {
         start = false
-        val builder = AlertDialog.Builder(context)
-        builder.setTitle("Enter Name")
+        val dialogBuilder = AlertDialog.Builder(context)
+        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val dialogView: View = inflater.inflate(R.layout.dialog_passport_size_image, null)
 
-        val input = EditText(context)
-        input.inputType = InputType.TYPE_CLASS_TEXT
-        builder.setView(input)
+        val imageView: ImageView = dialogView.findViewById(R.id.imageView)
+        // Set the passport size image to the ImageView
+        imageView.setImageBitmap(bitmap)
 
-        builder.setPositiveButton("ADD") { dialog, which ->
-            val result = SimilarityClassifier.Recognition("0", "", -1f)
-            result.extra = embeedings
-            registered[input.text.toString()] = result
-            start = true
-            dialog.dismiss()
-        }
+        val nameEditText: EditText = dialogView.findViewById(R.id.nameEditText)
 
-        builder.setNegativeButton("Cancel") { dialog, which ->
-            start = true
-            dialog.cancel()
-        }
+        dialogBuilder.setView(dialogView)
+            .setTitle("Save Face Data")
+            .setPositiveButton("OK") { dialog, which ->
+                val name = nameEditText.text.toString()
+                // Do something with the entered name
+                val result = SimilarityClassifier.Recognition("0", "", -1f)
+                result.extra = embeedings
+                registered[name] = result
+                start = true
+                dialog.dismiss()
 
-        builder.show()
+            }
+            .setNegativeButton("Cancel") { dialog, which ->
+                start = true
+                dialog.cancel()
+            }
 
+        val dialog = dialogBuilder.create()
+        dialog.show()
 
     }
 
@@ -215,7 +259,8 @@ class FaceCompareTensorFlowLite(val context: Context) {
                     val face = faces.first()
                     val frame_bmp = convectionBitmap(this)
                     val cropped_face = getCropBitmapByCPU(frame_bmp, RectF(face.boundingBox))
-                    val scaled: Bitmap = getResizedBitmap(cropped_face, 112, 112) // face bitmap croped Done
+                    val scaled: Bitmap =
+                        getResizedBitmap(cropped_face, 112, 112) // face bitmap croped Done
                     if (start) {
                         recognizeImage(scaled) // Send scaled bitmap to create face embeddings
                     }
@@ -292,7 +337,8 @@ class FaceCompareTensorFlowLite(val context: Context) {
 
         if (registered.size > 0) {
 
-            val nearest: List<Pair<String, Float>> = findNearest(embeedings[0]) //Find 2 closest matching face
+            val nearest: List<Pair<String, Float>> =
+                findNearest(embeedings[0]) //Find 2 closest matching face
 
 
             if (nearest.get(0) != null) {
@@ -322,13 +368,13 @@ class FaceCompareTensorFlowLite(val context: Context) {
                     }
                 } else {
                     if (distance_local < distance) {
-                        faceCompareListener?.onFaceCompareResultNameWithPhoto(bitmap,name)
+                        faceCompareListener?.onFaceCompareResultWithNamePhoto(bitmap, name)
                         Log.e("RESULT", "recognizeImage: " + name)
                         // reco_name.text = name
                     } else {
                         Log.e("RESULT", "recognizeImage: Unknown")
                         // reco_name.text = "Unknown"
-                        faceCompareListener?.onFaceCompareResultNameWithPhoto(null,"Unknown")
+                        faceCompareListener?.onFaceCompareResultWithNamePhoto(null, "Unknown")
                     }
                 }
 
@@ -336,8 +382,8 @@ class FaceCompareTensorFlowLite(val context: Context) {
             }
 
 
-        }else{
-            if (registered.entries.isNullOrEmpty()){
+        } else {
+            if (registered.entries.isNullOrEmpty()) {
                 addFace(bitmap)
             }
 
@@ -411,28 +457,9 @@ class FaceCompareTensorFlowLite(val context: Context) {
         return resultBitmap
     }
 
-    private fun rotateBitmap(
-        bitmap: Bitmap, rotationDegrees: Int, flipX: Boolean, flipY: Boolean,
-    ): Bitmap {
-        val matrix = Matrix()
-
-        // Rotate the image back to straight.
-        matrix.postRotate(rotationDegrees.toFloat())
-
-        // Mirror the image along the X or Y axis.
-        matrix.postScale(if (flipX) -1.0f else 1.0f, if (flipY) -1.0f else 1.0f)
-        val rotatedBitmap =
-            Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-
-        // Recycle the old bitmap if it has changed.
-        if (rotatedBitmap != bitmap) {
-            bitmap.recycle()
-        }
-        return rotatedBitmap
-    }
     interface FaceCompareListener {
         fun onFaceCompareLister(frame_bmp: Bitmap)
-        fun onFaceCompareResultNameWithPhoto(bitmap: Bitmap?, name: String)
+        fun onFaceCompareResultWithNamePhoto(bitmap: Bitmap?, name: String)
     }
 
 }

@@ -15,8 +15,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 // ProctoringSDK.onProctorListener for detector result
-class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener,
-    FaceCompareTensorFlowLite.FaceCompareListener {
+class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener, FaceCompareTensorFlowLite.FaceCompareListener {
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
@@ -127,7 +126,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener,
 
     }
 
-    override fun onFaceCompareResultNameWithPhoto(bitmap: Bitmap?, name: String) {
+    override fun onFaceCompareResultWithNamePhoto(bitmap: Bitmap?, name: String) {
 
         binding.iv.setImageBitmap(bitmap)
 
