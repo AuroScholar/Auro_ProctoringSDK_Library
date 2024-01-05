@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.auroproctoringsdk.ProctoringSDK
 import com.example.auroproctoringsdk.permission.ProctoringPermissionRequest
+import com.example.auroproctoringsdk.tensoflowLite.FaceCompareTensorFlowLite
 import com.example.publicationtest.databinding.ActivityMainBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,7 +15,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 // ProctoringSDK.onProctorListener for detector result
-class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
+class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener,
+    FaceCompareTensorFlowLite.FaceCompareListener {
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
 
@@ -50,6 +52,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
         val job = runOnMainAfter(1000) {
 
             binding.mainLayout.startProctoring(this, null)
+            binding.mainLayout.setListener(this)
 
         }
 
@@ -117,6 +120,21 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
     }
 
     override fun captureImage(faceDirection: Bitmap?) {
+
+    }
+
+    override fun onFaceCompareLister(frame_bmp: Bitmap) {
+
+    }
+
+    override fun onFaceCompareResultNameWithPhoto(bitmap: Bitmap?, name: String) {
+
+        bitmap?.let {
+            binding.iv.setImageBitmap(it)
+        }
+
+        binding.textViewResult.text = name
+
 
     }
 

@@ -26,6 +26,7 @@ android {
 
     buildFeatures {
         viewBinding = true
+        mlModelBinding = true
     }
 
     compileOptions {
@@ -49,12 +50,18 @@ android {
         preDexLibraries = true
         dexInProcess = true
     }
+    aaptOptions {
+        noCompress += "tflite"
+    }
 }
 
 dependencies {
+
     implementation("androidx.core:core-ktx:1.12.0") // 1.6.0
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.10.0")
+    implementation("org.tensorflow:tensorflow-lite-metadata:0.1.0")
+    implementation("org.tensorflow:tensorflow-lite-gpu:2.3.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
@@ -63,12 +70,22 @@ dependencies {
     implementation ("com.google.mlkit:pose-detection-common:17.0.0")
     implementation ("com.google.mlkit:pose-detection:17.0.0")
 //    implementation("com.google.mlkit:object-detection:17.0.0")
+
     implementation("com.google.mlkit:face-detection:16.1.5")
+    implementation ("com.google.android.gms:play-services-mlkit-face-detection:17.0.1")
+
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
     implementation ("com.google.mlkit:image-labeling:17.0.7")
     implementation ("com.google.mlkit:image-labeling-custom:17.0.1")
+
+    //TensorFlow Lite libraries (To recognize faces)
+    implementation ("org.tensorflow:tensorflow-lite-task-vision:0.3.0")
+    implementation ("org.tensorflow:tensorflow-lite-support:0.3.0")
+    implementation ("org.tensorflow:tensorflow-lite:0.0.0-nightly-SNAPSHOT")
+    //GSON (Conversion of String to Map & Vice-Versa)
+    implementation ("com.google.code.gson:gson:2.8.9")
 
 
 }

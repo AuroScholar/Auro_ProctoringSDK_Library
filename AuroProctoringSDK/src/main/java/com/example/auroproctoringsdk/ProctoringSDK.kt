@@ -26,10 +26,15 @@ import com.example.auroproctoringsdk.dnd.DNDManager
 import com.example.auroproctoringsdk.emulater.EmulatorDetector
 import com.example.auroproctoringsdk.languageSetup.CurrentLanguage
 import com.example.auroproctoringsdk.screenBarLock.StatusBarLocker
-import com.example.auroproctoringsdk.screenBrightness.ScreenBrightness
 import com.example.auroproctoringsdk.screenReader.StopTextReading
+import com.example.auroproctoringsdk.tensoflowLite.FaceCompareTensorFlowLite
 import com.example.auroproctoringsdk.utils.CustomAlertDialog
 import com.example.auroproctoringsdk.utils.Utils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.Timer
 import java.util.TimerTask
 
@@ -44,6 +49,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
     }
 
     private val faceDetector = FaceDetector()
+    private val faceCampre =FaceCompareTensorFlowLite(context)
     private var camera: Camera? = null
     private var thread: CustomSurfaceThread? = null
     private var timer: Timer? = null
@@ -131,11 +137,19 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                 override fun run() {
                     captureImage()
                 }
-            }, 0, 500) // 1 sec
+            }, 0, 1000) // 1 sec
 
         }
 
     }
+
+    fun runOnMainAfter(interval: Long, runnable: () -> Unit): Job {
+        return CoroutineScope(Dispatchers.Main).launch {
+            delay(interval)
+            runnable()
+        }
+    }
+
 
     private fun stopImageCaptureTimer() {
         timer?.cancel()
@@ -144,9 +158,17 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
     fun captureImage() {
         // Implement image capture logic here
-
         camera?.setPreviewCallback(this@ProctoringSDK)
         camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
+
+            faceCampre.cameraLiveProcess(Frame(
+                data,
+                270,
+                Size(camera.parameters.previewSize.width, camera.parameters.previewSize.height),
+                camera.parameters.previewFormat,
+                LensFacing.FRONT
+            ))
+
             faceDetector.process(
                 Frame(
                     data,
@@ -419,6 +441,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
     fun getControl(): ControlModel = controls.getControls()
 
+    fun setListener(listner: FaceCompareTensorFlowLite.FaceCompareListener){
+        /*faceCampre.onFaceCompareLister()*/
+        faceCampre.setListener(listner)
+    }
     fun startProctoring(
         listener: onProctorListener, controlModel: ControlModel?,
     ) {
