@@ -81,8 +81,6 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener, FaceC
 
     override fun onFaceCount(faceCount: Int) {
         binding.textView.text = faceCount.toString()
-        // getting face count
-        // binding.textView.text = faceCount.toString()
     }
 
     override fun isRunningDetector(boolean: Boolean?) {

@@ -136,7 +136,6 @@ class FaceDetector() {
                     var mouthOpen: Boolean = false
                     var eyeOpenStatus: String = ""
                     var calculateUserWallDistance: Float = -0.0F
-                    var objectSectionNames: String = ""
                     var faceCount: Int = faceResults.size
                     var faceDirection: String? = null
                     var labelsList: ArrayList<String> = arrayListOf()
@@ -205,12 +204,6 @@ class FaceDetector() {
 
                     }
 
-                    //live Result
-                    faceLiveResult.postValue(
-                        FaceDetectorModel(
-                            faceCount, eyeOpenStatus, mouthOpen, objectSectionNames, faceDirection
-                        )
-                    )
                 }
 
             }.addOnFailureListener { exception ->
