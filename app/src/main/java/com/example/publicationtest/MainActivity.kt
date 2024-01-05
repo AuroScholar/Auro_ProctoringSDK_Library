@@ -31,8 +31,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-
-// ProctoringSDK.onProctorListener for detector result
 class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener,
     FaceVerification.FaceVerificationListener, FaceCompareAwsApi.FaceCompareAwsApiListener {
 

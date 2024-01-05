@@ -1,8 +1,10 @@
+/*
 package com.example.auroproctoringsdk.detector.testcode1
 
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -83,6 +85,21 @@ class FaceCompareTensorFlowLite(val context: Context) {
         val startOffset = fileDescriptor.startOffset
         val declaredLength = fileDescriptor.declaredLength
         return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
+    }
+
+    private fun insertToSP(jsonMap: HashMap<String, SimilarityClassifier.Recognition>, mode: Int) {
+        if (mode == 1)
+            jsonMap.clear()
+        else if (mode == 0)
+            jsonMap.putAll(readFromSP())
+        val jsonString = Gson().toJson(jsonMap)
+
+        val sharedPreferences = context.getSharedPreferences("HashMap", MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putString("map", jsonString)
+
+        editor.apply()
+        Toast.makeText(context, "Recognitions Saved", Toast.LENGTH_SHORT).show()
     }
 
 
@@ -255,10 +272,12 @@ class FaceCompareTensorFlowLite(val context: Context) {
             }
         }
 
-        /*
+        */
+/*
                 var object1 = Object()
 
-        */
+        *//*
+
         //imgData is input to our model
         val inputArray = arrayOf<Any>(imgData)
         val outputMap: HashMap<Int, Any> = HashMap()
@@ -412,3 +431,4 @@ class FaceCompareTensorFlowLite(val context: Context) {
     }
 
 }
+*/
