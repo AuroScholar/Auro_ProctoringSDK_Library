@@ -65,8 +65,7 @@ class FaceCompareTensorFlowLite(val context: Context) {
 
     var start = true
     var flipX = false
-    private val registered: HashMap<String, SimilarityClassifier.Recognition> =
-        HashMap<String, SimilarityClassifier.Recognition>() //saved Faces
+    private val registered: HashMap<String, SimilarityClassifier.Recognition> = HashMap<String, SimilarityClassifier.Recognition>() //saved Faces
     var OUTPUT_SIZE = 192 //Output size of model
     var intValues = intArrayOf()
     var inputSize = 112 //Input size for model
@@ -150,7 +149,7 @@ class FaceCompareTensorFlowLite(val context: Context) {
         return retrievedMap
     }
 
-    fun addFace() {
+    fun addFace(bitmap: Bitmap) {
         start = false
         val builder = AlertDialog.Builder(context)
         builder.setTitle("Enter Name")
@@ -293,8 +292,7 @@ class FaceCompareTensorFlowLite(val context: Context) {
 
         if (registered.size > 0) {
 
-            val nearest: List<Pair<String, Float>> =
-                findNearest(embeedings[0]) //Find 2 closest matching face
+            val nearest: List<Pair<String, Float>> = findNearest(embeedings[0]) //Find 2 closest matching face
 
 
             if (nearest.get(0) != null) {
@@ -340,7 +338,7 @@ class FaceCompareTensorFlowLite(val context: Context) {
 
         }else{
             if (registered.entries.isNullOrEmpty()){
-                addFace()
+                addFace(bitmap)
             }
 
         }

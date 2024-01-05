@@ -129,19 +129,11 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener,
 
     override fun onFaceCompareResultNameWithPhoto(bitmap: Bitmap?, name: String) {
 
-        bitmap?.let {
-            binding.iv.setImageBitmap(it)
-        }
+        binding.iv.setImageBitmap(bitmap)
 
         binding.textViewResult.text = name
 
-
     }
-
 
 }
 
-// head status
-// perierty base
-// Camera , dev , DND
-// dialog cross button
