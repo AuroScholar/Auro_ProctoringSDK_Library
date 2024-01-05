@@ -1,4 +1,3 @@
-/*
 package com.example.auroproctoringsdk.detector.testcode1
 
 import android.app.Activity
@@ -20,6 +19,8 @@ import android.util.Log
 import android.util.Pair
 import android.widget.EditText
 import android.widget.Toast
+import androidx.annotation.GuardedBy
+import androidx.appcompat.app.AppCompatActivity
 import com.example.auroproctoringsdk.detector.Frame
 import com.example.auroproctoringsdk.detector.testCode.SimilarityClassifier
 import com.google.android.gms.tasks.Task
@@ -38,9 +39,22 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
+import java.util.concurrent.Executor
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import kotlin.math.sqrt
 
 class FaceCompareTensorFlowLite(val context: Context) {
+
+    /** [Executor] used to run the face detection on a background thread.  */
+    private var faceDetectionExecutor: ExecutorService = Executors.newSingleThreadExecutor()
+
+    /** Controls access to [isProcessing], since it can be accessed from different threads. */
+    private val lock = Object()
+
+    @GuardedBy("lock")
+    private var isProcessing = false
+
     var detector: FaceDetector = FaceDetection.getClient(
         FaceDetectorOptions.Builder()
             .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE).build()
@@ -51,7 +65,8 @@ class FaceCompareTensorFlowLite(val context: Context) {
 
     var start = true
     var flipX = false
-    private val registered: HashMap<String, SimilarityClassifier.Recognition> = HashMap<String, SimilarityClassifier.Recognition>() //saved Faces
+    private val registered: HashMap<String, SimilarityClassifier.Recognition> =
+        HashMap<String, SimilarityClassifier.Recognition>() //saved Faces
     var OUTPUT_SIZE = 192 //Output size of model
     var intValues = intArrayOf()
     var inputSize = 112 //Input size for model
@@ -68,30 +83,39 @@ class FaceCompareTensorFlowLite(val context: Context) {
 
 
     init {
-        //Load model
+       /* //Load model
         try {
             tfLite = loadModelFile(context as Activity, modelFile)?.let { Interpreter(it) }
         } catch (e: IOException) {
             e.printStackTrace()
+        }*/
+
+      /*  val (fileChannel, startOffset, declaredLength) = triple()
+
+// Load model
+        try {
+            tfLite = Interpreter(fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength))
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
+*/
 
     }
 
-    @Throws(IOException::class)
-    private fun loadModelFile(activity: Activity, MODEL_FILE: String): MappedByteBuffer? {
-        val fileDescriptor = activity.assets.openFd(MODEL_FILE)
-        val inputStream = FileInputStream(fileDescriptor.fileDescriptor)
-        val fileChannel = inputStream.channel
+    private fun triple(): Triple<FileChannel, Long, Long> {
+        val assetManager = context.assets
+        val modelPath = "mobile_face_net.tflite" // Replace with the actual model file name
+        val fileDescriptor = assetManager.openFd(modelPath)
+        val fileInputStream = FileInputStream(fileDescriptor.fileDescriptor)
+        val fileChannel = fileInputStream.channel
         val startOffset = fileDescriptor.startOffset
         val declaredLength = fileDescriptor.declaredLength
-        return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
+        return Triple(fileChannel, startOffset, declaredLength)
     }
 
     private fun insertToSP(jsonMap: HashMap<String, SimilarityClassifier.Recognition>, mode: Int) {
-        if (mode == 1)
-            jsonMap.clear()
-        else if (mode == 0)
-            jsonMap.putAll(readFromSP())
+        if (mode == 1) jsonMap.clear()
+        else if (mode == 0) jsonMap.putAll(readFromSP())
         val jsonString = Gson().toJson(jsonMap)
 
         val sharedPreferences = context.getSharedPreferences("HashMap", MODE_PRIVATE)
@@ -160,42 +184,6 @@ class FaceCompareTensorFlowLite(val context: Context) {
 
     }
 
-
-    fun checkLive(bitmap: Bitmap) {
-        var result: Task<List<Face>> = detector.process(InputImage.fromBitmap(bitmap,0)).addOnSuccessListener { faces ->
-            if (faces.size != 0) {
-                val face: Face = faces[0]
-                val frame_bmp: Bitmap = bitmap
-                // Adjust orientation of Face
-                val frame_bmp1: Bitmap = rotateBitmap(bitmap, 0, false, false)
-                // Get bounding box of face
-                val boundingBox: RectF = RectF(face.boundingBox)
-
-                // Crop out bounding box from whole Bitmap(image)
-                var cropped_face: Bitmap = getCropBitmapByCPU(frame_bmp1, boundingBox)
-
-                if (flipX) cropped_face = rotateBitmap(cropped_face, 0, flipX, false)
-
-                // Scale the acquired Face to 112*112 which is required input for model
-                val scaled: Bitmap = getResizedBitmap(cropped_face, 112, 112)
-
-                if (start) {
-                    recognizeImage(scaled) // Send scaled bitmap to create face embeddings
-                }
-            } else {
-                if (registered.isEmpty()) {
-                    Log.e("TAG", "checkLive: Add Face")
-                } else {
-                    Log.e("TAG", "checkLive: No Face Detected!")
-                }
-            }
-        }.addOnFailureListener {
-
-        }.addOnCompleteListener {
-
-        }
-
-    }
 
     private fun convectionBitmap(frame: Frame): Bitmap {
         val yuvImage = YuvImage(frame.data, frame.format, frame.size.width, frame.size.height, null)
@@ -271,12 +259,6 @@ class FaceCompareTensorFlowLite(val context: Context) {
                 }
             }
         }
-
-        */
-/*
-                var object1 = Object()
-
-        *//*
 
         //imgData is input to our model
         val inputArray = arrayOf<Any>(imgData)
@@ -430,5 +412,55 @@ class FaceCompareTensorFlowLite(val context: Context) {
         return rotatedBitmap
     }
 
+    fun cameraLiveProcess(frame: Frame) {
+        synchronized(lock) {
+            if (!isProcessing) {
+                isProcessing = true
+               // faceDetectionExecutor.execute { frame.detectFaces() }
+            }
+        }
+    }
+
+    //    ByteArray
+    private fun Frame.detectFaces() {
+        val data = data ?: return
+
+        val inputImage = InputImage.fromByteArray(data, size.width, size.height, rotation, format)
+
+        var result: Task<List<Face>> = detector.process(inputImage).addOnSuccessListener { faces ->
+            if (faces.size != 0) {
+                val face: Face = faces[0]
+                val frame_bmp: Bitmap = convectionBitmap(this)
+                // Adjust orientation of Face
+                val frame_bmp1: Bitmap = rotateBitmap(frame_bmp, 0, false, false)
+                // Get bounding box of face
+                val boundingBox: RectF = RectF(face.boundingBox)
+
+                // Crop out bounding box from whole Bitmap(image)
+                var cropped_face: Bitmap = getCropBitmapByCPU(frame_bmp1, boundingBox)
+
+                if (flipX) cropped_face = rotateBitmap(cropped_face, 0, flipX, false)
+
+                // Scale the acquired Face to 112*112 which is required input for model
+                val scaled: Bitmap = getResizedBitmap(cropped_face, 112, 112)
+
+                if (start) {
+                    recognizeImage(scaled) // Send scaled bitmap to create face embeddings
+                }
+            } else {
+                if (registered.isEmpty()) {
+                    Log.e("TAG", "checkLive: Add Face")
+                } else {
+                    Log.e("TAG", "checkLive: No Face Detected!")
+                }
+            }
+
+            isProcessing = true
+
+        }.addOnFailureListener {
+            isProcessing = true
+        }.addOnCompleteListener {
+            isProcessing = true
+        }
+    }
 }
-*/

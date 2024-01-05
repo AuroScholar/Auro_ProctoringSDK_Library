@@ -49,6 +49,11 @@ android {
         preDexLibraries = true
         dexInProcess = true
     }
+    aaptOptions {
+        noCompress += "tflite"
+        ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~"
+
+    }
 }
 
 dependencies {
@@ -65,6 +70,7 @@ dependencies {
     implementation ("com.google.mlkit:pose-detection:17.0.0")
 //    implementation("com.google.mlkit:object-detection:17.0.0")
     implementation("com.google.mlkit:face-detection:16.1.5")
+
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
@@ -87,12 +93,10 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10")
 
 
-/*
     //TensorFlow Lite libraries (To recognize faces)
     implementation ("org.tensorflow:tensorflow-lite-task-vision:0.3.0")
     implementation ("org.tensorflow:tensorflow-lite-support:0.3.0")
     implementation ("org.tensorflow:tensorflow-lite:0.0.0-nightly-SNAPSHOT")
-*/
 
 
 }

@@ -262,11 +262,9 @@ class FaceCompareTensorFlowLite(val context: Context) {
             }
         }
 
-        */
-/*
                 var object1 = Object()
 
-        *//*
+
 
         //imgData is input to our model
         val inputArray = arrayOf<Any>(imgData)
@@ -420,4 +418,5 @@ class FaceCompareTensorFlowLite(val context: Context) {
         return rotatedBitmap
     }
 
-}*/
+}
+*/

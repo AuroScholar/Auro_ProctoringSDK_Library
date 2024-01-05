@@ -10,17 +10,17 @@ import android.util.Log
 class Controls {
 
     private var initControlModel = ControlModel()
+
     init {
-        initControlModel.isAlert = true
         initControlModel.isProctoringStart = true
-        initControlModel.isBlockNotification = true
+        initControlModel.isBlockNotification = false
         initControlModel.isScreenshotEnable = true
         initControlModel.isStopScreenRecording = true
         initControlModel.isCopyPaste = false
         initControlModel.isSaveImageHideFolder = true
-        initControlModel.isStatusBarLock = true
+        initControlModel.isStatusBarLock = false
         initControlModel.isCaptureImage = true
-        initControlModel.isAlert = true
+        initControlModel.isAlert = false
         initControlModel.isAlertMultipleFaceCount = true
         initControlModel.isAlertFaceNotFound = true
         initControlModel.isAlertVoiceDetection = true
@@ -34,7 +34,7 @@ class Controls {
         initControlModel.isScreenReadingOn = false
         initControlModel.isWaitingDelayInMillis = 30000
         initControlModel.accuracyType = "high"
-        initControlModel.isDndStatusOn = true
+        initControlModel.isDndStatusOn = false
         initControlModel.isDeveloperModeOn = false
         initControlModel.blockedEmulatorDevicesList = listOf("Pc,Emulator")
         initControlModel.isBlockedObjectList = listOf("Mobile phone", "Computer", "Camera")

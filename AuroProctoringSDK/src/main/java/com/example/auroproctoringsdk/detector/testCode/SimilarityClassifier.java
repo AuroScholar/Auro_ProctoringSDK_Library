@@ -1,4 +1,5 @@
-/* Copyright 2019 The TensorFlow Authors. All Rights Reserved.
+/*
+ Copyright 2019 The TensorFlow Authors. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -11,27 +12,27 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-==============================================================================*//*
+==============================================================================
 
+*/
 
 package com.example.auroproctoringsdk.detector.testCode;
 
 public interface SimilarityClassifier {
 
 
-  */
-/** An immutable result returned by a Classifier describing what was recognized. *//*
+/** An immutable result returned by a Classifier describing what was recognized.*/
 
   class Recognition {
-    */
-/**
+/*
+*
      * A unique identifier for what has been recognized. Specific to the class, not the instance of
      * the object.
-     *//*
+*/
+
 
     private final String id;
-    */
-/** Display name for the recognition. *//*
+/** Display name for the recognition.*/
 
     private final String title;
 
@@ -75,4 +76,3 @@ public interface SimilarityClassifier {
 
   }
 }
-*/
