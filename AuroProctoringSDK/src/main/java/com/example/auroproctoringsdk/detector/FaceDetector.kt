@@ -230,7 +230,9 @@ class FaceDetector() {
         val lastUpdatedBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
         out.flush()
         out.close()
-        return lastUpdatedBitmap.rotateBitmap(-90F)
+        val rotatedBitmap = lastUpdatedBitmap.rotateBitmap(-90F)
+        lastUpdatedBitmap.recycle() // Recycle the bitmap to free up memory
+        return rotatedBitmap
     }
 
     fun Bitmap.rotateBitmap(degrees: Float): Bitmap {

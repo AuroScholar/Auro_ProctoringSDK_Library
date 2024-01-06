@@ -554,7 +554,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                                 faceCountWorring2Times++
 
                                 Log.e("TAG", "onFaceCount: count print"+faceCountWorring2Times )
-                                if (controls.getControls().isAlertFaceNotFound && faceCountWorring2Times >= 2) {
+                                if (controls.getControls().isAlertFaceNotFound && controls.getControls().isAlert && faceCountWorring2Times >= 2 ) {
 
 
                                     val faceNotFoundException =
@@ -562,13 +562,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                                             .split("[:]".toRegex())
 
                                     if (faceNotFoundException.size == 2 && DNDManager(context).checkDndPermission()) {
-
-                                        Log.e("TAG", "onFaceCount: count print alert onReady"+faceCountWorring2Times )
-
                                         alert(faceNotFoundException[0], faceNotFoundException[1])
-
                                         faceCountWorring2Times = -1
-                                        Log.e("TAG", "onFaceCount: count print alert running "+faceCountWorring2Times )
 
                                     }
 
