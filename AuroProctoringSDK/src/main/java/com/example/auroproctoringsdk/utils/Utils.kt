@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Matrix
 import kotlinx.coroutines.runBlocking
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.util.Calendar
 
@@ -20,19 +21,22 @@ class Utils {
 
         val fileName = "image_${Calendar.getInstance().timeInMillis}.jpg"
         val file = File(getPathDir(context), fileName)
+        try {
 
-
-        val outputStream = FileOutputStream(file)
-        image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-        outputStream.flush()
-        outputStream.close()
-        path = file.absolutePath.toString()
-
+            val outputStream = FileOutputStream(file)
+            image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+            outputStream.flush()
+            outputStream.close()
+            path = file.absolutePath.toString()
+            image.recycle()
+        } catch (e: FileNotFoundException) {
+            e.printStackTrace()
+        }
         path
     }
 
     fun removeFolder(context: Context) {
-        if (getPathDir(context).exists()){
+        if (getPathDir(context).exists()) {
             getPathDir(context).deleteRecursively()
         }
     }
@@ -42,7 +46,7 @@ class Utils {
         return File(context.getExternalFilesDir(null), folderName)
     }
 
-    fun getSaveImageInit(context: Context){
+    fun getSaveImageInit(context: Context) {
         removeFolder(context)
     }
 
