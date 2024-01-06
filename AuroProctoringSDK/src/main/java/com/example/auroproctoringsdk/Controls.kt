@@ -1,6 +1,6 @@
 package com.example.auroproctoringsdk
 
-import android.util.Log
+import com.example.auroproctoringsdk.model.ControlModel
 
 /**
  * Controls

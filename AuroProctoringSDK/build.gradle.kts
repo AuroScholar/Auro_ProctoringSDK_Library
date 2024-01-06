@@ -80,7 +80,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.AuroScholar"
                 artifactId = "Auro_Proctoring_Library"
-                version = "0.2.1"
+                version = "0.2.2"
             }
         }
     }
