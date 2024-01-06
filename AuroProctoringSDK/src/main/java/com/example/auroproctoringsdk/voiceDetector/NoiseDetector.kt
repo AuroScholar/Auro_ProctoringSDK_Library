@@ -45,7 +45,7 @@ class NoiseDetector {
 
             while (isRunning) {
                 val readSize = audioRecord.read(buffer, 0, BUFFER_SIZE)
-                if (readSize != AudioRecord.ERROR_INVALID_OPERATION) {
+                if (readSize != AudioRecord.ERROR_INVALID_OPERATION && readSize > 0) {
                     val amplitude = calculateAmplitude(buffer, readSize!!)
 
                     for (i in 0 until readSize) {
