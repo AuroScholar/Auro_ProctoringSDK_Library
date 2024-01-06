@@ -10,13 +10,13 @@ import java.io.FileOutputStream
 import java.util.Calendar
 
 class Utils {
-
     fun saveBitmapIntoImageInternalDir(tempBitmap: Bitmap, context: Context): String = runBlocking {
         var path = ""
         val image = tempBitmap.rotateBitmap(0F)
 
-        if (!getPathDir(context).exists()) {
-            getPathDir(context).mkdirs()
+        val pathDir = getPathDir(context)
+        if (!pathDir.exists()) {
+            pathDir.mkdirs() // Create the necessary directories if they don't exist
         }
 
         val fileName = "image_${Calendar.getInstance().timeInMillis}.jpg"
