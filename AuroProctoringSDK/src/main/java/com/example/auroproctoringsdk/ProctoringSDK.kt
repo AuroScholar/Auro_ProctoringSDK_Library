@@ -36,8 +36,7 @@ import java.util.Timer
 import java.util.TimerTask
 
 class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context, attrs),
-    SurfaceHolder.Callback,
-    Camera.PreviewCallback {
+    SurfaceHolder.Callback, Camera.PreviewCallback {
     companion object {
         private var isViewAvailable = false
         private var isDNDManagerRequest = false
@@ -104,13 +103,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
     fun resultTime(): ArrayList<Long> {
         timeListString.clear()
         val currentTimeMillis = System.currentTimeMillis()
-//        Log.e("resultTime", "currentMilis "+currentTimeMillis )
         val nextTenMinutes = currentTimeMillis + (10 * 60 * 1000)
-//        Log.e("resultTime", "nextTenMinutes "+nextTenMinutes )
         val fiftySecondsInMillis = 15 * 1000
-//        Log.e("resultTime", "thirtySecondsInMillis "+fiftySecondsInMillis )
         val numberOfBreakpoints = (nextTenMinutes - currentTimeMillis) / fiftySecondsInMillis
-//        Log.e("resultTime", "numberOfBreakpoints "+numberOfBreakpoints )
 
         val breakpoints = ArrayList<Long>()
         for (i in 0 until numberOfBreakpoints) {
@@ -533,7 +528,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
     }
 
-    fun convertIntoTime(milliseconds: Long):String {
+    fun convertIntoTime(milliseconds: Long): String {
         val currentTime = Date(milliseconds)
 
         val calendar = Calendar.getInstance()
@@ -562,33 +557,21 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
         //getTimeInMile(timeList.first())
 
-        var tempListTime =ArrayList<String>()
+        var tempListTime = ArrayList<String>()
 
         tempListTime.clear()
-        timeList.forEach { ll->
+        timeList.forEach { ll ->
             tempListTime.add(convertIntoTime(ll))
         }
-        println("MyTime"+tempListTime)
+        println("MyTime" + tempListTime)
 
         faceDetector.setonFaceDetectionFailureListener(object :
             FaceDetector.OnProctoringResultListener {
 
             override fun isRunningDetector(boolean: Boolean?) {
 
-                val currentTimeMillis = System.currentTimeMillis()
 
-                var ct = convertIntoTime(currentTimeMillis)
-
-                print("mylist point size proccess "+timeListString.size + " check"+convertIntoTime(currentTimeMillis) +" -"+timeListString.contains(ct))
-
-
-
-                var currentTimeExistsInBreakpoints = timeList.contains(currentTimeMillis)
-
-
-
-
-                Log.e("TAG", "isRunningDetector:   new status "+currentTimeExistsInBreakpoints +" size of bracks"+timeList.size)
+               isWaiting =  isProcessOfWaiting()
 
                 if (isViewAvailable && controls.getControls().isProctoringStart) { // view is ready
 
@@ -642,8 +625,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                         )
 
                         if (controls.getControls().isAlert && controls.getControls().isAlertVoiceDetection) {
-                            if (isNiceDetected) {
-                                /*(context as AppCompatActivity).runOnUiThread {
+                            if (isNiceDetected) {/*(context as AppCompatActivity).runOnUiThread {
                                     alert("HIGH SOUND", typeOfVoiceDetected)
                                 }*/
                             }
@@ -779,9 +761,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                         if (!check(face) && !face.isNullOrBlank()) {
 
                             alert("Eye", face)
-                            val filter =
-                                context.getString(R.string.Lip_movement_eyeball_tracking)
-                                    .split("[:]".toRegex())
+                            val filter = context.getString(R.string.Lip_movement_eyeball_tracking)
+                                .split("[:]".toRegex())
 
                             if (filter.size == 2 && DNDManager(context).checkDndPermission()) {
                                 alert(filter[0], filter[1])
@@ -852,6 +833,14 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
         })
 
+    }
+
+    private fun isProcessOfWaiting(): Boolean {
+        val currentTimeMillis = System.currentTimeMillis()
+
+        var ct = convertIntoTime(currentTimeMillis)
+
+        return timeListString.contains(ct)
     }
 
     private fun checkObject(face: ArrayList<String>, blockedDeviceList: List<String>?): String? {
