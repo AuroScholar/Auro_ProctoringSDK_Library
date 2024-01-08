@@ -10,7 +10,7 @@ import java.io.FileOutputStream
 import java.util.Calendar
 
 class Utils {
-    fun saveBitmapIntoImageInternalDir(tempBitmap: Bitmap, context: Context): String = runBlocking {
+    fun saveBitmapIntoImageInternalDir(tempBitmap: Bitmap, context: Context): String {
         var path = ""
         val image = tempBitmap.rotateBitmap(0F)
 
@@ -29,11 +29,11 @@ class Utils {
             path = file.absolutePath.toString()
         } catch (e: FileNotFoundException) {
             e.printStackTrace()
-        } finally {
+        }/* finally {
             // Recycle the bitmap after it has been used
-            image.recycle()
-        }
-        path
+         //   image.recycle()
+        }*/
+        return path
     }
 
     fun removeFolder(context: Context) {
