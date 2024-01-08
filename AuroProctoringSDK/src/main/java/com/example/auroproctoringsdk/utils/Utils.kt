@@ -22,15 +22,16 @@ class Utils {
         val fileName = "image_${Calendar.getInstance().timeInMillis}.jpg"
         val file = File(getPathDir(context), fileName)
         try {
-
             val outputStream = FileOutputStream(file)
             image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
             outputStream.flush()
             outputStream.close()
             path = file.absolutePath.toString()
-            image.recycle()
         } catch (e: FileNotFoundException) {
             e.printStackTrace()
+        } finally {
+            // Recycle the bitmap after it has been used
+            image.recycle()
         }
         path
     }
