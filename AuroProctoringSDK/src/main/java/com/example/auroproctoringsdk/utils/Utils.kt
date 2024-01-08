@@ -2,6 +2,7 @@ package com.example.auroproctoringsdk.utils
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import kotlinx.coroutines.runBlocking
 import java.io.File
@@ -29,10 +30,10 @@ class Utils {
             path = file.absolutePath.toString()
         } catch (e: FileNotFoundException) {
             e.printStackTrace()
-        }/* finally {
+        } finally {
             // Recycle the bitmap after it has been used
-         //   image.recycle()
-        }*/
+            image.recycle()
+        }
         return path
     }
 
@@ -53,8 +54,19 @@ class Utils {
 
 
     private fun Bitmap.rotateBitmap(degrees: Float): Bitmap {
+/*
+
         val matrix = Matrix().apply { postRotate(degrees) }
         return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
+*/
+
+        if (isRecycled) {
+            return this // Return the original bitmap if it has been recycled
+        }
+
+        val matrix = Matrix().apply { postRotate(degrees) }
+        return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
+
     }
 
     private fun Context.getAppName(): String? = applicationInfo.loadLabel(packageManager).toString()
