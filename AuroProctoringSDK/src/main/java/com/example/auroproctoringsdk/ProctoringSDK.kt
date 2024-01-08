@@ -30,6 +30,8 @@ import com.example.auroproctoringsdk.screenBarLock.StatusBarLocker
 import com.example.auroproctoringsdk.screenReader.StopTextReading
 import com.example.auroproctoringsdk.utils.CustomAlertDialog
 import com.example.auroproctoringsdk.utils.Utils
+import java.util.Calendar
+import java.util.Date
 import java.util.Timer
 import java.util.TimerTask
 
@@ -58,23 +60,85 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
     private val handler = Handler()
 
     private var controls = Controls()
+
+    // Start the long running task
+    val startTime = System.currentTimeMillis()
+
     private val changeWaitingStatus = object : Runnable {
         override fun run() {
-            isWaiting = !isWaiting
-            controls.getControls().isWaitingDelayInMillis.let {
-                handler.postDelayed(
-                    this, it/*isWaitingDelayInMillis*/
-                )
+//            status = if (System.currentTimeMillis() % 30000 < 30000) true else false
+
+            // Long running task
+            // ...
+
+            // Update status every second
+            /*val status = if (System.currentTimeMillis() % 2 == 0L) {
+                "true"
+            } else {
+                "false"
+            }*/
+
+//            status = if (System.currentTimeMillis() % 30000 < 30000) true else false
+
+            status = if (System.currentTimeMillis() % 30000 < 1000 && status) true else false
+
+
+            // Print status
+            println("Status: is live  $status")
+
+            // Repeat the task every second for 30 seconds
+            if (System.currentTimeMillis() - startTime < 30000) {
+                handler.postDelayed(this, 1000)
             }
+
+            /*handler.postDelayed(
+                this, 30000
+            )*/
         }
     }
-    var alertDialog1 = CustomAlertDialog(context)
 
+    var alertDialog1 = CustomAlertDialog(context)
+    var timeList = ArrayList<Long>()
+    var timeListString = ArrayList<String>()
+
+    fun resultTime(): ArrayList<Long> {
+        timeListString.clear()
+        val currentTimeMillis = System.currentTimeMillis()
+//        Log.e("resultTime", "currentMilis "+currentTimeMillis )
+        val nextTenMinutes = currentTimeMillis + (10 * 60 * 1000)
+//        Log.e("resultTime", "nextTenMinutes "+nextTenMinutes )
+        val fiftySecondsInMillis = 15 * 1000
+//        Log.e("resultTime", "thirtySecondsInMillis "+fiftySecondsInMillis )
+        val numberOfBreakpoints = (nextTenMinutes - currentTimeMillis) / fiftySecondsInMillis
+//        Log.e("resultTime", "numberOfBreakpoints "+numberOfBreakpoints )
+
+        val breakpoints = ArrayList<Long>()
+        for (i in 0 until numberOfBreakpoints) {
+            breakpoints.add(currentTimeMillis + (i * fiftySecondsInMillis))
+            timeListString.add(convertIntoTime(currentTimeMillis + (i * fiftySecondsInMillis)))
+
+        }
+        timeList.addAll(breakpoints)
+
+        return breakpoints
+    }
+
+    fun getTimeStatus(): Boolean {
+        status = if (System.currentTimeMillis() % 30000 < 30000) true else false
+
+        return status
+    }
+
+    val handlerStatus = Handler()
+    var status = false
 
     init {
+        timeList.clear()
         holder.addCallback(this)
         handler.post(changeWaitingStatus)
+        resultTime()
     }
+
 
     override fun surfaceCreated(holder: SurfaceHolder) {
         openCamera()
@@ -273,7 +337,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
             fun onCreate() {
                 isViewAvailable = true
-                Log.e("RAMU", "onCreate: ", )
+                Log.e("RAMU", "onCreate: ")
                 // Code to execute when the fragment or activity is created
 
 
@@ -364,7 +428,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 //                Log.e("TAG", "onDestroy: -- result "+Utils(context).removeDir() )
                 if (controls.getControls().isDndStatusOn) { // DND off
                     DNDManager(context).dndAlertDialogHide()
-                     DNDManager(context).DndModeOff(context)
+                    DNDManager(context).DndModeOff(context)
                 }
                 isViewAvailable = false
 
@@ -425,7 +489,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
         isAlert = true
 
-        Log.e("RAMU", "startProctoring: ", )
+        Log.e("RAMU", "startProctoring: ")
         //update code
         if (controls.getControls().isDndStatusOn && !isDNDManagerRequest) { // check DND not on
             if (DNDManager(context).checkDndPermission()) {
@@ -469,13 +533,64 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
     }
 
+    fun convertIntoTime(milliseconds: Long):String {
+        val currentTime = Date(milliseconds)
+
+        val calendar = Calendar.getInstance()
+        calendar.time = currentTime
+
+        val hour = calendar.get(Calendar.HOUR_OF_DAY)
+        val minute = calendar.get(Calendar.MINUTE)
+        val second = calendar.get(Calendar.SECOND)
+
+        println("Current Time: $hour:$minute:$second")
+
+        // Compare with current time
+        val currentTimeMillis = calendar.timeInMillis
+        if (milliseconds == currentTimeMillis) {
+            println("Milliseconds and current time are equal.")
+        } else if (milliseconds > currentTimeMillis) {
+            println("Milliseconds is greater than current time.")
+        } else {
+            println("Milliseconds is less than current time.")
+        }
+        return "$hour:$minute:$second"
+    }
+
+
     private fun syncResults() {
+
+        //getTimeInMile(timeList.first())
+
+        var tempListTime =ArrayList<String>()
+
+        tempListTime.clear()
+        timeList.forEach { ll->
+            tempListTime.add(convertIntoTime(ll))
+        }
+        println("MyTime"+tempListTime)
+
         faceDetector.setonFaceDetectionFailureListener(object :
             FaceDetector.OnProctoringResultListener {
 
             override fun isRunningDetector(boolean: Boolean?) {
-                Log.e("TAG", "isRunningDetector: running " + boolean)
-                if (isViewAvailable) { // view is ready
+
+                val currentTimeMillis = System.currentTimeMillis()
+
+                var ct = convertIntoTime(currentTimeMillis)
+
+                print("mylist point size proccess "+timeListString.size + " check"+convertIntoTime(currentTimeMillis) +" -"+timeListString.contains(ct))
+
+
+
+                var currentTimeExistsInBreakpoints = timeList.contains(currentTimeMillis)
+
+
+
+
+                Log.e("TAG", "isRunningDetector:   new status "+currentTimeExistsInBreakpoints +" size of bracks"+timeList.size)
+
+                if (isViewAvailable && controls.getControls().isProctoringStart) { // view is ready
 
                     if (isWaiting) {
                         proctorListener?.isRunningDetector(boolean)
@@ -520,7 +635,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                 isRunning: Boolean,
                 typeOfVoiceDetected: String,
             ) {
-                if (isViewAvailable) {
+                if (isViewAvailable && controls.getControls().isProctoringStart) {
                     if (isWaiting) {
                         proctorListener?.onVoiceDetected(
                             amplitude, isNiceDetected, isRunning, typeOfVoiceDetected
@@ -546,7 +661,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             }
 
             override fun onFailure(exception: Exception) {
-                if (isViewAvailable) {
+                if (isViewAvailable && controls.getControls().isProctoringStart) {
                     if (isWaiting) {
                         proctorListener?.onFailure(exception)
                     }
@@ -554,7 +669,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             }
 
             override fun onFaceCount(face: Int) {
-                if (isViewAvailable) {
+                if (isViewAvailable && controls.getControls().isProctoringStart) {
                     if (isWaiting) {
                         proctorListener?.onFaceCount(face)
                     }
@@ -564,8 +679,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                             0 -> {
                                 faceCountWorring2Times++
 
-                                Log.e("TAG", "onFaceCount: count print"+faceCountWorring2Times )
-                                if (controls.getControls().isAlertFaceNotFound && controls.getControls().isAlert && faceCountWorring2Times >= 2 ) {
+                                Log.e("TAG", "onFaceCount: count print" + faceCountWorring2Times)
+                                if (controls.getControls().isAlertFaceNotFound && controls.getControls().isAlert && faceCountWorring2Times >= 2) {
 
 
                                     val faceNotFoundException =
@@ -610,7 +725,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             }
 
             override fun onLipMovementDetection(islipmovment: Boolean) {
-                if (isViewAvailable) {
+                if (isViewAvailable && controls.getControls().isProctoringStart) {
                     if (isWaiting) {
                         proctorListener?.onLipMovementDetection(islipmovment)
                     }
@@ -631,7 +746,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             }
 
             override fun onObjectDetection(objectList: ArrayList<String>, size: Int?) {
-                if (isViewAvailable) {
+                if (isViewAvailable && controls.getControls().isProctoringStart) {
                     if (isWaiting) {
                         proctorListener?.onObjectDetection(objectList)
                     }
@@ -654,7 +769,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             }
 
             override fun onEyeDetectionOnlyOneFace(face: String) {
-                if (isViewAvailable) {
+                if (isViewAvailable && controls.getControls().isProctoringStart) {
                     if (isWaiting) {
                         proctorListener?.onEyeDetectionOnlyOneFace(face)
 
@@ -678,7 +793,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             }
 
             override fun onUserWallDistanceDetector(distance: Float) {
-                if (isViewAvailable) {
+                if (isViewAvailable && controls.getControls().isProctoringStart) {
                     if (isWaiting) {
                         proctorListener?.onUserWallDistanceDetector(distance)
                     }
@@ -690,7 +805,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             }
 
             override fun onFaceDirectionMovement(faceDirection: String?) {
-                if (isViewAvailable) {
+                if (isViewAvailable && controls.getControls().isProctoringStart) {
                     if (isWaiting) {
                         proctorListener?.onFaceDirectionMovement(faceDirection)
                     }
@@ -713,35 +828,20 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             }
 
             override fun captureImage(faceDirection: Bitmap?) {
-                faceDirection?.let {
 
-
-                    /*val imageList = BitmapUtils().getSaveImaged(context,context.resources.getDrawable(R.drawable.testbitmap).toBitmap(),it)
-
-                    runBlocking(){
-                        faceCompareProcess(imageList)
-                    }*/
-
-
-                }
-
-                if (isViewAvailable) {
+                if (isViewAvailable && controls.getControls().isProctoringStart) {
+                    Log.e(
+                        "status of image",
+                        "captureImage: isWaiting status" + isWaiting + "<  --- " + Date(System.currentTimeMillis())
+                    )
                     if (isWaiting) {
                         if (faceDirection != null && controls.getControls().isCaptureImage) {
-                            /*Log.e(
-                                "TAG",
-                                "captureImage:-->  " + Utils().saveBitmapIntoImageInternalDir(
-                                    faceDirection,
-                                    context
-                                )
-                            )*/
-
                             proctorListener?.captureImage(faceDirection)
                         }
 
                         if (controls.getControls().isSaveImageHideFolder) {  // hide image into local folder
                             if (faceDirection != null) {
-                              //  Utils().saveBitmapIntoImageInternalDir(faceDirection, context)
+                                //  Utils().saveBitmapIntoImageInternalDir(faceDirection, context)
                             }
                         }
 
