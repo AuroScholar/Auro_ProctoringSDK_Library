@@ -741,7 +741,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
                         if (controls.getControls().isSaveImageHideFolder) {  // hide image into local folder
                             if (faceDirection != null) {
-                                Utils().saveBitmapIntoImageInternalDir(faceDirection, context)
+                              //  Utils().saveBitmapIntoImageInternalDir(faceDirection, context)
                             }
                         }
 
