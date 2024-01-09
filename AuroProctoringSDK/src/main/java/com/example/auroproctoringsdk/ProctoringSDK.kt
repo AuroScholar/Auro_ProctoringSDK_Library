@@ -141,7 +141,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                 override fun run() {
                     captureImage()
                 }
-            }, 0, 500) // 1 sec
+            }, 0, 1000) // 1 sec
 
         }
 
