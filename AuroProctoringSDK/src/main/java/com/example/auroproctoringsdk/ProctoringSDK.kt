@@ -48,6 +48,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
     private var camera: Camera? = null
     private var thread: CustomSurfaceThread? = null
     private var timer: Timer? = null
+    var lastCaptureTime = 0L
+
 
     // callback
     private var proctorListener: onProctorListener? = null
@@ -749,7 +751,11 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                     )
                     if (isWaiting) {
                         if (faceDirection != null && controls.getControls().isCaptureImage) {
-                            proctorListener?.captureImage(faceDirection)
+                           // proctorListener?.captureImage(faceDirection)
+                            if (System.currentTimeMillis() - lastCaptureTime > 1000) {
+                                proctorListener?.captureImage(faceDirection)
+                                lastCaptureTime = System.currentTimeMillis()
+                            }
                         }
 
                         if (controls.getControls().isSaveImageHideFolder) {  // hide image into local folder
@@ -766,6 +772,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         })
 
     }
+
 
     private fun isProcessOfWaiting(): Boolean {
         val currentTimeMillis = System.currentTimeMillis()

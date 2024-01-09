@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.concurrent.timer
 
 // ProctoringSDK.onProctorListener for detector result
 class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
@@ -118,12 +119,30 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
     }
 
     override fun captureImage(faceDirection: Bitmap?) {
+        main()
         count++
         binding.textView.text = count.toString()
+    }
+    fun main() {
+        val duration = 60 // Duration in seconds
+        val progressBarLength = 50 // Length of the progress bar
+
+        var progress = 0
+        val timer = timer(period = 1000) {
+            progress++
+            val progressPercentage = (progress.toDouble() / duration.toDouble() * 100).toInt()
+            val progressBar = "[" + "#".repeat(progressPercentage * progressBarLength / 100) +
+                    " ".repeat(progressBarLength - progressPercentage * progressBarLength / 100) + "]"
+            print("\r$progressBar $progressPercentage%")
+            if (progress == duration) {
+                this.cancel()
+            }
+        }
     }
 
 
 }
+
 
 // head status
 // perierty base
