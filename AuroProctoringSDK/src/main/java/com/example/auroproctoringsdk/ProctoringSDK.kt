@@ -1,6 +1,7 @@
 package com.example.auroproctoringsdk
 
 import android.annotation.SuppressLint
+import android.app.job.JobScheduler
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -82,11 +83,22 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         return breakpoints
     }
     init {
+        scheduleJob()
+
         timeList.clear()
         holder.addCallback(this)
         resultTime()
     }
 
+    fun scheduleJob() {
+        val timer = Timer()
+        val task = object : TimerTask() {
+            override fun run() {
+                isWaiting = true
+            }
+        }
+        timer.schedule(task, 0, 10 * 1000)
+    }
 
     override fun surfaceCreated(holder: SurfaceHolder) {
         openCamera()
@@ -505,7 +517,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             override fun isRunningDetector(boolean: Boolean?) {
 
 
-               isWaiting =  isProcessOfWaiting()
+//               isWaiting =  isProcessOfWaiting()
 
                 if (isViewAvailable && controls.getControls().isProctoringStart) { // view is ready
 
@@ -749,20 +761,22 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                         "status of image",
                         "captureImage: isWaiting status" + isWaiting + "<  --- " + Date(System.currentTimeMillis())
                     )
-                    if (isWaiting) {
-                        if (faceDirection != null && controls.getControls().isCaptureImage) {
-                           // proctorListener?.captureImage(faceDirection)
-                            if (System.currentTimeMillis() - lastCaptureTime > 1000) {
-                                proctorListener?.captureImage(faceDirection)
-                                lastCaptureTime = System.currentTimeMillis()
-                            }
-                        }
+                    if (isWaiting && faceDirection != null && controls.getControls().isCaptureImage){
+                            isWaiting = false
+                            proctorListener?.captureImage(faceDirection)
+                        /* if (faceDirection != null && controls.getControls().isCaptureImage) {
+                            // proctorListener?.captureImage(faceDirection)
+                             if (System.currentTimeMillis() - lastCaptureTime > 1000) {
+                                 proctorListener?.captureImage(faceDirection)
+                                 lastCaptureTime = System.currentTimeMillis()
+                             }
+                         }
 
-                        if (controls.getControls().isSaveImageHideFolder) {  // hide image into local folder
-                            if (faceDirection != null) {
-                                //  Utils().saveBitmapIntoImageInternalDir(faceDirection, context)
-                            }
-                        }
+                         if (controls.getControls().isSaveImageHideFolder) {  // hide image into local folder
+                             if (faceDirection != null) {
+                                 //  Utils().saveBitmapIntoImageInternalDir(faceDirection, context)
+                             }
+                         }*/
 
                     }
                 }
