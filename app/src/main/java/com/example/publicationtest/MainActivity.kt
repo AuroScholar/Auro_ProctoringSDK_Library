@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+    var count =-1
 
     //init permission
     private var proctoringPermissionRequest = ProctoringPermissionRequest(this)
@@ -78,7 +79,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
     }
 
     override fun onFaceCount(faceCount: Int) {
-        binding.textView.text = faceCount.toString()
+       // binding.textView.text = faceCount.toString()
         // getting face count
         // binding.textView.text = faceCount.toString()
     }
@@ -117,7 +118,8 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
     }
 
     override fun captureImage(faceDirection: Bitmap?) {
-
+        count++
+        binding.textView.text = count.toString()
     }
 
 

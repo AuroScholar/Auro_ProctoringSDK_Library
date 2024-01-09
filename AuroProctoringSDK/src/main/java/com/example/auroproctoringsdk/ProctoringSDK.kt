@@ -56,45 +56,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
     var faceCountWorring2Times = -1
     //control setup
 
-    private val handler = Handler()
-
     private var controls = Controls()
-
-    // Start the long running task
-    val startTime = System.currentTimeMillis()
-
-    private val changeWaitingStatus = object : Runnable {
-        override fun run() {
-//            status = if (System.currentTimeMillis() % 30000 < 30000) true else false
-
-            // Long running task
-            // ...
-
-            // Update status every second
-            /*val status = if (System.currentTimeMillis() % 2 == 0L) {
-                "true"
-            } else {
-                "false"
-            }*/
-
-//            status = if (System.currentTimeMillis() % 30000 < 30000) true else false
-
-            status = if (System.currentTimeMillis() % 30000 < 1000 && status) true else false
-
-
-            // Print status
-            println("Status: is live  $status")
-
-            // Repeat the task every second for 30 seconds
-            if (System.currentTimeMillis() - startTime < 30000) {
-                handler.postDelayed(this, 1000)
-            }
-
-            /*handler.postDelayed(
-                this, 30000
-            )*/
-        }
-    }
 
     var alertDialog1 = CustomAlertDialog(context)
     var timeList = ArrayList<Long>()
@@ -117,20 +79,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
         return breakpoints
     }
-
-    fun getTimeStatus(): Boolean {
-        status = if (System.currentTimeMillis() % 30000 < 30000) true else false
-
-        return status
-    }
-
-    val handlerStatus = Handler()
-    var status = false
-
     init {
         timeList.clear()
         holder.addCallback(this)
-        handler.post(changeWaitingStatus)
         resultTime()
     }
 
@@ -218,25 +169,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         })
 
     }
-
-    fun Drawable.toBitmap(): Bitmap {
-        if (this is BitmapDrawable) {
-            return bitmap
-        }
-
-        val width = if (bounds.isEmpty) intrinsicWidth else bounds.width()
-        val height = if (bounds.isEmpty) intrinsicHeight else bounds.height()
-
-        return Bitmap.createBitmap(width.nonZero(), height.nonZero(), Bitmap.Config.ARGB_8888)
-            .also {
-                val canvas = Canvas(it)
-                setBounds(0, 0, canvas.width, canvas.height)
-                draw(canvas)
-            }
-    }
-
-    private fun Int.nonZero() = if (this <= 0) 1 else this
-
 
     override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
 
