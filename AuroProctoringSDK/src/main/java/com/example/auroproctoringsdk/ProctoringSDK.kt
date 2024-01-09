@@ -68,13 +68,13 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         timeListString.clear()
         val currentTimeMillis = System.currentTimeMillis()
         val nextTenMinutes = currentTimeMillis + (10 * 60 * 1000)
-        val fiftySecondsInMillis = 15 * 1000
-        val numberOfBreakpoints = (nextTenMinutes - currentTimeMillis) / fiftySecondsInMillis
+        val tenSecondsInMillis = 10 * 1000
+        val numberOfBreakpoints = (nextTenMinutes - currentTimeMillis) / tenSecondsInMillis
 
         val breakpoints = ArrayList<Long>()
         for (i in 0 until numberOfBreakpoints) {
-            breakpoints.add(currentTimeMillis + (i * fiftySecondsInMillis))
-            timeListString.add(convertIntoTime(currentTimeMillis + (i * fiftySecondsInMillis)))
+            breakpoints.add(currentTimeMillis + (i * tenSecondsInMillis))
+            timeListString.add(convertIntoTime(currentTimeMillis + (i * tenSecondsInMillis)))
 
         }
         timeList.addAll(breakpoints)
