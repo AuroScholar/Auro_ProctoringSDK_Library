@@ -379,17 +379,13 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
     /**
      * Life process [Activity,Fragment]
-     *
      * @param lifecycle
-     *
      * onCreate()
      * onStart()
      * onResume()
      * onPause()
      * onStop()
      * onDestroy()
-     *
-     *
      *
      */
 
