@@ -18,6 +18,8 @@ import kotlin.concurrent.timer
 class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
+    val countdownTicker = CountdownTicker(10*60000, 1000) // 60 seconds countdown with 1-second interval
+
     var count =-1
 
     //init permission
@@ -52,6 +54,22 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
         val job = runOnMainAfter(1000) {
 
             binding.mainLayout.startProctoring(this, null)
+
+
+            countdownTicker.start(
+                onTick = { millisUntilFinished ->
+                    // Update UI with remaining time
+                    val seconds = millisUntilFinished / 1000
+                    println("Seconds remaining: $seconds")
+                    binding.time.text = "Seconds remaining: $seconds"
+                },
+                onFinish = {
+                    // Countdown finished, perform final actions
+                    println("Countdown finished")
+                    binding.mainLayout.stopProctoring()
+
+                }
+            )
 
         }
 
@@ -119,26 +137,11 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
     }
 
     override fun captureImage(faceDirection: Bitmap?) {
-        main()
+        //main()
         count++
-        binding.textView.text = count.toString()
+        binding.textView.text = count.toString() +" "+"take image "
     }
-    fun main() {
-        val duration = 60 // Duration in seconds
-        val progressBarLength = 50 // Length of the progress bar
 
-        var progress = 0
-        val timer = timer(period = 1000) {
-            progress++
-            val progressPercentage = (progress.toDouble() / duration.toDouble() * 100).toInt()
-            val progressBar = "[" + "#".repeat(progressPercentage * progressBarLength / 100) +
-                    " ".repeat(progressBarLength - progressPercentage * progressBarLength / 100) + "]"
-            print("\r$progressBar $progressPercentage%")
-            if (progress == duration) {
-                this.cancel()
-            }
-        }
-    }
 
 
 }

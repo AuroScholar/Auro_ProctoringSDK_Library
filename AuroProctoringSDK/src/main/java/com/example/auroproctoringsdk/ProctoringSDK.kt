@@ -36,8 +36,7 @@ import java.util.Date
 import java.util.Timer
 import java.util.TimerTask
 
-class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context, attrs),
-    SurfaceHolder.Callback, Camera.PreviewCallback {
+class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context, attrs), SurfaceHolder.Callback, Camera.PreviewCallback {
     companion object {
         private var isViewAvailable = false
         private var isDNDManagerRequest = false
@@ -124,7 +123,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                 isShareResult = true
             }
         }
-        timer.schedule(task, 0, 10 * 1000)
+        timer.scheduleAtFixedRate(task, 0, 10000) // every 10 seconds
     }
 
     /**
