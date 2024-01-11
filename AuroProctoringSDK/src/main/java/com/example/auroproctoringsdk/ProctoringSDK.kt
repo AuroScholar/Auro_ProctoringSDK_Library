@@ -108,8 +108,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
     var alertDialog = CustomAlertDialog(context)
 
     init {
-        scheduleJob()
         holder.addCallback(this)
+        scheduleJob()
     }
 
     /**
@@ -397,6 +397,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             fun onStart() {
+
+
+
                 if (controls.getControls().isStatusBarLock) {
                     StatusBarLocker.statusBarLock(context)
                 }
