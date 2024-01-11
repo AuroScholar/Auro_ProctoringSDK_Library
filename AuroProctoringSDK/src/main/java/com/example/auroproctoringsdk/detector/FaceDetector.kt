@@ -55,22 +55,6 @@ class FaceDetector() {
             .build()
     )
 
-    private val bitmapFaceDetector = FaceDetection.getClient(
-        FaceDetectorOptions.Builder()
-            .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
-            .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_NONE)
-            .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_NONE)
-            .build()
-    )
-
-
-   private val compareFaces = FaceDetection.getClient(FaceDetectorOptions.Builder()
-        .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
-        .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_NONE)
-        .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_NONE)
-        .build())
-
-
     private val objectDetector = ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS)
 
     /** Listener that gets notified when a face detection result is ready. */
@@ -97,21 +81,11 @@ class FaceDetector() {
     }
 
     /**
-     * Live face result
-     *
-     * @return
-     */
-    fun liveFaceResult(): MutableLiveData<FaceDetectorModel> {
-        return faceLiveResult
-    }
-
-    /**
      * Process
      *
      * @param frame
      */
-    fun process(frame: Frame/*, bitmap: Bitmap?*/) {
-//        oldBitmap = bitmap
+    fun process(frame: Frame) {
         synchronized(lock) {
             if (!isProcessing) {
                 isProcessing = true
@@ -201,9 +175,9 @@ class FaceDetector() {
                                 labelsList.add(text)
                                 Log.e(TAG, "Label:---->    $text, Confidence: $confidence")
                                 /*
-                                                                E  Label:---->     Desk, Confidence: 0.5930478
-                                                                E  Label:---->     Mobile phone, Confidence: 0.8290278
-                                                                E  Label:---->     Computer, Confidence: 0.503058
+                                  E  Label:---->     Desk, Confidence: 0.5930478
+                                  E  Label:---->     Mobile phone, Confidence: 0.8290278
+                                  E  Label:---->     Computer, Confidence: 0.503058
                                 */
                             }
                             onProctoringResultListener?.onObjectDetection(labelsList, null)
@@ -230,6 +204,12 @@ class FaceDetector() {
             }
     }
 
+    /**
+     * Convection bitmap
+     *
+     * @param frame convert into Bitmap using []
+     * @return
+     */
     private fun convectionBitmap(frame: Frame): Bitmap {
         val yuvImage = YuvImage(frame.data, frame.format, frame.size.width, frame.size.height, null)
         val out = ByteArrayOutputStream()
