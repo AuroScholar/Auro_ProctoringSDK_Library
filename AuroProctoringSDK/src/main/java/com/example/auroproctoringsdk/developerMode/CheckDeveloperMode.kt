@@ -18,7 +18,6 @@ class CheckDeveloperMode(val context: Context) {
         /*return Settings.Secure.getInt(
             context.contentResolver, Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0
         ) != 0*/
-
         if (Settings.Secure.getInt(
                 context.contentResolver,
                 Settings.Global.DEVELOPMENT_SETTINGS_ENABLED,
@@ -27,7 +26,6 @@ class CheckDeveloperMode(val context: Context) {
         ) {
             // Developer Mode is enabled
             // Perform your desired actions here
-     // update
 /*            val intent = Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)*/
