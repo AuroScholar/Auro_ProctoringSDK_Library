@@ -30,7 +30,11 @@ class CheckDeveloperMode(val context: Context) {
 
             val intent = Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(intent)
+            if (intent.resolveActivity(context.packageManager)!=null){
+                context.startActivity(intent)
+            }else{
+                //display error message else leave it
+            }
 
         }
 
