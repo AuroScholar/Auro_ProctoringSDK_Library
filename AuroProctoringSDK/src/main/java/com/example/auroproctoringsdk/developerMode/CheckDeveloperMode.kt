@@ -28,9 +28,23 @@ class CheckDeveloperMode(val context: Context) {
             // Developer Mode is enabled
             // Perform your desired actions here
 
+/*            val intent = Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)*/
+
+            // Developer Mode is enabled
+            // Perform your desired actions here
+
             val intent = Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(intent)
+
+            // Check if there is an activity that can handle the intent
+            if (intent.resolveActivity(context.packageManager) != null) {
+                context.startActivity(intent)
+            } else {
+                // Handle the case where no activity can handle the intent
+                // Display an error message or perform an alternative action
+            }
 
         }
 

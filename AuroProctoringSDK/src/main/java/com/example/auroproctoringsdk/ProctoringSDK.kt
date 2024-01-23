@@ -3,9 +3,6 @@ package com.example.auroproctoringsdk
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.hardware.Camera
 import android.os.Handler
 import android.util.AttributeSet
@@ -26,7 +23,6 @@ import com.example.auroproctoringsdk.dnd.DNDManager
 import com.example.auroproctoringsdk.emulater.EmulatorDetector
 import com.example.auroproctoringsdk.languageSetup.CurrentLanguage
 import com.example.auroproctoringsdk.screenBarLock.StatusBarLocker
-import com.example.auroproctoringsdk.screenBrightness.ScreenBrightness
 import com.example.auroproctoringsdk.screenReader.StopTextReading
 import com.example.auroproctoringsdk.utils.CustomAlertDialog
 import com.example.auroproctoringsdk.utils.Utils
@@ -144,7 +140,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
     fun captureImage() {
         // Implement image capture logic here
-
         camera?.setPreviewCallback(this@ProctoringSDK)
         camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
             faceDetector.process(
@@ -159,24 +154,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         })
 
     }
-
-    fun Drawable.toBitmap(): Bitmap {
-        if (this is BitmapDrawable) {
-            return bitmap
-        }
-
-        val width = if (bounds.isEmpty) intrinsicWidth else bounds.width()
-        val height = if (bounds.isEmpty) intrinsicHeight else bounds.height()
-
-        return Bitmap.createBitmap(width.nonZero(), height.nonZero(), Bitmap.Config.ARGB_8888)
-            .also {
-                val canvas = Canvas(it)
-                setBounds(0, 0, canvas.width, canvas.height)
-                draw(canvas)
-            }
-    }
-
-    private fun Int.nonZero() = if (this <= 0) 1 else this
 
 
     override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
