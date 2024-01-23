@@ -27,7 +27,7 @@ class CheckDeveloperMode(val context: Context) {
         ) {
             // Developer Mode is enabled
             // Perform your desired actions here
-
+     // update
 /*            val intent = Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)*/
