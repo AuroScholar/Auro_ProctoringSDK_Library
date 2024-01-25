@@ -28,7 +28,7 @@ dependencies {
 ## Setup ProctoringSDK 
 
 ## Manifest Permission ( android version 9 to 14 ) 
-```shell
+```manifest
      <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />

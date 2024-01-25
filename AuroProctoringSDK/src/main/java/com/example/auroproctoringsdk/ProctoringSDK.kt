@@ -1,11 +1,9 @@
 package com.example.auroproctoringsdk
 
 import android.annotation.SuppressLint
+import android.app.job.JobScheduler
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.hardware.Camera
 import android.os.Handler
 import android.util.AttributeSet
@@ -30,52 +28,109 @@ import com.example.auroproctoringsdk.screenBarLock.StatusBarLocker
 import com.example.auroproctoringsdk.screenReader.StopTextReading
 import com.example.auroproctoringsdk.utils.CustomAlertDialog
 import com.example.auroproctoringsdk.utils.Utils
+import java.util.Calendar
+import java.util.Date
 import java.util.Timer
 import java.util.TimerTask
 
-class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context, attrs),
-    SurfaceHolder.Callback,
-    Camera.PreviewCallback {
+class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context, attrs), SurfaceHolder.Callback, Camera.PreviewCallback {
     companion object {
         private var isViewAvailable = false
         private var isDNDManagerRequest = false
-        var isWaiting = false
+        var isShareResult = false
         var isAlert = false
     }
 
+    /**
+     * Face detector
+     * in this class having all AI code
+     *
+     */
     private val faceDetector = FaceDetector()
+
+    /**
+     * Camera
+     * [startPreview]
+     * [captureImage]
+     * [stopPreview]
+     * [releaseCamera]
+     */
     private var camera: Camera? = null
+
+    /**
+     * Thread
+     * When Camera is Running
+     * then threads start
+     */
     private var thread: CustomSurfaceThread? = null
+
+    /**
+     * Timer
+     * Use to Specifics Duration [time] for Continues Perform same Task repeatedly with give time [Duration]
+     *
+     */
     private var timer: Timer? = null
 
-    // callback
+    /**
+     * [proctorListener] interface is use to send user Face real-time information
+     * Proctoring End User every 10 sec wait after AI [FaceDetector] result is Ready.
+     * */
     private var proctorListener: onProctorListener? = null
-    //face count
 
-    var faceCountWorring2Times = -1
-    //control setup
 
-    private val handler = Handler()
+    /**
+     * BUG
+     * [faceNotFoundWarning]
+     * face not found error come multiple times when camera some time generating blurImages , unreadable image
+     * Solution
+     * before sending result into [proctorListener] user attempt face Not Found Error max 2 times then send into [proctorListener]
+     *[faceNotFoundWarning] = max 2 times for more quorate
+     */
+    var faceNotFoundWarning = -1
 
+
+    /**
+     * Controls [Controls]
+     * Help to control the run time Alerts and Permission related task
+     *  over handle [startProctoring] and [stopProctoring]
+     *  [alertOnOff] [updateControl] [getControl]
+     *  all run time alerts handle by [Controls]
+     */
     private var controls = Controls()
-    private val changeWaitingStatus = object : Runnable {
-        override fun run() {
-            isWaiting = !isWaiting
-            controls.getControls().isWaitingDelayInMillis.let {
-                handler.postDelayed(
-                    this, it/*isWaitingDelayInMillis*/
-                )
-            }
-        }
-    }
-    var alertDialog1 = CustomAlertDialog(context)
 
+    /**
+     * Alert dialog [CustomAlertDialog]
+     * all Run time Alerts in Separate class [CustomAlertDialog]
+     */
+    var alertDialog = CustomAlertDialog(context)
 
     init {
         holder.addCallback(this)
-        handler.post(changeWaitingStatus)
+        scheduleJob()
     }
 
+    /**
+     * continues running during the camera running state is on
+     * wait for 10 sec then isShareResult is true for send proctoring info into onProctorListener for final result
+     * */
+    private fun scheduleJob() {
+        val timer = Timer()
+        val task = object : TimerTask() {
+            override fun run() {
+                isShareResult = true
+            }
+        }
+        timer.scheduleAtFixedRate(task, 0, 10000) // every 10 seconds
+    }
+
+    /**
+     * Camera life Cycle
+     *
+     * surface Create [surfaceCreated]
+     * open checking hardware and detecting camera id [findFrontCamera]
+     * start Preview [startPreview]
+     * image capture every 5 milis
+     * */
     override fun surfaceCreated(holder: SurfaceHolder) {
         openCamera()
         startPreview()
@@ -86,6 +141,18 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         startImageCaptureTimer()
     }
 
+    /**
+     * Surface changed
+     *
+     * @param holder
+     * @param format
+     * @param width
+     * @param height
+     *
+     * when user change the Phone Orientation some time
+     * camera get stack that camera restart by it self
+     *
+     */
     override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
         // Implement surfaceChanged logic here
         if (holder.surface == null) {
@@ -94,6 +161,16 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         startPreview()
     }
 
+    /**
+     * Surface destroyed
+     *
+     * @param holder
+     *  when user exit then ui Detached from view group
+     *  surface stop camera hardware
+     *  then stop camera threads
+     *  stop camera image [captureImage] process
+     *
+     */
     override fun surfaceDestroyed(holder: SurfaceHolder) {
         stopPreview()
 
@@ -111,6 +188,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         stopImageCaptureTimer()
     }
 
+    /**
+     * always find camera ID
+     * check and confirm Open Camera is FrontCamera [findFrontCamera]
+     * */
     private fun findFrontCamera(): Int {
         val cameraInfo = Camera.CameraInfo()
         val cameraCount = Camera.getNumberOfCameras()
@@ -123,28 +204,44 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         return 0
     }
 
+    /**
+     * take image every 1 sec delay
+     * for AI process for analysis the image
+     * detect face [FaceDetector]
+     * */
     private fun startImageCaptureTimer() {
         //real time image create
         run {
             timer = Timer()
             timer?.schedule(object : TimerTask() {
                 override fun run() {
+
                     captureImage()
                 }
-            }, 0, 500) // 1 sec
+            }, 0, 1000) // 1 sec
 
         }
 
     }
 
+    /**
+     * stop image capture
+     * sub methods of [releaseCamera]
+     * */
     private fun stopImageCaptureTimer() {
         timer?.cancel()
         timer = null
     }
 
+    /**
+     * [captureimage] method to create images data
+     * for AI process
+     * Implement image capture logic here
+     * [faceDetector.process] send camera real time image into [FaceDetector] class
+     * [Frame] is Model Class holds camera [data] cameraInfo [camera]
+     * Default camera given image rotation is horizontaly so its wrong for Ai [FaceDetector] need 270 Degree
+     * */
     fun captureImage() {
-        // Implement image capture logic here
-
         camera?.setPreviewCallback(this@ProctoringSDK)
         camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
             faceDetector.process(
@@ -160,32 +257,17 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
     }
 
-    fun Drawable.toBitmap(): Bitmap {
-        if (this is BitmapDrawable) {
-            return bitmap
-        }
-
-        val width = if (bounds.isEmpty) intrinsicWidth else bounds.width()
-        val height = if (bounds.isEmpty) intrinsicHeight else bounds.height()
-
-        return Bitmap.createBitmap(width.nonZero(), height.nonZero(), Bitmap.Config.ARGB_8888)
-            .also {
-                val canvas = Canvas(it)
-                setBounds(0, 0, canvas.width, canvas.height)
-                draw(canvas)
-            }
-    }
-
-    private fun Int.nonZero() = if (this <= 0) 1 else this
-
-
     override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
 
     }
 
+    /**
+     * lock Notification bar
+     * Android Version 11 below working fine
+     * when user change on click event out of the window
+     * */
     override fun onWindowFocusChanged(hasFocus: Boolean) {
-        if (hasFocus) { // hasFocus is true
-            // notification panel closed
+        if (hasFocus) {
             StatusBarLocker.setExpandNotificationDrawer(context, false)
         } else {
             if (!hasFocus) {
@@ -194,6 +276,12 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         }
     }
 
+    /**
+     * check front camera
+     * if exit then start Front Camera ID - 1 [findFrontCamera]
+     * set camera output on holder [surfaceCreated]
+     *
+     * */
     private fun openCamera() {
         try {
             val cameraId = findFrontCamera()
@@ -208,6 +296,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         }
     }
 
+    /**
+     * Check if the camera is already opened [camera][findFrontCamera]
+     * then [startPreview] on Surface Holder [surfaceCreated]
+     * */
     private fun startPreview() {
         try {
             // Check if the camera is already opened
@@ -225,6 +317,12 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         }
     }
 
+    /**
+     * stop preview [stopPreview]
+     * stop the camera
+     * release the camera ID
+     *
+     * */
     private fun stopPreview() {
         try {
             // Stop the camera preview
@@ -239,6 +337,12 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         }
     }
 
+    /**
+     * timer cancel [timer] capture image every 1 sec wait need to stop
+     * camera release [releaseCamera]
+     *  [stopPreview]
+     *  camera[release]
+     * */
     private fun releaseCamera() {
         timer?.cancel()
         camera?.apply {
@@ -252,40 +356,50 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
     /**
      * Observe lifecycle
-     *
+     * Activity
      * @param lifecycle
-     *///For Activity
+     */
+
     fun observeLifecycle(lifecycle: Lifecycle) {
         lifeProcess(lifecycle)
     }
 
     /**
      * Observe lifecycle
-     *
-     */// For Fragment
+     * Fragment
+     */
     fun LifecycleOwner.observeLifecycle() {
         val lifecycle = this.lifecycle
         lifeProcess(lifecycle)
     }
+
+    /**
+     * Life process [Activity,Fragment]
+     * @param lifecycle
+     * onCreate()
+     * onStart()
+     * onResume()
+     * onPause()
+     * onStop()
+     * onDestroy()
+     *
+     */
 
     private fun lifeProcess(lifecycle: Lifecycle) {
         lifecycle.addObserver(object : LifecycleObserver {
             @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
             fun onCreate() {
                 isViewAvailable = true
-                Log.e("RAMU", "onCreate: ", )
-                // Code to execute when the fragment or activity is created
-
-
             }
 
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             fun onStart() {
+
+
+
                 if (controls.getControls().isStatusBarLock) {
                     StatusBarLocker.statusBarLock(context)
-                    Log.e("RAMU", "onStart: ")
                 }
-
                 //update code
                 if (controls.getControls().isDndStatusOn && isDNDManagerRequest) { // check DND not on
                     if (DNDManager(context).checkDndPermission()) {
@@ -302,7 +416,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             fun onResume() {
                 isViewAvailable = true
 
-                Log.e("RAMU", "onResume: ")
                 if (controls.getControls().isDeveloperModeOn) {
                     if (CheckDeveloperMode(context).isDeveloperModeEnabled()) {
                         alert("Developer Mode", "Developer Mode off ")
@@ -310,15 +423,11 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                 }
 
                 if (controls.getControls().isStatusBarLock) { // lock status bar
-
                     StatusBarLocker.statusBarLock(context)
-
                 }
 
                 if (!controls.getControls().isCopyPaste) { // stop copy past
-
                     ClipboardManagerHelper(context).clearClipboard()
-
                 }
 
                 DNDManager(context).checkAndHideAlertDialog(context)  // if permission is allowed then hide alert
@@ -328,46 +437,36 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
             @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
             fun onPause() {
-                alertDialog1.hideForcefully()
+                alertDialog.hideForcefully()
                 if (controls.getControls().isDndStatusOn) { // DND off
                     DNDManager(context).dndAlertDialogHide()
                     DNDManager(context).DndModeOff(context)
                     hideAlert()
                 }
                 // Code to execute when the fragment or activity is paused
-                Log.e("RAMU", "onPause: ")
                 isViewAvailable = false
                 releaseCamera()
-
-
             }
 
             @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
             fun onStop() {
-                alertDialog1.hideForcefully()
+                alertDialog.hideForcefully()
                 if (controls.getControls().isDndStatusOn) {
                     DNDManager(context).dndAlertDialogHide()
                     DNDManager(context).DndModeOff(context)
                     hideAlert()
-                    Log.e("RAMU", "onStop: ")
                 }
                 isViewAvailable = false
-
-
             }
 
             @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
             fun onDestroy() {
-                alertDialog1.hideForcefully()
-                Log.e("RAMU", "onDestroy: ")
-
-//                Log.e("TAG", "onDestroy: -- result "+Utils(context).removeDir() )
+                alertDialog.hideForcefully()
                 if (controls.getControls().isDndStatusOn) { // DND off
                     DNDManager(context).dndAlertDialogHide()
-                     DNDManager(context).DndModeOff(context)
+                    DNDManager(context).DndModeOff(context)
                 }
                 isViewAvailable = false
-
             }
         })
     }
@@ -380,11 +479,11 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      */
     @SuppressLint("SuspiciousIndentation")
     fun alert(title: String?, message: String?) {
-        alertDialog1.show(title.toString(), message.toString())
+        alertDialog.show(title.toString(), message.toString())
     }
 
     private fun hideAlert() {
-        alertDialog1.hide()
+        alertDialog.hide()
     }
 
     /**
@@ -403,10 +502,12 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      *
      */
     fun stopProctoring() {
-        Log.e("TAG", "stopProctoring: " + controls.getControls().blockedEmulatorDevicesList)
         controls.updateControl(ControlModel(isAlert = false, isProctoringStart = false))
     }
 
+    /**
+     * Proctoring SDK control Update run time
+     * */
     fun updateControl(controlModel: ControlModel?): ControlModel {
         return if (controlModel != null) {
             controls.updateControl(controlModel)
@@ -416,17 +517,20 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         }
     }
 
+    /**
+     * share last updated control
+     * */
     fun getControl(): ControlModel = controls.getControls()
 
+    /**
+     * Proctoring SDK start
+     * */
     fun startProctoring(
         listener: onProctorListener, controlModel: ControlModel?,
     ) {
         proctorListener = listener
-
         isAlert = true
 
-        Log.e("RAMU", "startProctoring: ", )
-        //update code
         if (controls.getControls().isDndStatusOn && !isDNDManagerRequest) { // check DND not on
             if (DNDManager(context).checkDndPermission()) {
                 DNDManager(context).checkDNDModeON()
@@ -436,19 +540,20 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
             }
         }
-
+        /**
+         * Update Control
+         * [controls] update in run time for change any
+         */
 
         // control update by model class
         if (controlModel != null) {
             controls.updateControl(controlModel)
-
             if (controls.getControls().isAlert) {
                 syncResults()
                 faceDetector.noticeDetect(context)
                 Utils().getSaveImageInit(context)
             }
         } else {
-
             // Default controller setup
             controls.updateControl(ControlModel(isAlert = true, isProctoringStart = true))
             if (controls.getControls().isAlert) {
@@ -469,15 +574,27 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
     }
 
+    /**
+     * syncResults method
+     *
+     * real-time result share into end user using interface onProctoringListener
+     * isShareResult true/false handle or manage to sync-result AI interface into onProctoringInterface end user with deal
+     *
+     * */
     private fun syncResults() {
         faceDetector.setonFaceDetectionFailureListener(object :
             FaceDetector.OnProctoringResultListener {
 
+            /**
+             * Is running detector
+             *
+             * @param boolean
+             */
             override fun isRunningDetector(boolean: Boolean?) {
-                Log.e("TAG", "isRunningDetector: running " + boolean)
-                if (isViewAvailable) { // view is ready
 
-                    if (isWaiting) {
+                if (isViewAvailable && controls.getControls().isProctoringStart) { // view is ready
+
+                    if (isShareResult) {
                         proctorListener?.isRunningDetector(boolean)
                     }
 
@@ -500,9 +617,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                                 .split("[:]".toRegex())
 
                         if (emulator.size == 2 && DNDManager(context).checkDndPermission()) {
-
                             alert(emulator[0], emulator[1])
-
                         }
 
                     }
@@ -514,67 +629,96 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                 }
             }
 
+            /**
+             * On voice detected
+             *
+             * @param amplitude
+             * @param isNiceDetected
+             * @param isRunning
+             * @param typeOfVoiceDetected
+             *
+             * when mic detect high sound real-time
+             * then alert show
+             *
+             */
             override fun onVoiceDetected(
                 amplitude: Double,
                 isNiceDetected: Boolean,
                 isRunning: Boolean,
                 typeOfVoiceDetected: String,
             ) {
-                if (isViewAvailable) {
-                    if (isWaiting) {
+                if (isViewAvailable && controls.getControls().isProctoringStart) {
+                    if (isShareResult) {
                         proctorListener?.onVoiceDetected(
                             amplitude, isNiceDetected, isRunning, typeOfVoiceDetected
                         )
 
                         if (controls.getControls().isAlert && controls.getControls().isAlertVoiceDetection) {
-                            if (isNiceDetected) {
-                                /*(context as AppCompatActivity).runOnUiThread {
-                                    alert("HIGH SOUND", typeOfVoiceDetected)
-                                }*/
+                            if (isNiceDetected) {/*(context as AppCompatActivity).runOnUiThread {
+                                        alert("HIGH SOUND", typeOfVoiceDetected)
+                                    }*/
                             }
                         }
                     }
                 }
             }
 
+            /**
+             * On success
+             *
+             * @param faceBounds
+             * real time [FaceDetector] running status
+             *
+             */
             override fun onSuccess(faceBounds: Int) {
                 if (isViewAvailable && controls.getControls().isProctoringStart) {
-                    if (isWaiting) {
+                    if (isShareResult) {
                         proctorListener?.onSuccess(faceBounds)
                     }
                 }
             }
 
+            /**
+             * On failure
+             *
+             * @param exception
+             * [FaceDetector] class getting any error in real-time
+             * error come [onFailure]
+             * send to [proctorListener] for end user
+             */
             override fun onFailure(exception: Exception) {
-                if (isViewAvailable) {
-                    if (isWaiting) {
+                if (isViewAvailable && controls.getControls().isProctoringStart) {
+                    if (isShareResult) {
                         proctorListener?.onFailure(exception)
                     }
                 }
             }
 
+            /**
+             * onFace Count
+             * this interface get real time face count
+             * if isShareResult is True then transfer data into onProctoringListener for end user
+             *
+             * isShareResult true/false handle by
+             *
+             * */
             override fun onFaceCount(face: Int) {
-                if (isViewAvailable) {
-                    if (isWaiting) {
+                if (isViewAvailable && controls.getControls().isProctoringStart) {
+                    if (isShareResult) {
                         proctorListener?.onFaceCount(face)
                     }
 
                     if (controls.getControls().isAlert) {
                         when (face) {
                             0 -> {
-                                faceCountWorring2Times++
-
-                                Log.e("TAG", "onFaceCount: count print"+faceCountWorring2Times )
-                                if (controls.getControls().isAlertFaceNotFound && controls.getControls().isAlert && faceCountWorring2Times >= 2 ) {
-
-
+                                faceNotFoundWarning++
+                                if (controls.getControls().isAlertFaceNotFound && controls.getControls().isAlert && faceNotFoundWarning >= 2) {
                                     val faceNotFoundException =
                                         context.getString(R.string.face_not_found)
                                             .split("[:]".toRegex())
-
                                     if (faceNotFoundException.size == 2 && DNDManager(context).checkDndPermission()) {
                                         alert(faceNotFoundException[0], faceNotFoundException[1])
-                                        faceCountWorring2Times = -1
+                                        faceNotFoundWarning = -1
 
                                     }
 
@@ -598,8 +742,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                                             filter[0], filter[1]
                                         )
                                     }
-
-
                                 }
                             }
                         }
@@ -610,8 +752,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             }
 
             override fun onLipMovementDetection(islipmovment: Boolean) {
-                if (isViewAvailable) {
-                    if (isWaiting) {
+                if (isViewAvailable && controls.getControls().isProctoringStart) {
+                    if (isShareResult) {
                         proctorListener?.onLipMovementDetection(islipmovment)
                     }
                     if (controls.getControls().isAlert && controls.getControls().isAlertLipMovement) {
@@ -631,8 +773,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             }
 
             override fun onObjectDetection(objectList: ArrayList<String>, size: Int?) {
-                if (isViewAvailable) {
-                    if (isWaiting) {
+                if (isViewAvailable && controls.getControls().isProctoringStart) {
+                    if (isShareResult) {
                         proctorListener?.onObjectDetection(objectList)
                     }
 
@@ -654,8 +796,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             }
 
             override fun onEyeDetectionOnlyOneFace(face: String) {
-                if (isViewAvailable) {
-                    if (isWaiting) {
+                if (isViewAvailable && controls.getControls().isProctoringStart) {
+                    if (isShareResult) {
                         proctorListener?.onEyeDetectionOnlyOneFace(face)
 
                     }
@@ -664,9 +806,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                         if (!check(face) && !face.isNullOrBlank()) {
 
                             alert("Eye", face)
-                            val filter =
-                                context.getString(R.string.Lip_movement_eyeball_tracking)
-                                    .split("[:]".toRegex())
+                            val filter = context.getString(R.string.Lip_movement_eyeball_tracking)
+                                .split("[:]".toRegex())
 
                             if (filter.size == 2 && DNDManager(context).checkDndPermission()) {
                                 alert(filter[0], filter[1])
@@ -678,8 +819,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             }
 
             override fun onUserWallDistanceDetector(distance: Float) {
-                if (isViewAvailable) {
-                    if (isWaiting) {
+                if (isViewAvailable && controls.getControls().isProctoringStart) {
+                    if (isShareResult) {
                         proctorListener?.onUserWallDistanceDetector(distance)
                     }
                     if (controls.getControls().isAlert && controls.getControls().isAlertUserWallDistanceDetector) {
@@ -690,8 +831,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             }
 
             override fun onFaceDirectionMovement(faceDirection: String?) {
-                if (isViewAvailable) {
-                    if (isWaiting) {
+                if (isViewAvailable && controls.getControls().isProctoringStart) {
+                    if (isShareResult) {
                         proctorListener?.onFaceDirectionMovement(faceDirection)
                     }
 
@@ -713,39 +854,13 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             }
 
             override fun captureImage(faceDirection: Bitmap?) {
-                faceDirection?.let {
 
-
-                    /*val imageList = BitmapUtils().getSaveImaged(context,context.resources.getDrawable(R.drawable.testbitmap).toBitmap(),it)
-
-                    runBlocking(){
-                        faceCompareProcess(imageList)
-                    }*/
-
-
-                }
-
-                if (isViewAvailable) {
-                    if (isWaiting) {
-                        if (faceDirection != null && controls.getControls().isCaptureImage) {
-                            /*Log.e(
-                                "TAG",
-                                "captureImage:-->  " + Utils().saveBitmapIntoImageInternalDir(
-                                    faceDirection,
-                                    context
-                                )
-                            )*/
-
-                            proctorListener?.captureImage(faceDirection)
-                        }
-
-                        if (controls.getControls().isSaveImageHideFolder) {  // hide image into local folder
-                            if (faceDirection != null) {
-                                Utils().saveBitmapIntoImageInternalDir(faceDirection, context)
-                            }
-                        }
-
+                if (isViewAvailable && controls.getControls().isProctoringStart) {
+                    if (isShareResult && faceDirection != null && controls.getControls().isCaptureImage) {
+                        isShareResult = false
+                        proctorListener?.captureImage(faceDirection)
                     }
+
                 }
 
             }
@@ -754,10 +869,26 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
     }
 
+    /**
+     *
+     * Detected Objects into camera frame
+     * blockedDeviceList Object ( user provided this list )
+     *
+     * */
+
     private fun checkObject(face: ArrayList<String>, blockedDeviceList: List<String>?): String? {
         return blockedDeviceList?.firstOrNull { face.contains(it) }
     }
 
+    /**
+     *
+     * Face Movement into Direction
+     * left
+     * right
+     * up
+     * down
+     * return
+     * */
     private fun checkFaceDirection(faceDirection: String?): Boolean {
         return when (faceDirection) {
             "moving to right" -> {
@@ -783,6 +914,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         }
     }
 
+    /**
+     * Eye Status result check
+     * return
+     * */
 
     private fun check(face: String): Boolean {
         return when (face) {
@@ -812,6 +947,11 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
 
     }
+
+    /**
+     * onProctorListener interface to send all Face result into end user
+     *
+     * */
 
     interface onProctorListener {
 
@@ -903,6 +1043,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
     }
 }
 
+/**
+ * CustomSurfaceThread for camera running into a thread
+ * */
 
 class CustomSurfaceThread(private val surfaceHolder: SurfaceHolder) : Thread() {
     private var running = false
