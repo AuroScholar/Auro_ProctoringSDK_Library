@@ -4,9 +4,6 @@ import android.annotation.SuppressLint
 import android.app.job.JobScheduler
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
 import android.hardware.Camera
 import android.os.Handler
 import android.util.AttributeSet

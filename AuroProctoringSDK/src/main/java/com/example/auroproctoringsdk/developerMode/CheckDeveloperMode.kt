@@ -18,7 +18,6 @@ class CheckDeveloperMode(val context: Context) {
         /*return Settings.Secure.getInt(
             context.contentResolver, Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0
         ) != 0*/
-
         if (Settings.Secure.getInt(
                 context.contentResolver,
                 Settings.Global.DEVELOPMENT_SETTINGS_ENABLED,
@@ -27,10 +26,23 @@ class CheckDeveloperMode(val context: Context) {
         ) {
             // Developer Mode is enabled
             // Perform your desired actions here
+/*            val intent = Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)*/
+
+            // Developer Mode is enabled
+            // Perform your desired actions here
 
             val intent = Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(intent)
+
+            // Check if there is an activity that can handle the intent
+            if (intent.resolveActivity(context.packageManager) != null) {
+                context.startActivity(intent)
+            } else {
+                // Handle the case where no activity can handle the intent
+                // Display an error message or perform an alternative action
+            }
 
         }
 
