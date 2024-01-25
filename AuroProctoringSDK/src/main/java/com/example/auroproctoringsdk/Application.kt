@@ -21,9 +21,6 @@ class Application : Application() {
     companion object {
         var faceDirectionAccuracy: Int = 50 // 10 is Default
         var faceMouthAccuracy: Float = 10.0f//5.0F //3.0 f defalut
-        var surfaceBoardErrorColor: Int = Color.RED
-        var surfaceBoardSuccessColor: Int = Color.GREEN
-        var surfaceBoardNoColor: Int = Color.TRANSPARENT
 
     }
 

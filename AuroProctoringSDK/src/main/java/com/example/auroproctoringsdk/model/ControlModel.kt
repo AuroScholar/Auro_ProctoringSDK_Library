@@ -1,4 +1,4 @@
-package com.example.auroproctoringsdk
+package com.example.auroproctoringsdk.model
 
 data class ControlModel(
 

@@ -34,6 +34,9 @@ import java.util.concurrent.Executors
 import kotlin.math.pow
 import kotlin.math.sqrt
 
+/**
+ * Face detector
+ */
 class FaceDetector() {
 
     private var faceLiveResult = MutableLiveData<FaceDetectorModel>()
@@ -52,22 +55,6 @@ class FaceDetector() {
             .build()
     )
 
-    private val bitmapFaceDetector = FaceDetection.getClient(
-        FaceDetectorOptions.Builder()
-            .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
-            .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_NONE)
-            .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_NONE)
-            .build()
-    )
-
-
-   private val compareFaces = FaceDetection.getClient(FaceDetectorOptions.Builder()
-        .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_FAST)
-        .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_NONE)
-        .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_NONE)
-        .build())
-
-
     private val objectDetector = ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS)
 
     /** Listener that gets notified when a face detection result is ready. */
@@ -84,16 +71,21 @@ class FaceDetector() {
 
     private var oldBitmap: Bitmap? = null
 
+    /**
+     * Seton face detection failure listener
+     *
+     * @param listener
+     */
     fun setonFaceDetectionFailureListener(listener: OnProctoringResultListener) {
         onProctoringResultListener = listener
     }
 
-    fun liveFaceResult(): MutableLiveData<FaceDetectorModel> {
-        return faceLiveResult
-    }
-
-    fun process(frame: Frame/*, bitmap: Bitmap?*/) {
-//        oldBitmap = bitmap
+    /**
+     * Process
+     *
+     * @param frame
+     */
+    fun process(frame: Frame) {
         synchronized(lock) {
             if (!isProcessing) {
                 isProcessing = true
@@ -104,23 +96,19 @@ class FaceDetector() {
     }
 
     //    ByteArray
+    /**
+     * Detect faces
+     *
+     *  enter process to detect face Analise
+     */
     private fun Frame.detectFaces() {
         val data = data ?: return
 
         val inputImage = InputImage.fromByteArray(data, size.width, size.height, rotation, format)
 
-
-       // Log.e(TAG, "detectFaces: live processing "+LivenessDetection().checkLikeness(data, size.width, size.height, rotation, format))
-
-
         val faceDetectionTask = faceDetector.process(inputImage)
         val poseDetectionTask = poseDetector.process(inputImage)
         val objectDetectionTask = objectDetector.process(inputImage)
-
-
-        /*val faces1 = result1.result?.size() ?: 0
-        val faces2 = result2.result?.size() ?: 0*/
-
 
         Tasks.whenAll(faceDetectionTask, poseDetectionTask, objectDetectionTask)
             .addOnSuccessListener {
@@ -187,9 +175,9 @@ class FaceDetector() {
                                 labelsList.add(text)
                                 Log.e(TAG, "Label:---->    $text, Confidence: $confidence")
                                 /*
-                                                                E  Label:---->     Desk, Confidence: 0.5930478
-                                                                E  Label:---->     Mobile phone, Confidence: 0.8290278
-                                                                E  Label:---->     Computer, Confidence: 0.503058
+                                  E  Label:---->     Desk, Confidence: 0.5930478
+                                  E  Label:---->     Mobile phone, Confidence: 0.8290278
+                                  E  Label:---->     Computer, Confidence: 0.503058
                                 */
                             }
                             onProctoringResultListener?.onObjectDetection(labelsList, null)
@@ -205,12 +193,6 @@ class FaceDetector() {
 
                     }
 
-                    //live Result
-                    faceLiveResult.postValue(
-                        FaceDetectorModel(
-                            faceCount, eyeOpenStatus, mouthOpen, objectSectionNames, faceDirection
-                        )
-                    )
                 }
 
             }.addOnFailureListener { exception ->
@@ -222,6 +204,12 @@ class FaceDetector() {
             }
     }
 
+    /**
+     * Convection bitmap
+     *
+     * @param frame convert into Bitmap using []
+     * @return
+     */
     private fun convectionBitmap(frame: Frame): Bitmap {
         val yuvImage = YuvImage(frame.data, frame.format, frame.size.width, frame.size.height, null)
         val out = ByteArrayOutputStream()
@@ -230,14 +218,34 @@ class FaceDetector() {
         val lastUpdatedBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
         out.flush()
         out.close()
-        return lastUpdatedBitmap.rotateBitmap(-90F)
+        val rotatedBitmap = lastUpdatedBitmap.rotateBitmap(-90F)
+       // lastUpdatedBitmap.recycle() // Recycle the bitmap to free up memory
+        return rotatedBitmap
     }
 
+    /**
+     * Rotate bitmap
+     *
+     * @param degrees
+     * @return
+     */
     fun Bitmap.rotateBitmap(degrees: Float): Bitmap {
         val matrix = Matrix().apply { postRotate(degrees) }
         return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
     }
 
+    /**
+     * Face detection
+     *
+     * @param face
+     * @return
+     *
+     * Face Up
+     * Face Down
+     * Face Left
+     * Face Right
+     *
+     */
     private fun faceDetection(face: Face): String? {
 
         val eulerY = face.headEulerAngleY // Yaw   ------- direction left and right out
@@ -277,6 +285,12 @@ class FaceDetector() {
 
     }
 
+    /**
+     * Calculate user wall distance
+     *
+     * @param pose
+     * @return
+     */
     private fun calculateUserWallDistance(pose: Pose): Float {
         val leftShoulder = pose.getPoseLandmark(PoseLandmark.LEFT_SHOULDER)?.position
         val rightShoulder = pose.getPoseLandmark(PoseLandmark.RIGHT_SHOULDER)?.position
@@ -300,38 +314,12 @@ class FaceDetector() {
         return sqrt(dx.pow(2) + dy.pow(2))
     }
 
-
-    private fun compareFaces(bitmap1: Bitmap, bitmap2: Bitmap){
-
-        val image1 = InputImage.fromBitmap(bitmap1, 0)
-        val image2 = InputImage.fromBitmap(bitmap2, 0)
-
-        val result1 = compareFaces.process(image1)
-        val result2 = compareFaces.process(image2)
-
-        Tasks.whenAll(result1, result2).addOnCompleteListener {
-            val faces1 = result1.result?.size ?: 0
-            val faces2 = result2.result?.size ?: 0
-
-            val similarity = (faces1.toDouble() / faces2.toDouble()) * 100
-
-            Log.e(TAG, "compareFaces: process matching$similarity")
-
-            // Determine the face matching status based on the similarity percentage
-            val status = when {
-                similarity >= 100 -> "100% Match"
-                similarity >= 80 -> "80% Match"
-                similarity >= 50 -> "50% Match"
-                else -> "No Match"
-            }
-
-            // Show the face matching status
-            Log.e(TAG, "Face Matching Status: $status")
-
-        }.addOnFailureListener {
-
-        }
-    }
+    /**
+     * Is real
+     *
+     * @param face
+     * @return
+     */
     fun isReal(face: Face): Boolean {
         if (face.smilingProbability != null && face.rightEyeOpenProbability != null && face.leftEyeOpenProbability != null) {
             val smileProb = face.smilingProbability
@@ -412,6 +400,11 @@ class FaceDetector() {
         Log.e(TAG, "An error occurred while running a face detection", exception)
     }
 
+    /**
+     * Notice detect
+     *
+     * @param context
+     */
     fun noticeDetect(context: Context?) {
         if (context != null) {
             onProctoringResultListener?.let { NoiseDetector().startNoiseDetector(context, it) }
@@ -419,10 +412,28 @@ class FaceDetector() {
     }
 
 
+    /**
+     * On proctoring result listener
+     *
+     * @constructor Create empty On proctoring result listener
+     */
     interface OnProctoringResultListener {
 
+        /**
+         * Is running detector
+         *
+         * @param boolean
+         */
         fun isRunningDetector(boolean: Boolean?)
 
+        /**
+         * On voice detected
+         *
+         * @param amplitude
+         * @param isNiceDetected
+         * @param isRunning
+         * @param typeOfVoiceDetected
+         */
         fun onVoiceDetected(
             amplitude: Double,
             isNiceDetected: Boolean,
@@ -430,14 +441,68 @@ class FaceDetector() {
             typeOfVoiceDetected: String,
         )
 
+        /**
+         * On success
+         *
+         * @param faceBounds
+         */
         fun onSuccess(faceBounds: Int)
+
+        /**
+         * On failure
+         *
+         * @param exception
+         */
         fun onFailure(exception: Exception)
+
+        /**
+         * On face count
+         *
+         * @param face
+         */
         fun onFaceCount(face: Int)
+
+        /**
+         * On lip movement detection
+         *
+         * @param face
+         */
         fun onLipMovementDetection(face: Boolean)
+
+        /**
+         * On object detection
+         *
+         * @param face
+         * @param size
+         */
         fun onObjectDetection(face: ArrayList<String>, size: Int?)
+
+        /**
+         * On eye detection only one face
+         *
+         * @param face
+         */
         fun onEyeDetectionOnlyOneFace(face: String)
+
+        /**
+         * On user wall distance detector
+         *
+         * @param distance
+         */
         fun onUserWallDistanceDetector(distance: Float)
+
+        /**
+         * On face direction movement
+         *
+         * @param faceDirection
+         */
         fun onFaceDirectionMovement(faceDirection: String?)
+
+        /**
+         * Capture image
+         *
+         * @param faceDirection
+         */
         fun captureImage(faceDirection: Bitmap?)
 
     }
@@ -447,6 +512,16 @@ class FaceDetector() {
     }
 }
 
+/**
+ * Face detector model
+ *
+ * @property faceCount
+ * @property eyeOpenStatus
+ * @property isMouthOen
+ * @property objectDectionNames
+ * @property faceDirection
+ * @constructor Create empty Face detector model
+ */
 data class FaceDetectorModel(
     var faceCount: Int = -1,
     var eyeOpenStatus: String = "",

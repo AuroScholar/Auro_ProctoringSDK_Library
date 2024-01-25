@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.util.Calendar
@@ -14,13 +15,13 @@ class Utils {
         var path = ""
         val image = tempBitmap.rotateBitmap(0F)
 
-        if (!getPathDir(context).exists()) {
-            getPathDir(context).mkdirs()
+        val pathDir = getPathDir(context)
+        if (!pathDir.exists()) {
+            pathDir.mkdirs() // Create the necessary directories if they don't exist
         }
 
         val fileName = "image_${Calendar.getInstance().timeInMillis}.jpg"
         val file = File(getPathDir(context), fileName)
-
 
         val outputStream = FileOutputStream(file)
         image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
