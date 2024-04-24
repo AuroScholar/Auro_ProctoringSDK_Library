@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
         // Permissions already granted
         if (proctoringPermissionRequest.checkPermissionGranted()) {
 
-            binding.mainLayout.observeLifecycle(this.lifecycle)
+            binding.mainLayout.observeLifecycle(this.lifecycle) // important
 
         } else {
             //request permission
@@ -117,7 +117,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
         super.onResume()
         if (proctoringPermissionRequest.checkPermissionGranted()) {
             //if permission done then start proctoring // also you can control using ControlModel just add model startProctoring(this,ControlModel)
-            binding.mainLayout.startProctoring(this,null)
+            binding.mainLayout.startProctoring(this,null) // important
         }
 
     }
@@ -128,10 +128,9 @@ class QuizFragment : Fragment , ProctoringSDK.onProctorListener {
 
     //onCreate 
     befor all permission are done
-    binding.mainLayout.observeLifecycle(getViewLifecycleOwner());
-
+    binding.mainLayout.observeLifecycle(getViewLifecycleOwner());  // important 
     start proctor onResume
-    binding.mainLayout.startProctoring(this);
+    binding.mainLayout.startProctoring(this); // important 
 
 }
 
