@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
     var count =-1
 
     //init permission
-    private var proctoringPermissionRequest = ProctoringPermissionRequest(this)
+   // private var proctoringPermissionRequest = ProctoringPermissionRequest(this)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
@@ -31,13 +31,13 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
         binding.mainLayout.observeLifecycle(this.lifecycle) // very import for all
 
         // Permissions already granted
-        if (proctoringPermissionRequest.checkPermissionGranted()) {
-
-
-        } else {
-            //request permission
-            proctoringPermissionRequest.requestPermissions()
-        }
+//        if (proctoringPermissionRequest.checkPermissionGranted()) {
+//
+//
+//        } else {
+//            //request permission
+//            proctoringPermissionRequest.requestPermissions()
+//        }
 
         binding.btn.setOnClickListener {
             binding.mainLayout.alertOnOff()
@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
             binding.mainLayout.startProctoring(this, null)
 
 
-            countdownTicker.start(
+         /*   countdownTicker.start(
                 onTick = { millisUntilFinished ->
                     // Update UI with remaining time
                     val seconds = millisUntilFinished / 1000
@@ -70,7 +70,7 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
                 }
             )
-
+*/
         }
 
     }
