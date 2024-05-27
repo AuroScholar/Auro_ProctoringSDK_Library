@@ -87,6 +87,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      *[faceNotFoundWarning] = max 2 times for more quorate
      */
     var faceNotFoundWarning = -1
+    var multipleFaceFoundWarning = -1
 
 
     /**
@@ -747,11 +748,11 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                             else -> {
                                 if (controls.getControls().isAlertMultipleFaceCount) {
 
-
                                     val filter = context.getString(R.string.Multiple_face_detection)
                                         .split("[:]".toRegex())
-
-                                    if (filter.size == 2 && DNDManager(context).checkDndPermission()) {
+                                    multipleFaceFoundWarning ++
+                                    if (filter.size == 2 && multipleFaceFoundWarning >=2 && DNDManager(context).checkDndPermission()) {
+                                        multipleFaceFoundWarning =-1
                                         alert(
                                             filter[0], filter[1]
                                         )
