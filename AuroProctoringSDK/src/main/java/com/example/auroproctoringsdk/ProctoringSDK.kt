@@ -260,6 +260,20 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
     override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
 
     }
+    /**
+     * restart camera [restartCamera]
+     * Android Version 11 below working fine
+     * if user request permission then restart camera
+     * */
+    fun restartCamera() {
+        stopPreview()
+        releaseCamera()
+        openCamera()
+        startPreview()
+        thread = CustomSurfaceThread(holder)
+        thread?.start()
+        startImageCaptureTimer()
+    }
 
     /**
      * lock Notification bar
