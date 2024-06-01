@@ -21,7 +21,7 @@ Step 2. Add the dependency [![Latest Release](https://img.shields.io/github/v/re
 
 ```kotlin
 dependencies {
-    implementation 'com.github.AuroScholar:Auro_ProctoringSDK_Library:0.1.5'
+    implementation 'com.github.AuroScholar:Auro_ProctoringSDK_Library:0.4.6'
 }
 ```
 
