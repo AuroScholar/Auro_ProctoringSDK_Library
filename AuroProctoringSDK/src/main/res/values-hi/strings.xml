@@ -10,5 +10,7 @@
     <string name="permission_required">अनुमति आवश्यक है</string>
     <string name="to_enable_do_not_disturb_mode_you_need_to_grant_permission">डू नॉट डिस्टर्ब मोड को सक्षम करने के लिए, आपको अनुमति देनी होगी।</string>
     <string name="goto_permission">गोटो अनुमति</string>
+    <string name="ok">ठीक है</string>
+
 
 </resources>

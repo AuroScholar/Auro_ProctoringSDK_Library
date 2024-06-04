@@ -10,5 +10,6 @@
     <string name="permission_required">ಅನುಮತಿ ಅಗತ್ಯವಿದೆ</string>
     <string name="to_enable_do_not_disturb_mode_you_need_to_grant_permission">ಅಡಚಣೆ ಮಾಡಬೇಡಿ ಮೋಡ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲು, ನೀವು ಅನುಮತಿಯನ್ನು ನೀಡಬೇಕಾಗುತ್ತದೆ.</string>
     <string name="goto_permission">ಅನುಮತಿ ಪಡೆಯಿರಿ</string>
+    <string name="ok">ಸರಿ</string>
 
 </resources>
