@@ -8,6 +8,7 @@ import android.content.Intent
 import android.os.Build
 import android.provider.Settings
 import com.example.auroproctoringsdk.R
+import org.jetbrains.annotations.TestOnly
 
 
 class DNDManager(private val context: Context) {
@@ -53,10 +54,20 @@ class DNDManager(private val context: Context) {
     }
 
     fun DndModeOff(context: Context) {
-        if (checkDndPermission()){
+        /*if (checkDndPermission()){
             val notificationManager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             if (notificationManager.currentInterruptionFilter == NotificationManager.INTERRUPTION_FILTER_NONE || notificationManager.currentInterruptionFilter == NotificationManager.INTERRUPTION_FILTER_ALARMS) {
+                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+            }
+        }*/
+        if (checkDndPermission()) {
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                // Android 13 and later
+                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+            } else {
+                // Earlier versions
                 notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
             }
         }
