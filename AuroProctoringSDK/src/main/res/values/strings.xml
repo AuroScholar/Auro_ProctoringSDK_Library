@@ -11,6 +11,8 @@
     <string name="permission_required">Permission Required</string>
     <string name="to_enable_do_not_disturb_mode_you_need_to_grant_permission">To enable Do Not Disturb mode, you need to grant permission.</string>
     <string name="goto_permission">Goto Permission</string>
+    <string name="ok">ok</string>
+
 
 
 </resources>

@@ -10,4 +10,6 @@
     <string name="permission_required">પરવાનગી જરૂરી છે</string>
     <string name="to_enable_do_not_disturb_mode_you_need_to_grant_permission">ડુ નોટ ડિસ્ટર્બ મોડને સક્ષમ કરવા માટે, તમારે પરવાનગી આપવાની જરૂર છે.</string>
     <string name="goto_permission">પરમિશન પર જાઓ</string>
+    <string name="ok">બરાબર</string>
+
 </resources>

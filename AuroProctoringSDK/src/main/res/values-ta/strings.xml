@@ -9,4 +9,5 @@
     <string name="permission_required">அனுமதி தேவை</string>
     <string name="to_enable_do_not_disturb_mode_you_need_to_grant_permission">தொந்தரவு செய்ய வேண்டாம் பயன்முறையை இயக்க, நீங்கள் அனுமதி வழங்க வேண்டும்.</string>
     <string name="goto_permission">அனுமதி பெறவும்</string>
+    <string name="ok">சரி</string>
 </resources>

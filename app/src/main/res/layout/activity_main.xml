@@ -10,39 +10,17 @@
     <TextView
         android:id="@+id/textView"
         android:layout_width="0dp"
-        android:layout_height="100dp"
+        android:layout_height="60dp"
         android:layout_marginTop="30dp"
         android:gravity="center"
         android:text="Detecting"
         android:textSize="20dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHeight_percent="0.3"
+        app:layout_constraintHeight_percent="0.2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintWidth_percent="0.5" />
 
-    <CheckedTextView
-        android:id="@+id/mtrl_card_checked_layer_id"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="hitl tetx "
-        app:layout_constraintTop_toBottomOf="@id/textView" />
-
-    <Button
-        android:id="@+id/btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="jsdghsjfh"
-        app:layout_constraintTop_toBottomOf="@id/mtrl_card_checked_layer_id" />
-
-
-    <TextView
-        android:id="@+id/notificationId"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <com.example.auroproctoringsdk.ProctoringSDK
         android:id="@+id/mainLayout"

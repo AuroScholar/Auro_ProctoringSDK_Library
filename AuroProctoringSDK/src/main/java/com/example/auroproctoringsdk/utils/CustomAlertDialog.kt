@@ -3,6 +3,7 @@ package com.example.auroproctoringsdk.utils
 import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
+import com.example.auroproctoringsdk.R
 
 class CustomAlertDialog(context: Context) {
     private val dialog: AlertDialog
@@ -10,7 +11,7 @@ class CustomAlertDialog(context: Context) {
 
     init {
         val builder = AlertDialog.Builder(context).setCancelable(false)
-            .setPositiveButton("Ok", DialogInterface.OnClickListener { dialog, which ->
+            .setPositiveButton(context.resources.getString(R.string.ok), DialogInterface.OnClickListener { dialog, which ->
                 isOkClicked = true
                 reset()
                 dialog.dismiss()

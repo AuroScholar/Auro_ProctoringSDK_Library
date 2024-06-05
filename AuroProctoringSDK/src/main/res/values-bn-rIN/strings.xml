@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="disabling_screencast_and_screen_record">সতর্কতা: কুইজ অবশ্যই মেনে চলার জন্য, স্ক্রীনকাস্ট এবং স্ক্রিন রেকর্ড বৈশিষ্ট্যগুলি অক্ষম করা হয়েছে। পরীক্ষার পরিবেশকে শ্রদ্ধা করুন।</string>
+    <string name="cant_see_the_phone_notifications_while_taking_quiz">সতর্কতা: মনোযোগ বজায় রাখার জন্য, কুইজ প্রতিযোগিতা সময়ে বিজ্ঞপ্তি লুকিয়ে রাখা হয়েছে। অশান্তির অভিজ্ঞতা নিশ্চিত করুন।</string>
+    <string name="Lip_movement_eyeball_tracking">সতর্কতা: অতি নিখুত পারিশ্রমিকতা জন্য ইন্তেলিজেন্ট পরিক্ষা পর্যালোচনার জন্য ইউপডেটেড হয়েছে - নোট: চোখের ট্র্যাকিং ব্যবহৃত হয়; মুখের গতিবিধি এবং নীতিগুলি আজকের প্রশিক্ষণের সময়ে নিরাপদ থাকুন</string>
+    <string name="Multiple_face_detection">সতর্কতা: কুইজে একাধিক মুখের শনাক্তি; ন্যায্য মূল্যায়নের জন্য প্রতি প্রয়াসে একটি মুখ।</string>
+    <string name="Unable_to_use_mulator_on_the_system_while_taking_quizzes">সতর্কতা: সত্যিকার পরীক্ষা পরিবেশের জন্য কুইজে এমুলেটর ব্যবহার সীমিত করা হয়েছে।</string>
+    <string name="moving_face_left_or_right_during_assesment">সতর্কতা: সঠিক মনিটরিং জন্য মুখ বাম বা ডানে না এগিয়ে নিন</string>
+    <string name="face_not_found">সতর্কতা: মুখ খুঁজে পাওয়া যায়নি</string>
+    <string name="object_not_allowed">সতর্কতা: আমরা আপনার পেছনে কিছু বস্তু (ক্যামেরা, ফোন, ল্যাপটপ ইত্যাদি) অনুমোদিত নয় দেখতে</string>
+    <string name="permission_required">অনুমতি প্রয়োজন</string>
+    <string name="to_enable_do_not_disturb_mode_you_need_to_grant_permission">ডো নট ডিস্টার্ব মোড সক্রিয় করতে, আপনাকে অনুমতি দিতে হবে।</string>
+    <string name="goto_permission">অনুমতি প্রাপ্তি করুন</string>
+    <string name="ok">ঠিক আছে</string>
+</resources>

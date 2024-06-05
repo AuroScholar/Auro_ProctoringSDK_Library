@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="disabling_screencast_and_screen_record">హెచ్చరిక: దైనందిన దిగువ ఒక స్వయంచాలకంగా ఆపరేషన్‌లను నిలిపివేయడం మరియు స్క్రీన్ రికార్డ్ చేయడం నిరోధించబడ్డాయి. గమనిక వినియోగం మార్చండి.</string>
+    <string name="cant_see_the_phone_notifications_while_taking_quiz">హెచ్చరిక: శ్రద్ధ కొంతకంటే తీవ్రంగా పెంచండి, దైనందిన దిగువ వినాటిని తీసుకుపోతున్నాను. అవగాహనలు తీసుకోలేని అనుభవాన్ని నిర్ధారించండి.</string>
+    <string name="Multiple_face_detection">హెచ్చరిక: దైనందిన దిగువ ఒక అధికంగా ముఖాలను గుర్తించడం సాధ్యము; న్యాయమైన అంశాలకోసం ఒకసారి ముఖం దీనిలో సూచించండి.</string>
+    <string name="Unable_to_use_mulator_on_the_system_while_taking_quizzes">హెచ్చరిక: నిజముగా పరీక్షను మార్గనిర్వహించేందుకు, దైనందిన దిగువ సిమ్యులేటర్‌ను ఉపయోగించడం నిరోధించబడింది.</string>
+    <string name="moving_face_left_or_right_during_assesment">హెచ్చరిక: అసాధారణ వీక్షణా ప్రాంగణంలో, దైనందిన దిగువ మీ ముఖంను ఎడమ లేదా కుడి సమీపంలో తిరిగి ఉంచవద్దు</string>
+    <string name="face_not_found">హెచ్చరిక: ముఖం కనబడలేదు</string>
+    <string name="object_not_allowed">హెచ్చరిక: మీ పరిపరాధను లెక్కించడానికి మేము అనుమతించని కొన్ని అవసరమైన వస్తువులు (కెమెరా, మొబైల్, ల్యాప్‌టాప్ మొదలైనవి) కనుగొనబడింది</string>
+    <string name="permission_required">అనుమతి అవసరం</string>
+    <string name="to_enable_do_not_disturb_mode_you_need_to_grant_permission">నిలిపి చేయడానికి అనుమతిని అనుమతిం చనుకోండి.</string>
+    <string name="goto_permission">అనుమతిని చేర్చండి</string>
+    <string name="ok">సరే</string>
+</resources>

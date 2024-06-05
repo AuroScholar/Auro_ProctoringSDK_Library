@@ -9,5 +9,6 @@
     <string name="permission_required">ਇਜਾਜ਼ਤ ਦੀ ਲੋੜ ਹੈ</string>
     <string name="to_enable_do_not_disturb_mode_you_need_to_grant_permission">ਪਰੇਸ਼ਾਨ ਨਾ ਕਰੋ ਮੋਡ ਨੂੰ ਸਮਰੱਥ ਕਰਨ ਲਈ, ਤੁਹਾਨੂੰ ਇਜਾਜ਼ਤ ਦੇਣ ਦੀ ਲੋੜ ਹੈ।</string>
     <string name="goto_permission">ਇਜਾਜ਼ਤ \'ਤੇ ਜਾਓ</string>
+    <string name="ok">ਠੀਕ ਹੈ</string>
 
 </resources>
