@@ -56,23 +56,26 @@ class DNDManager(private val context: Context) {
     // new code
     fun DndModeOff(context: Context) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!notificationManager.isNotificationPolicyAccessGranted) {
-                showAlertDialog()
-            } else {
-                hideAlertDialog()
+        if (checkDndPermission()){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (!notificationManager.isNotificationPolicyAccessGranted) {
+                    showAlertDialog()
+                } else {
+                    hideAlertDialog()
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) { // Android 13
-                    notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
-                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // Android 14
-                    // Adjustments may be needed based on API changes in Android S
-                    notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) { // Android 13
+                        notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+                    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // Android 14
+                        // Adjustments may be needed based on API changes in Android S
+                        notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
+                    }
                 }
+            } else {
+                // For versions below Android M, simply set interruption filter to none
+                notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
             }
-        } else {
-            // For versions below Android M, simply set interruption filter to none
-            notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL)
         }
+
     }
 
     //old code
