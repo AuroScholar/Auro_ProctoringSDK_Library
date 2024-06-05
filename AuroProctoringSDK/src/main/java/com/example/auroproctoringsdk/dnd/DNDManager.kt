@@ -27,6 +27,7 @@ class DNDManager(private val context: Context) {
             notificationManager.isNotificationPolicyAccessGranted
         }
     }
+    //dnd done android version 13,14,15
 
     fun enableDoNotDisturb(context: Context) {
         val notificationManager =
