@@ -40,6 +40,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         var isShareResult = false
         var isAlert = false
          var isCameraReleased = false
+         var isCameraInUse = false
+
 
     }
 
@@ -245,7 +247,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      * Default camera given image rotation is horizontaly so its wrong for Ai [FaceDetector] need 270 Degree
      * */
     fun captureImage() {
-        if (!isCameraReleased && camera != null) {
+//        if (!isCameraReleased && camera != null) {
+        if (isCameraInUse && camera != null) {
             // Set the preview callback
             camera?.setPreviewCallback(this@ProctoringSDK)
             camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
@@ -335,20 +338,24 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      * then [startPreview] on Surface Holder [surfaceCreated]
      * */
     private fun startPreview() {
-        try {
-            // Check if the camera is already opened
-            if (camera == null) {
-                // Open the camera if it's not already opened
-                openCamera()
+        if (!isCameraInUse) {
+            try {
+                // Check if the camera is already opened
+                if (camera == null) {
+                    // Open the camera if it's not already opened
+                    openCamera()
+                }
+
+                // Start the camera preview
+                camera?.startPreview()
+                isCameraInUse = true
+
+            } catch (e: Exception) {
+                // Handle any exceptions that occur while starting the preview
+                e.printStackTrace()
             }
-
-            // Start the camera preview
-            camera?.startPreview()
-
-        } catch (e: Exception) {
-            // Handle any exceptions that occur while starting the preview
-            e.printStackTrace()
         }
+
     }
 
     /**
@@ -358,17 +365,21 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      *
      * */
     private fun stopPreview() {
-        try {
-            // Stop the camera preview
-            camera?.stopPreview()
+        if (isCameraInUse){
+            try {
+                // Stop the camera preview
+                camera?.stopPreview()
 
-            // Release the camera
-            releaseCamera()
+                // Release the camera
+                releaseCamera()
+                isCameraInUse = false
 
-        } catch (e: Exception) {
-            // Handle any exceptions that occur while stopping the preview
-            e.printStackTrace()
+            } catch (e: Exception) {
+                // Handle any exceptions that occur while stopping the preview
+                e.printStackTrace()
+            }
         }
+
     }
 
     /**
@@ -386,12 +397,25 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         }
         camera = null*/
 
+
+//        if (isCameraInUse) {
+//            stopPreview()
+//        }
+//        camera?.release()
+//        camera = null
+
+
+
+
         timer?.cancel() // Stop the timer task
         try {
             camera?.apply {
-                setPreviewCallback(null)
-                stopPreview()
-                release()
+                if (isCameraInUse) {
+                    stopPreview()
+                    setPreviewCallback(null)
+                }
+                camera?.release()
+                isCameraInUse = false
                 isCameraReleased = true // Update the flag
             }
         } catch (e: Exception) {
