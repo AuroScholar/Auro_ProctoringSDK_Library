@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.auroproctoringsdk"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         minSdk = 23
@@ -79,7 +79,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.AuroScholar"
                 artifactId = "Auro_Proctoring_Library"
-                version = "0.5.1"
+                version = "0.5.2"
             }
         }
     }
