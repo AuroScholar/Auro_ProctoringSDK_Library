@@ -377,7 +377,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      *  [stopPreview]
      *  camera[release]
      * */
-    private fun releaseCamera() {
+    fun releaseCamera() {
         /*timer?.cancel()
         camera?.apply {
             stopPreview()

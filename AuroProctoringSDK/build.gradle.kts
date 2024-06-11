@@ -70,7 +70,6 @@ dependencies {
     implementation ("com.google.mlkit:image-labeling:17.0.7")
     implementation ("com.google.mlkit:image-labeling-custom:17.0.1")
 
-
 }
 
 afterEvaluate {
@@ -80,7 +79,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.AuroScholar"
                 artifactId = "Auro_Proctoring_Library"
-                version = "0.5.0"
+                version = "0.5.1"
             }
         }
     }
