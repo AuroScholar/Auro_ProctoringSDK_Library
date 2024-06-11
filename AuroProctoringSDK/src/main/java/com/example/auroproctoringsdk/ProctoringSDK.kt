@@ -413,7 +413,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             camera?.apply {
                 if (isCameraInUse) {
                     stopPreview()
-//                    setPreviewCallback(null)
+                    setPreviewCallback(null)
                     camera?.release()
                     camera = null
                     isCameraInUse = false
