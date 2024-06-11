@@ -365,7 +365,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      *
      * */
     private fun stopPreview() {
-        if (isCameraInUse){
+       /* if (isCameraInUse){
             try {
                 // Stop the camera preview
                 camera?.stopPreview()
@@ -373,6 +373,21 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                 // Release the camera
                 releaseCamera()
                 isCameraInUse = false
+
+            } catch (e: Exception) {
+                // Handle any exceptions that occur while stopping the preview
+                e.printStackTrace()
+            }
+        }*/
+        if (isCameraInUse) {
+            try {
+                // Stop the camera preview
+                camera?.stopPreview()
+                camera?.setPreviewCallback(null)
+                isCameraInUse = false
+
+                // Release the camera
+                releaseCamera()
 
             } catch (e: Exception) {
                 // Handle any exceptions that occur while stopping the preview
@@ -389,36 +404,15 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      *  camera[release]
      * */
     fun releaseCamera() {
-        /*timer?.cancel()
-        camera?.apply {
-            stopPreview()
-            setPreviewCallback(null)
-            release()
-        }
-        camera = null*/
-
-
-//        if (isCameraInUse) {
-//            stopPreview()
-//        }
-//        camera?.release()
-//        camera = null
-
-
-
-
         timer?.cancel() // Stop the timer task
         timer = null
         try {
-            camera?.apply {
-                if (isCameraInUse) {
-                    stopPreview()
-                    setPreviewCallback(null)
-                    camera?.release()
-                    camera = null
-                    isCameraInUse = false
-                }
-
+            if (camera != null && isCameraInUse) {
+                camera?.stopPreview()
+                camera?.setPreviewCallback(null)
+                isCameraInUse = false
+                camera?.release()
+                camera = null
             }
         } catch (e: Exception) {
             e.printStackTrace()
