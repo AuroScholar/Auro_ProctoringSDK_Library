@@ -370,8 +370,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         timer?.cancel() // Stop the timer task
         try {
             camera?.apply {
-                stopPreview()
                 setPreviewCallback(null)
+                stopPreview()
                 release()
             }
         } catch (e: Exception) {
