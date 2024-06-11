@@ -39,6 +39,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         private var isDNDManagerRequest = false
         var isShareResult = false
         var isAlert = false
+         var isCameraReleased = false
+
     }
 
     /**
@@ -243,18 +245,35 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      * Default camera given image rotation is horizontaly so its wrong for Ai [FaceDetector] need 270 Degree
      * */
     fun captureImage() {
-        camera?.setPreviewCallback(this@ProctoringSDK)
-        camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
-            faceDetector.process(
-                Frame(
-                    data,
-                    270,
-                    Size(camera.parameters.previewSize.width, camera.parameters.previewSize.height),
-                    camera.parameters.previewFormat,
-                    LensFacing.FRONT
+        if (!isCameraReleased && camera != null) {
+            // Set the preview callback
+            camera?.setPreviewCallback(this@ProctoringSDK)
+            camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
+                faceDetector.process(
+                    Frame(
+                        data,
+                        270,
+                        Size(camera.parameters.previewSize.width, camera.parameters.previewSize.height),
+                        camera.parameters.previewFormat,
+                        LensFacing.FRONT
+                    )
                 )
-            )
-        })
+            })
+        }
+
+
+//        camera?.setPreviewCallback(this@ProctoringSDK)
+//        camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
+//            faceDetector.process(
+//                Frame(
+//                    data,
+//                    270,
+//                    Size(camera.parameters.previewSize.width, camera.parameters.previewSize.height),
+//                    camera.parameters.previewFormat,
+//                    LensFacing.FRONT
+//                )
+//            )
+//        })
 
     }
 
@@ -373,6 +392,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                 setPreviewCallback(null)
                 stopPreview()
                 release()
+                isCameraReleased = true // Update the flag
             }
         } catch (e: Exception) {
             e.printStackTrace()
