@@ -234,7 +234,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      * stop image capture
      * sub methods of [releaseCamera]
      * */
-    private fun stopImageCaptureTimer() {
+     fun stopImageCaptureTimer() {
         timer?.cancel()
         timer = null
     }
