@@ -359,11 +359,23 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      *  camera[release]
      * */
     private fun releaseCamera() {
-        timer?.cancel()
+        /*timer?.cancel()
         camera?.apply {
             stopPreview()
             setPreviewCallback(null)
             release()
+        }
+        camera = null*/
+
+        timer?.cancel() // Stop the timer task
+        try {
+            camera?.apply {
+                stopPreview()
+                setPreviewCallback(null)
+                release()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
         camera = null
     }
@@ -409,8 +421,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             fun onStart() {
-
-
 
                 if (controls.getControls().isStatusBarLock) {
                     StatusBarLocker.statusBarLock(context)
