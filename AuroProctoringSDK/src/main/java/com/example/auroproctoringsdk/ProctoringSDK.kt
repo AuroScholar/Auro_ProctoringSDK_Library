@@ -39,7 +39,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         private var isDNDManagerRequest = false
         var isShareResult = false
         var isAlert = false
-        var isCameraReleased = false
     }
 
     /**
@@ -217,6 +216,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             timer = Timer()
             timer?.schedule(object : TimerTask() {
                 override fun run() {
+
                     captureImage()
                 }
             }, 0, 1000) // 1 sec
@@ -229,7 +229,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      * stop image capture
      * sub methods of [releaseCamera]
      * */
-    fun stopImageCaptureTimer() {
+    private fun stopImageCaptureTimer() {
         timer?.cancel()
         timer = null
     }
@@ -243,45 +243,24 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      * Default camera given image rotation is horizontaly so its wrong for Ai [FaceDetector] need 270 Degree
      * */
     fun captureImage() {
-        if (camera != null && !isCameraReleased) {
-            // Set the preview callback
-            camera?.setPreviewCallback(this@ProctoringSDK)
-            camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
-                faceDetector.process(
-                    Frame(
-                        data,
-                        270,
-                        Size(
-                            camera.parameters.previewSize.width,
-                            camera.parameters.previewSize.height
-                        ),
-                        camera.parameters.previewFormat,
-                        LensFacing.FRONT
-                    )
+        camera?.setPreviewCallback(this@ProctoringSDK)
+        camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
+            faceDetector.process(
+                Frame(
+                    data,
+                    270,
+                    Size(camera.parameters.previewSize.width, camera.parameters.previewSize.height),
+                    camera.parameters.previewFormat,
+                    LensFacing.FRONT
                 )
-            })
-        }
-
-
-//        camera?.setPreviewCallback(this@ProctoringSDK)
-//        camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
-//            faceDetector.process(
-//                Frame(
-//                    data,
-//                    270,
-//                    Size(camera.parameters.previewSize.width, camera.parameters.previewSize.height),
-//                    camera.parameters.previewFormat,
-//                    LensFacing.FRONT
-//                )
-//            )
-//        })
+            )
+        })
 
     }
 
     override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
 
     }
-
     /**
      * restart camera [restartCamera]
      * Android Version 11 below working fine
@@ -351,7 +330,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             // Handle any exceptions that occur while starting the preview
             e.printStackTrace()
         }
-
     }
 
     /**
@@ -364,7 +342,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         try {
             // Stop the camera preview
             camera?.stopPreview()
-            camera?.setPreviewCallback(null)
 
             // Release the camera
             releaseCamera()
@@ -373,7 +350,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             // Handle any exceptions that occur while stopping the preview
             e.printStackTrace()
         }
-
     }
 
     /**
@@ -382,23 +358,14 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      *  [stopPreview]
      *  camera[release]
      * */
-    fun releaseCamera() {
-        timer?.cancel() // Stop the timer task
-        timer = null
-        synchronized(this) {
-            camera?.let {
-                try {
-                    it.stopPreview()
-                    it.setPreviewCallback(null)
-                    it.release()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                } finally {
-                    isCameraReleased = true
-                    camera = null
-                }
-            }
+    private fun releaseCamera() {
+        timer?.cancel()
+        camera?.apply {
+            stopPreview()
+            setPreviewCallback(null)
+            release()
         }
+        camera = null
     }
 
 
@@ -442,6 +409,8 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             fun onStart() {
+
+
 
                 if (controls.getControls().isStatusBarLock) {
                     StatusBarLocker.statusBarLock(context)
@@ -781,12 +750,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
                                     val filter = context.getString(R.string.Multiple_face_detection)
                                         .split("[:]".toRegex())
-                                    multipleFaceFoundWarning++
-                                    if (filter.size == 2 && multipleFaceFoundWarning >= 2 && DNDManager(
-                                            context
-                                        ).checkDndPermission()
-                                    ) {
-                                        multipleFaceFoundWarning = -1
+                                    multipleFaceFoundWarning ++
+                                    if (filter.size == 2 && multipleFaceFoundWarning >=2 && DNDManager(context).checkDndPermission()) {
+                                        multipleFaceFoundWarning =-1
                                         alert(
                                             filter[0], filter[1]
                                         )
