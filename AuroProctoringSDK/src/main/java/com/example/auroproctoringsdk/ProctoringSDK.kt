@@ -341,16 +341,18 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      *
      * */
     private fun stopPreview() {
-        try {
-            // Stop the camera preview
-            camera?.stopPreview()
+        if (camera!=null){
+            try {
+                // Stop the camera preview
+                camera?.stopPreview()
 
-            // Release the camera
-            releaseCamera()
+                // Release the camera
+                releaseCamera()
 
-        } catch (e: Exception) {
-            // Handle any exceptions that occur while stopping the preview
-            e.printStackTrace()
+            } catch (e: Exception) {
+                // Handle any exceptions that occur while stopping the preview
+                e.printStackTrace()
+            }
         }
     }
 
@@ -363,18 +365,21 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
     private fun releaseCamera() {
         timer?.cancel()
         timer=null
-        synchronized(this){
-            try {
-                camera?.apply {
-                    stopPreview()
-                    setPreviewCallback(null)
-                    release()
+        if (camera!=null){
+            synchronized(this){
+                try {
+                    camera?.apply {
+                        stopPreview()
+                        setPreviewCallback(null)
+                        release()
+                    }
+                    camera = null
+                }catch (e:Exception){
+                    e.printStackTrace()
                 }
-                camera = null
-            }catch (e:Exception){
-                e.printStackTrace()
             }
         }
+
     }
 
 
