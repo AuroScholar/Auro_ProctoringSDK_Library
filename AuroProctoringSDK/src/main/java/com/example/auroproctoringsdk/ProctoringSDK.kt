@@ -39,10 +39,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         private var isDNDManagerRequest = false
         var isShareResult = false
         var isAlert = false
-         var isCameraInUse = false
-         var isCameraReleased = false
-
-
+        var isCameraReleased = false
     }
 
     /**
@@ -220,10 +217,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             timer = Timer()
             timer?.schedule(object : TimerTask() {
                 override fun run() {
-                    if (isCameraInUse && camera != null) {
-                        captureImage()
-                    }
-//                    captureImage()
+                    captureImage()
                 }
             }, 0, 1000) // 1 sec
 
@@ -235,7 +229,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      * stop image capture
      * sub methods of [releaseCamera]
      * */
-     fun stopImageCaptureTimer() {
+    fun stopImageCaptureTimer() {
         timer?.cancel()
         timer = null
     }
@@ -249,7 +243,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      * Default camera given image rotation is horizontaly so its wrong for Ai [FaceDetector] need 270 Degree
      * */
     fun captureImage() {
-        if (camera != null && !isCameraReleased && isCameraInUse) {
+        if (camera != null && !isCameraReleased) {
             // Set the preview callback
             camera?.setPreviewCallback(this@ProctoringSDK)
             camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
@@ -257,7 +251,10 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                     Frame(
                         data,
                         270,
-                        Size(camera.parameters.previewSize.width, camera.parameters.previewSize.height),
+                        Size(
+                            camera.parameters.previewSize.width,
+                            camera.parameters.previewSize.height
+                        ),
                         camera.parameters.previewFormat,
                         LensFacing.FRONT
                     )
@@ -284,6 +281,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
     override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
 
     }
+
     /**
      * restart camera [restartCamera]
      * Android Version 11 below working fine
@@ -339,22 +337,19 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      * then [startPreview] on Surface Holder [surfaceCreated]
      * */
     private fun startPreview() {
-        if (!isCameraInUse) {
-            try {
-                // Check if the camera is already opened
-                if (camera == null) {
-                    // Open the camera if it's not already opened
-                    openCamera()
-                }
-
-                // Start the camera preview
-                camera?.startPreview()
-                isCameraInUse = true
-
-            } catch (e: Exception) {
-                // Handle any exceptions that occur while starting the preview
-                e.printStackTrace()
+        try {
+            // Check if the camera is already opened
+            if (camera == null) {
+                // Open the camera if it's not already opened
+                openCamera()
             }
+
+            // Start the camera preview
+            camera?.startPreview()
+
+        } catch (e: Exception) {
+            // Handle any exceptions that occur while starting the preview
+            e.printStackTrace()
         }
 
     }
@@ -366,34 +361,17 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      *
      * */
     private fun stopPreview() {
-       /* if (isCameraInUse){
-            try {
-                // Stop the camera preview
-                camera?.stopPreview()
+        try {
+            // Stop the camera preview
+            camera?.stopPreview()
+            camera?.setPreviewCallback(null)
 
-                // Release the camera
-                releaseCamera()
-                isCameraInUse = false
+            // Release the camera
+            releaseCamera()
 
-            } catch (e: Exception) {
-                // Handle any exceptions that occur while stopping the preview
-                e.printStackTrace()
-            }
-        }*/
-        if (isCameraInUse) {
-            try {
-                // Stop the camera preview
-                camera?.stopPreview()
-                camera?.setPreviewCallback(null)
-                isCameraInUse = false
-
-                // Release the camera
-                releaseCamera()
-
-            } catch (e: Exception) {
-                // Handle any exceptions that occur while stopping the preview
-                e.printStackTrace()
-            }
+        } catch (e: Exception) {
+            // Handle any exceptions that occur while stopping the preview
+            e.printStackTrace()
         }
 
     }
@@ -417,7 +395,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                     e.printStackTrace()
                 } finally {
                     isCameraReleased = true
-                    isCameraInUse = false
                     camera = null
                 }
             }
@@ -804,9 +781,12 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
                                     val filter = context.getString(R.string.Multiple_face_detection)
                                         .split("[:]".toRegex())
-                                    multipleFaceFoundWarning ++
-                                    if (filter.size == 2 && multipleFaceFoundWarning >=2 && DNDManager(context).checkDndPermission()) {
-                                        multipleFaceFoundWarning =-1
+                                    multipleFaceFoundWarning++
+                                    if (filter.size == 2 && multipleFaceFoundWarning >= 2 && DNDManager(
+                                            context
+                                        ).checkDndPermission()
+                                    ) {
+                                        multipleFaceFoundWarning = -1
                                         alert(
                                             filter[0], filter[1]
                                         )
