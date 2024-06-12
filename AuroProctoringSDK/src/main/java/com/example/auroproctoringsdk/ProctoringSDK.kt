@@ -243,21 +243,40 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      * Default camera given image rotation is horizontaly so its wrong for Ai [FaceDetector] need 270 Degree
      * */
     fun captureImage() {
-        if (camera!=null){
-            camera?.setPreviewCallback(this@ProctoringSDK)
-            camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
-                faceDetector.process(
-                    Frame(
-                        data,
-                        270,
-                        Size(camera.parameters.previewSize.width, camera.parameters.previewSize.height),
-                        camera.parameters.previewFormat,
-                        LensFacing.FRONT
-                    )
-                )
-            })
+//        if (camera!=null){
+//            camera?.setPreviewCallback(this@ProctoringSDK)
+//            camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
+//                faceDetector.process(
+//                    Frame(
+//                        data,
+//                        270,
+//                        Size(camera.parameters.previewSize.width, camera.parameters.previewSize.height),
+//                        camera.parameters.previewFormat,
+//                        LensFacing.FRONT
+//                    )
+//                )
+//            })
+//        }
+        if (camera != null) {
+            synchronized(this) {
+                try {
+                    camera?.setPreviewCallback(this@ProctoringSDK)
+                    camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
+                        faceDetector.process(
+                            Frame(
+                                data,
+                                270,
+                                Size(camera.parameters.previewSize.width, camera.parameters.previewSize.height),
+                                camera.parameters.previewFormat,
+                                LensFacing.FRONT
+                            )
+                        )
+                    })
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
         }
-
 
     }
 
@@ -365,18 +384,27 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      fun releaseCamera() {
         timer?.cancel()
         timer=null
-        if (camera!=null){
-            synchronized(this){
-                try {
-                    camera?.apply {
-                        stopPreview()
-                        setPreviewCallback(null)
-                        release()
-                    }
-                    camera = null
-                }catch (e:Exception){
-                    e.printStackTrace()
-                }
+//        if (camera!=null){
+//            synchronized(this){
+//                try {
+//                    camera?.apply {
+//                        stopPreview()
+//                        setPreviewCallback(null)
+//                        release()
+//                    }
+//                    camera = null
+//                }catch (e:Exception){
+//                    e.printStackTrace()
+//                }
+//            }
+//        }
+        if (camera != null) {
+            try {
+                camera?.stopPreview()
+                camera?.release()
+                camera = null
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
 
