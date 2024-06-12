@@ -384,29 +384,30 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      fun releaseCamera() {
         timer?.cancel()
         timer=null
-//        if (camera!=null){
-//            synchronized(this){
-//                try {
-//                    camera?.apply {
-//                        stopPreview()
-//                        setPreviewCallback(null)
-//                        release()
-//                    }
-//                    camera = null
-//                }catch (e:Exception){
-//                    e.printStackTrace()
-//                }
-//            }
-//        }
-        if (camera != null) {
-            try {
-                camera?.stopPreview()
-                camera?.release()
-                camera = null
-            } catch (e: Exception) {
-                e.printStackTrace()
+        if (camera!=null){
+            synchronized(this){
+                try {
+                    camera?.apply {
+                        stopPreview()
+                        setPreviewCallback(null)
+                        release()
+                    }
+                    camera = null
+                }catch (e:Exception){
+                    e.printStackTrace()
+                }
             }
         }
+//        if (camera != null) {
+//            try {
+//                camera?.stopPreview()
+//                camera?.setPreviewCallback(null)
+//                camera?.release()
+//                camera = null
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }
+//        }
 
     }
 
