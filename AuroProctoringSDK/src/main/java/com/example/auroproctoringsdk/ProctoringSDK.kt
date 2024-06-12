@@ -40,6 +40,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
         var isShareResult = false
         var isAlert = false
          var isCameraInUse = false
+         var isCameraReleased = false
 
 
     }
@@ -248,7 +249,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      * Default camera given image rotation is horizontaly so its wrong for Ai [FaceDetector] need 270 Degree
      * */
     fun captureImage() {
-        if (isCameraInUse && camera != null) {
+        if (camera != null && !isCameraReleased && isCameraInUse) {
             // Set the preview callback
             camera?.setPreviewCallback(this@ProctoringSDK)
             camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
@@ -406,16 +407,20 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
     fun releaseCamera() {
         timer?.cancel() // Stop the timer task
         timer = null
-        try {
-            if (camera != null && isCameraInUse) {
-                camera?.stopPreview()
-                camera?.setPreviewCallback(null)
-                isCameraInUse = false
-                camera?.release()
-                camera = null
+        synchronized(this) {
+            camera?.let {
+                try {
+                    it.stopPreview()
+                    it.setPreviewCallback(null)
+                    it.release()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                } finally {
+                    isCameraReleased = true
+                    isCameraInUse = false
+                    camera = null
+                }
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
 
