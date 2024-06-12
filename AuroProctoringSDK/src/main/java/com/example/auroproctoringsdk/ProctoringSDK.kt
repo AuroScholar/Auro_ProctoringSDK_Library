@@ -243,18 +243,21 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      * Default camera given image rotation is horizontaly so its wrong for Ai [FaceDetector] need 270 Degree
      * */
     fun captureImage() {
-        camera?.setPreviewCallback(this@ProctoringSDK)
-        camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
-            faceDetector.process(
-                Frame(
-                    data,
-                    270,
-                    Size(camera.parameters.previewSize.width, camera.parameters.previewSize.height),
-                    camera.parameters.previewFormat,
-                    LensFacing.FRONT
+        if (camera!=null){
+            camera?.setPreviewCallback(this@ProctoringSDK)
+            camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
+                faceDetector.process(
+                    Frame(
+                        data,
+                        270,
+                        Size(camera.parameters.previewSize.width, camera.parameters.previewSize.height),
+                        camera.parameters.previewFormat,
+                        LensFacing.FRONT
+                    )
                 )
-            )
-        })
+            })
+        }
+
 
     }
 
@@ -304,7 +307,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             camera?.setDisplayOrientation(90)
             camera?.setPreviewDisplay(holder)
             camera?.startPreview()
-
         } catch (e: Exception) {
             // Handle any exceptions that occur while opening the camera
             e.printStackTrace()
@@ -360,12 +362,19 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      * */
     private fun releaseCamera() {
         timer?.cancel()
-        camera?.apply {
-            stopPreview()
-            setPreviewCallback(null)
-            release()
+        timer=null
+        synchronized(this){
+            try {
+                camera?.apply {
+                    stopPreview()
+                    setPreviewCallback(null)
+                    release()
+                }
+                camera = null
+            }catch (e:Exception){
+                e.printStackTrace()
+            }
         }
-        camera = null
     }
 
 
