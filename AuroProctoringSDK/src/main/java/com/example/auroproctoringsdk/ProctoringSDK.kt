@@ -1,6 +1,7 @@
 package com.example.auroproctoringsdk
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.job.JobScheduler
 import android.content.Context
 import android.graphics.Bitmap
@@ -25,6 +26,7 @@ import com.example.auroproctoringsdk.emulater.EmulatorDetector
 import com.example.auroproctoringsdk.languageSetup.CurrentLanguage
 import com.example.auroproctoringsdk.model.ControlModel
 import com.example.auroproctoringsdk.screenBarLock.StatusBarLocker
+import com.example.auroproctoringsdk.screenReader.ScreenRecording
 import com.example.auroproctoringsdk.screenReader.StopTextReading
 import com.example.auroproctoringsdk.utils.CustomAlertDialog
 import com.example.auroproctoringsdk.utils.Utils
@@ -448,12 +450,13 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
             fun onCreate() {
                 isViewAvailable = true
+                if (controls.getControls().isScreenshotEnable){
+                    ScreenRecording(this@ProctoringSDK.context).disableScreenshots()
+                }
             }
 
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
             fun onStart() {
-
-
 
                 if (controls.getControls().isStatusBarLock) {
                     StatusBarLocker.statusBarLock(context)
@@ -525,6 +528,9 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                     DNDManager(context).DndModeOff(context)
                 }
                 isViewAvailable = false
+                if (controls.getControls().isScreenshotEnable){
+                    ScreenRecording(this@ProctoringSDK.context).enableScreenshots()
+                }
             }
         })
     }

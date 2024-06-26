@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.WindowManager
 import com.example.auroproctoringsdk.copypastestop.ClipboardManagerHelper
 //import com.example.auroproctoringsdk.screenReader.ScreenShortDetector
@@ -28,11 +29,11 @@ class Application : Application() {
         super.onCreate()
 
         if (controls.getControls().isAlert) {
-
-            if (controls.getControls().isScreenshotEnable) {
-                // stop screen short and video recording
-                registerActivityLifecycle()
-            }
+            Log.e("TAG", "onCreate:  screen short is on or off "+controls.getControls().isScreenshotEnable )
+//            if (controls.getControls().isScreenshotEnable) {
+//                // stop screen short and video recording
+//                registerActivityLifecycle()
+//            }
 
             if (!controls.getControls().isCopyPaste) {
                 // Stop copy paste option
@@ -50,7 +51,6 @@ class Application : Application() {
                 activity.window.setFlags(
                     WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE
                 )
-
             }
 
             override fun onActivityStarted(p0: Activity) {
