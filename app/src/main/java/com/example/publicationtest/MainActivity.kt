@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.auroproctoringsdk.ProctoringSDK
+import com.example.auroproctoringsdk.model.ControlModel
 import com.example.publicationtest.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
@@ -16,6 +17,17 @@ class MainActivity : AppCompatActivity(), ProctoringSDK.onProctorListener {
 
         binding.mainLayout.observeLifecycle(this.lifecycle) // very import for all
         binding.mainLayout.startProctoring(this, null)
+
+        binding.btn.setOnClickListener {
+            val control = binding.mainLayout.getControl()
+            val newControl = control.copy(isScreenshotEnable = !control.isScreenshotEnable)
+            if (newControl.isScreenshotEnable){
+                binding.btn.text =" Screen Recoding Stop "
+            }else{
+                binding.btn.text =" Screen Recoding Start "
+            }
+            binding.mainLayout.updateControl(newControl)
+        }
 
     }
 

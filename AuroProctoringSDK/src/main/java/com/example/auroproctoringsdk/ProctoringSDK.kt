@@ -450,9 +450,6 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
             fun onCreate() {
                 isViewAvailable = true
-                if (controls.getControls().isScreenshotEnable){
-                    ScreenRecording(this@ProctoringSDK.context).disableScreenshots()
-                }
             }
 
             @OnLifecycleEvent(Lifecycle.Event.ON_START)
@@ -493,6 +490,11 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 
                 DNDManager(context).checkAndHideAlertDialog(context)  // if permission is allowed then hide alert
 
+                if (controls.getControls().isScreenshotEnable){
+                    ScreenRecording(this@ProctoringSDK.context).disableScreenshots()
+                }else{
+                    ScreenRecording(this@ProctoringSDK.context).enableScreenshots()
+                }
 
             }
 
@@ -655,6 +657,15 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
              * @param boolean
              */
             override fun isRunningDetector(boolean: Boolean?) {
+
+
+                if (!controls.getControls().isScreenshotEnable){
+                    // start Screen recording
+                    ScreenRecording(this@ProctoringSDK.context).enableScreenshots()
+                }else{
+                    // stop screen recording
+                    ScreenRecording(this@ProctoringSDK.context).disableScreenshots()
+                }
 
                 if (isViewAvailable && controls.getControls().isProctoringStart) { // view is ready
 
