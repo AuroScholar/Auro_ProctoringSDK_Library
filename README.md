@@ -17,7 +17,7 @@ dependencyResolutionManagement {
     }
 }
 ```
-Step 2. Add the dependency #new version [![Latest Release](https://img.shields.io/github/v/release/AuroScholar/Auro_ProctoringSDK_Library?include_prereleases&sort=semver)](https://github.com/azzadpandit1/Auro-Proctoring-SDK/releases/latest)
+Step 2. Add the dependency [![Latest Release](https://img.shields.io/github/v/release/AuroScholar/Auro_ProctoringSDK_Library?include_prereleases&sort=semver)](https://github.com/azzadpandit1/Auro-Proctoring-SDK/releases/latest)
 
 ```kotlin
 dependencies {
