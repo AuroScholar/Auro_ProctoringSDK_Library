@@ -261,7 +261,19 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
 //        }
         if (camera != null) {
             synchronized(this) {
-                try {
+                camera?.setPreviewCallback(this@ProctoringSDK)
+                camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
+                    faceDetector.process(
+                        Frame(
+                            data,
+                            270,
+                            Size(camera.parameters.previewSize.width, camera.parameters.previewSize.height),
+                            camera.parameters.previewFormat,
+                            LensFacing.FRONT
+                        )
+                    )
+                })
+                /*try {
                     camera?.setPreviewCallback(this@ProctoringSDK)
                     camera?.setPreviewCallback(Camera.PreviewCallback { data, camera ->
                         faceDetector.process(
@@ -276,7 +288,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
                     })
                 } catch (e: Exception) {
                     e.printStackTrace()
-                }
+                }*/
             }
         }
 
@@ -321,7 +333,7 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
      * set camera output on holder [surfaceCreated]
      *
      * */
-    private fun openCamera() {
+    /*private fun openCamera() {
         try {
             val cameraId = findFrontCamera()
             camera = Camera.open(cameraId)
@@ -332,7 +344,26 @@ class ProctoringSDK(context: Context, attrs: AttributeSet) : SurfaceView(context
             // Handle any exceptions that occur while opening the camera
             e.printStackTrace()
         }
+    }*/
+    private fun openCamera() {
+        try {
+            val cameraId = findFrontCamera() // Ensure this function returns a valid camera ID
+            camera = Camera.open(cameraId) // Open the camera
+            // Check if camera is successfully opened
+            camera?.let {
+                it.setDisplayOrientation(90) // Set display orientation
+                it.parameters = it.parameters // Ensure parameters are set correctly
+                it.setPreviewDisplay(holder) // Set the preview display
+                it.startPreview() // Start the camera preview
+            } ?: run {
+                Log.e("CameraError", "Failed to open camera: Camera is null")
+            }
+        } catch (e: Exception) {
+            Log.e("CameraError", "Error opening camera: ${e.message}")
+            e.printStackTrace() // Handle any exceptions that occur while opening the camera
+        }
     }
+
 
     /**
      * Check if the camera is already opened [camera][findFrontCamera]
